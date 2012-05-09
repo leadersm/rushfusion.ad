@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ad position="right" type="3" >
+    <title></title>
+    
+    <images interval="10" >
+        <image anim="anim1" url="http://i2.sinaimg.cn/ast/idx/2012/0504/U5246P54T135D1F3929DT20120504182741.jpg" >
+        </image>
+        <image anim="anim2" url="http://i3.sinaimg.cn/ast/idx/2012/0503/U5246P54T135D1F3930DT20120503194215.jpg" >
+        </image>
+        <image anim="anim3" url="http://www.sinaimg.cn/dy/slidenews/1_t160/2012_19/28436_162400_264737.jpg" >
+        </image>
+        <image anim="anim4" url="http://www.sinaimg.cn/dy/slidenews/1_t160/2012_17/2841_160498_472599.jpg" >
+        </image>
+    </images>
+    <text anim="mAnimation" direction="left" position="bottom" scroll="5" >
+    </text>
+	
+	<contact></contact>
+	<phone></phone>
+	<address></address>
+	<email></email>
+	<website></website>
+	<!-- image + text -->
+</ad>
