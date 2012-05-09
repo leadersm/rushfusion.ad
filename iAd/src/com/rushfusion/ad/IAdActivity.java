@@ -1,7 +1,6 @@
 package com.rushfusion.ad;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.RelativeLayout;
@@ -24,6 +23,9 @@ public class IAdActivity extends Activity {
 				System.out.println(e.getMessage());
 			}
 		});
+		int w=300;
+		int h=200;
+		creator.setSize(w,h);
 		creator.startDefautModel();
 
 	}

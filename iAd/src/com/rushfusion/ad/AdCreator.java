@@ -397,5 +397,9 @@ public class AdCreator {
 	private void imageTransfer(ImageView imageView,List<HashMap<String,String>> images,int delay){
 		
 	}
+
+	public void setSize(int w, int h) {
+		
+	}
 	
 }
