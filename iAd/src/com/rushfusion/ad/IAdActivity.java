@@ -2,7 +2,7 @@ package com.rushfusion.ad;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.RelativeLayout;
+import android.view.ViewGroup.LayoutParams;
 
 public class IAdActivity extends Activity {
 	/** Called when the activity is first created. */
@@ -10,8 +10,6 @@ public class IAdActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.ad);
-		
-		
 		AdCreator creator = new AdCreator(this,"",new AdCreator.CallBack() {
 			
 			@Override
@@ -20,7 +18,8 @@ public class IAdActivity extends Activity {
 				System.out.println(e.getMessage());
 			}
 		});
-		creator.setAdSize(300,200);
+//		creator.setAdSize(300,400);
+		creator.setAdSize(200,LayoutParams.WRAP_CONTENT);
 		creator.start();
 
 	}

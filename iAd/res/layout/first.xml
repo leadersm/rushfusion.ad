@@ -6,13 +6,15 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/TextView1"
-        android:layout_width="wrap_content"
+        android:id="@+id/title"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:gravity="center"
-        android:text="第一种"
+        android:text="title:第一种"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textColor="@android:color/white"
         android:textSize="28sp" />
 

@@ -7,22 +7,14 @@
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/TextView1"
-        android:layout_centerHorizontal="true"
-        android:ellipsize="marquee"
-        android:text="title title"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <TextView
-        android:id="@+id/TextView1"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:gravity="center"
-        android:text="第4种"
+        android:text="title:第4种"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textColor="@android:color/white"
         android:textSize="28sp" />
 
@@ -36,56 +28,69 @@
 
     <TextView
         android:id="@+id/contact"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/image"
+        android:layout_marginTop="35sp"
         android:layout_below="@+id/image"
         android:text="contact"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/phone"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/contact"
         android:layout_below="@+id/contact"
         android:text="phone"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
+
     <TextView
         android:id="@+id/address"
-        android:layout_width="wrap_content"
+        android:layout_width="300dip"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/phone"
         android:layout_below="@+id/phone"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         android:text="address"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/email"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/address"
         android:layout_below="@+id/address"
         android:text="email"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/website"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/email"
         android:layout_below="@+id/email"
         android:text="website"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/text"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/website"
         android:layout_centerHorizontal="true"
-        android:text="Image+Text"
+        android:text="广告信息在这里~~image+text"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

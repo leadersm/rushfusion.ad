@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ad position="top" type="4" >
-    <title>advertisement title</title>
-    <images interval="10" >
+    <title>title:第4种</title>
+    <images interval="5" >
         <image anim="left" url="http://i2.sinaimg.cn/ast/idx/2012/0504/U5246P54T135D1F3929DT20120504182741.jpg" >
         </image>
         <image anim="right" url="http://i3.sinaimg.cn/ast/idx/2012/0503/U5246P54T135D1F3930DT20120503194215.jpg" >
@@ -11,9 +11,7 @@
         <image anim="bottom" url="http://www.sinaimg.cn/dy/slidenews/1_t160/2012_17/2841_160498_472599.jpg" >
         </image>
     </images>
-    <text anim="left" direction="left" position="bottom" scroll="5" >
-        广告内容在这里……
-    </text>
+    <text anim="left" direction="left" position="bottom" scroll="5" >广告内容在这里……!!!</text>
 	<contact>rushfusion</contact>
 	<phone>010-58263201</phone>
 	<address>北京朝阳区百子湾路32号苹果社区北区3号楼B座1105， 100022</address>
