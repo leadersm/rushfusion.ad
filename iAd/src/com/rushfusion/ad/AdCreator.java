@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -53,13 +54,11 @@ public class AdCreator {
 	public RelativeLayout adViewParent;
 	private CallBack mCallback;
 	private String mAdUrl;
-	private int ad_width = LayoutParams.WRAP_CONTENT;
-	private int ad_height = LayoutParams.WRAP_CONTENT;
+	private int ad_width = 300;
+	private int ad_height = 200;
 
-	private ArrayList<Bitmap> bitMapList;
     private static final int POLL = 100;
 	private static final int STOP = POLL + 100;
-	private int count = 0;
 	private  Timer timer;
 	private int mCurrentPhotoIndex = 0;
 	private Handler handler;
@@ -311,7 +310,6 @@ public class AdCreator {
 
 		ViewFlipper iv = (ViewFlipper) v.findViewById(R.id.image);
 		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));
-
 		TextView textView = (TextView) v.findViewById(R.id.text);
 		textTransfer(textView,text,R.id.image);
 	}
@@ -380,18 +378,12 @@ public class AdCreator {
 	 * @param delay -the images transfer interval
 	 */
 	private void imageTransfer(final ViewFlipper vf,final List<HashMap<String,String>> images,int delay){
-		ArrayList<Bitmap> bitMapList;
-
-
-
-		 bitMapList = new ArrayList<Bitmap>();
 		  //显示的动画效果
 		  final int animList[] = new int[]{R.anim.push_in_left,R.anim.push_out_left,R.anim.push_in_right,
 				  R.anim.push_out_right,R.anim.push_in_top,R.anim.push_out_top,R.anim.push_in_bottom,R.anim.push_out_bottom};
 			 for (int i = 0; i < images.size(); i++) {
 				 HashMap<String, String> imagesInfo =images.get(i);	
 				 final String imagepath=imagesInfo.get("url");
-				 final String anim = imagesInfo.get("anim");
 				 /**
 				  * 开启子线程，下载对应path相对的bitmap
 				  */
@@ -411,6 +403,8 @@ public class AdCreator {
 					protected void onPostExecute(Bitmap result) {
 						if(result!=null){
 								ImageView iv = new ImageView(mContext);
+								iv.setLayoutParams(new LayoutParams(ad_width, 100));
+								iv.setScaleType(ScaleType.FIT_XY);
 								iv.setImageBitmap(result);
 								iv.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_left));
 								vf.addView(iv);
@@ -425,11 +419,8 @@ public class AdCreator {
 					 switch (msg.what) {
 					 case POLL:
 						 vf.clearAnimation();
-						 // mCurrentPhotoIndex = mCurrentPhotoIndex % mPhotoIds.length;
 						 mCurrentPhotoIndex = mCurrentPhotoIndex % (images.size());
-						 Log.d("current", "mCurrentPhotoIndex:>>>" + mCurrentPhotoIndex
-								 + "");
-						 // imageView.setImageResource(mPhotoIds[mCurrentPhotoIndex]);
+						 Log.d("current", "mCurrentPhotoIndex:>>>" + mCurrentPhotoIndex);
 						 String animPosition =images.get(mCurrentPhotoIndex).get("anim");
 						 //判断动画显示的方向
 						 if("left".equals(animPosition)){
@@ -464,6 +455,7 @@ public class AdCreator {
 			 timer= new Timer();
 			 timer.schedule(task, 2000, delay*1000);
 	}
+	
 	TimerTask task = new TimerTask() {
 		public void run() {
 			Message message = new Message();
@@ -472,6 +464,7 @@ public class AdCreator {
 			handler.sendEmptyMessageDelayed(POLL, 500);
 		}
 	};
+	
 	private void stopTimer() {
 
 		if (timer != null) {
@@ -483,7 +476,6 @@ public class AdCreator {
 			task.cancel();
 			task = null;
 		}
-		count = 0;
 	}
 
 
@@ -496,7 +488,7 @@ public class AdCreator {
 	 * @param scroll
 	 */
 	private void textTransfer(TextView textView,HashMap<String,String> text,int imageId) {
-		textView.setTextSize(28);
+		textView.setTextSize(25);
 		textView.setTextColor(Color.WHITE);
 		textView.setText(text.get("value"));
 		if(imageId!=0){
@@ -527,6 +519,7 @@ public class AdCreator {
 		String anim = text.get("anim");
 		String direction = text.get("direction");
 		String scroll = text.get("scroll");
+		
 		if(anim.equals("left")){
 			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_left));
 		}else if(anim.equals("right"))
@@ -541,7 +534,8 @@ public class AdCreator {
 	 * @param height
 	 */
 	public void setAdSize(int width, int height) {
-
+		ad_width = width;
+		ad_height = height;
 	}
 	 /**
      * Downloader imager
