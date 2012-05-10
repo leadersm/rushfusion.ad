@@ -42,21 +42,21 @@ public class AdCreator {
 	public static final int ERROR_START= 104;
 	
 	private Activity mContext;
-	public RelativeLayout parent;
-	private int mKind;
+	public RelativeLayout adViewParent;
 	private CallBack mCallback;
 	private String mAdUrl;
 	
-	public AdCreator(Activity context,String adUrl,int tbdKind,CallBack callback) {
+	public AdCreator(Activity context,String adUrl,CallBack callback) {
 		mContext = context;
-		mKind = tbdKind;
 		mCallback = callback;
 		mAdUrl = adUrl;
-		parent = new RelativeLayout(context);
-		mContext.addContentView(parent, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		adViewParent = new RelativeLayout(context);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.ALIGN_PARENT_TOP);
+		mContext.addContentView(adViewParent,params );
 	}
 
-	public void startDefautModel(){
+	public void start(){
 		if(!checkNetwork(mContext)){
 			mCallback.onError(new Exception("the network is not enabled！！"), ERROR_NETWORK_NOT_ENABLED);
 			Log.w(TAG, "the network is not enabled！！the no network model has been started");
@@ -94,15 +94,7 @@ public class AdCreator {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
-			if (mKind == 1) {
-				in = getClass().getClassLoader().getResourceAsStream("data1.xml");
-			} else if (mKind == 2) {
-				in = getClass().getClassLoader().getResourceAsStream("data2.xml");
-			} else if (mKind == 3) {
-				in = getClass().getClassLoader().getResourceAsStream("data3.xml");
-			}else if(mKind == 4){
-				in = getClass().getClassLoader().getResourceAsStream("data4.xml");
-			}
+			in = getClass().getClassLoader().getResourceAsStream("data4.xml");
 			data = parseXml(in);
 		} catch (Exception e1) {
 			mCallback.onError(e1,ERROR_START);
@@ -268,7 +260,7 @@ public class AdCreator {
 	private void showAdType_4(Map<String, Object> data) {
 		String position = (String) data.get("position");
 		View v = setAdByPosition(position,R.layout.fourth);
-		parent.addView(v);
+		adViewParent.addView(v);
 		
 		String title = (String) data.get("title");
 		@SuppressWarnings("unchecked")
@@ -309,14 +301,6 @@ public class AdCreator {
 		textTransfer(textView, anim, direction, text_position, scroll);
 	}
 
-	private void textTransfer(TextView textView, String anim,String direction,String position,String scroll) {
-		if(anim.equals("left")){
-			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.left));
-		}else if(anim.equals("right"))
-		{
-			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.right));
-		}
-	}
 
 	/**
 	 * image + text
@@ -327,7 +311,7 @@ public class AdCreator {
 	private void showAdType_3(Map<String, Object> data) {
 		String position = (String) data.get("position");
 		View v = setAdByPosition(position,R.layout.third);
-		parent.addView(v);
+		adViewParent.addView(v);
 		//------------------------image---------------------------
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
@@ -357,7 +341,7 @@ public class AdCreator {
 	private void showAdType_2(Map<String, Object> data) {
 		String position = (String) data.get("position");
 		View v = setAdByPosition(position,R.layout.second);
-		parent.addView(v);
+		adViewParent.addView(v);
 		TextView textView = (TextView) v.findViewById(R.id.text);
 		textView.setTextSize(28);
 		textView.setTextColor(Color.WHITE);
@@ -381,7 +365,7 @@ public class AdCreator {
 		String position = (String) data.get("position");
 		Log.i(TAG,"position->"+position);
 		View v = setAdByPosition(position,R.layout.first);
-		parent.addView(v);
+		adViewParent.addView(v);
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
 		ImageView iv = (ImageView) v.findViewById(R.id.image);
@@ -389,7 +373,7 @@ public class AdCreator {
 	}
 	
 	/**
-	 * 图片切换函数
+	 *  Picture switch
 	 * @param imageView the imageView to be attached
 	 * @param images -one image contain the key "anim" "url"
 	 * @param delay -the images transfer interval
@@ -398,7 +382,29 @@ public class AdCreator {
 		
 	}
 
-	public void setSize(int w, int h) {
+	/**
+	 * Text switch
+	 * @param textView
+	 * @param anim
+	 * @param direction
+	 * @param position
+	 * @param scroll
+	 */
+	private void textTransfer(TextView textView, String anim,String direction,String position,String scroll) {
+		if(anim.equals("left")){
+			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.left));
+		}else if(anim.equals("right"))
+		{
+			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.right));
+		}
+	}
+
+	/**
+	 * you can set the ad size or not
+	 * @param width
+	 * @param height
+	 */
+	public void setAdSize(int width, int height) {
 		
 	}
 	

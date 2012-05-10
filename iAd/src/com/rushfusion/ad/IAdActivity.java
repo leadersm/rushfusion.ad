@@ -1,7 +1,6 @@
 package com.rushfusion.ad;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.RelativeLayout;
 
@@ -13,9 +12,7 @@ public class IAdActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.ad);
 		adView = (RelativeLayout) findViewById(R.id.ad_show);
-		Intent intent = getIntent();
-		int testKind = intent.getIntExtra("kind", 0);
-		AdCreator creator = new AdCreator(this,"", testKind, new AdCreator.CallBack() {
+		AdCreator creator = new AdCreator(this,"",new AdCreator.CallBack() {
 			
 			@Override
 			public void onError(Exception e, int errorCode) {
@@ -23,10 +20,8 @@ public class IAdActivity extends Activity {
 				System.out.println(e.getMessage());
 			}
 		});
-		int w=300;
-		int h=200;
-		creator.setSize(w,h);
-		creator.startDefautModel();
+		creator.setAdSize(300,200);
+		creator.start();
 
 	}
 
