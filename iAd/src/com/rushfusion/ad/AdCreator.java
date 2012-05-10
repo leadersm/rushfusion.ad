@@ -2,10 +2,13 @@ package com.rushfusion.ad;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -14,14 +17,19 @@ import org.w3c.dom.Document;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -48,6 +56,13 @@ public class AdCreator {
 	private int ad_width = LayoutParams.WRAP_CONTENT;
 	private int ad_height = LayoutParams.WRAP_CONTENT;
 	
+	private ArrayList<Bitmap> bitMapList;
+    private static final int POLL = 100;
+	private static final int STOP = POLL + 100;
+	private int count = 0;
+	private  Timer timer;
+	private int mCurrentPhotoIndex = 0;
+	private Handler handler;
 	
 	public AdCreator(Activity context,String adUrl,CallBack callback) {
 		mContext = context;
@@ -360,13 +375,117 @@ public class AdCreator {
 	
 	/**
 	 *  Picture switch
-	 * @param iv the ViewFlipper to be attached
+	 * @param vf the ViewFlipper to be attached
 	 * @param images -one image contain the key "anim" "url"
 	 * @param delay -the images transfer interval
 	 */
-	private void imageTransfer(ViewFlipper iv,List<HashMap<String,String>> images,int delay){
+	private void imageTransfer(final ViewFlipper vf,final List<HashMap<String,String>> images,int delay){
+		ArrayList<Bitmap> bitMapList;
+	     
+		 
 		
+		 bitMapList = new ArrayList<Bitmap>();
+		  //显示的动画效果
+		  final int animList[] = new int[]{R.anim.push_in_left,R.anim.push_out_left,R.anim.push_in_right,
+				  R.anim.push_out_right,R.anim.push_in_top,R.anim.push_out_top,R.anim.push_in_bottom,R.anim.push_out_bottom};
+			 for (int i = 0; i < images.size(); i++) {
+				 HashMap<String, String> imagesInfo =images.get(i);	
+				 final String imagepath=imagesInfo.get("url");
+				 final String anim = imagesInfo.get("anim");
+				 /**
+				  * 开启子线程，下载对应path相对的bitmap
+				  */
+				 new AsyncTask<Void, Void, Bitmap>(){
+					@Override
+					protected Bitmap doInBackground(Void... params) {
+						Bitmap bitMap = null;
+						try {
+							bitMap = getBitMap(imagepath);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+					}
+						return bitMap;
+					}
+					@Override
+					protected void onPostExecute(Bitmap result) {
+						if(result!=null){
+								ImageView iv = new ImageView(mContext);
+								iv.setImageBitmap(result);
+								iv.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_left));
+								vf.addView(iv);
+							}
+						super.onPostExecute(result);
+					}
+				 }.execute();
+			}
+			 handler = new Handler() {
+				 public void handleMessage(Message msg) {
+					 super.handleMessage(msg);
+					 switch (msg.what) {
+					 case POLL:
+						 vf.clearAnimation();
+						 // mCurrentPhotoIndex = mCurrentPhotoIndex % mPhotoIds.length;
+						 mCurrentPhotoIndex = mCurrentPhotoIndex % (images.size());
+						 Log.d("current", "mCurrentPhotoIndex:>>>" + mCurrentPhotoIndex
+								 + "");
+						 // imageView.setImageResource(mPhotoIds[mCurrentPhotoIndex]);
+						 String animPosition =images.get(mCurrentPhotoIndex).get("anim");
+						 //判断动画显示的方向
+						 if("left".equals(animPosition)){
+						 vf.clearAnimation();
+						 vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[0]));
+						 vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[1]));
+						 }
+						 else if("right".equals(animPosition)){
+							 vf.clearAnimation();
+							 vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[2]));
+							 vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[3]));
+						 }
+						 else if("top".equals(animPosition)){
+							 vf.clearAnimation();
+							 vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[4]));
+							 vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[5]));
+						 }
+						 else if("bottom".equals(animPosition)){
+							 vf.clearAnimation();
+							 vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[6]));
+							 vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[7]));
+						 }
+						 vf.showNext();
+					     mCurrentPhotoIndex++;
+						 break;
+					 case STOP:
+						 //vf.stopFlipping();
+						 break;
+					 }
+				 }
+			 };
+			 timer= new Timer();
+			 timer.schedule(task, 2000, delay*1000);
 	}
+	TimerTask task = new TimerTask() {
+		public void run() {
+			Message message = new Message();
+			message.what = POLL;
+			handler.removeMessages(POLL);
+			handler.sendEmptyMessageDelayed(POLL, 500);
+		}
+	};
+	private void stopTimer() {
+
+		if (timer != null) {
+			timer.cancel();
+			timer = null;
+		}
+
+		if (task != null) {
+			task.cancel();
+			task = null;
+		}
+		count = 0;
+	}
+	
 
 	/**
 	 * Text switch
@@ -409,10 +528,10 @@ public class AdCreator {
 		String direction = text.get("direction");
 		String scroll = text.get("scroll");
 		if(anim.equals("left")){
-			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.left));
+			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_left));
 		}else if(anim.equals("right"))
 		{
-			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.right));
+			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_right));
 		}
 	}
 
@@ -424,5 +543,18 @@ public class AdCreator {
 	public void setAdSize(int width, int height) {
 		
 	}
+	 /**
+     * Downloader imager
+     * @param path
+     * @return
+     * @throws Exception
+     */
+  private Bitmap getBitMap(String path) throws Exception{
+    	URL url =new  URL(path);
+    	URLConnection connection = url.openConnection();
+    	InputStream inputStream = connection.getInputStream();
+    	Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+    	return bitmap;
+    }
 	
 }

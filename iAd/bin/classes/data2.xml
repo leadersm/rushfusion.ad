@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ad position="left" type="2" >
+    <title></title>
+    <images interval="" >
+        <image anim="" url="" >
+        </image>
+        <image anim="" url="" >
+        </image>
+        <image anim="" url="" >
+        </image>
+        <image anim="" url="" >
+        </image>
+    </images>
+    <text anim="left" direction="left" position="bottom" scroll="5" >这里是广告信息…</text>
+	<contact></contact>
+	<phone></phone>
+	<address></address>
+	<email></email>
+	<website></website>
+	<!-- text Only -->
+</ad>
