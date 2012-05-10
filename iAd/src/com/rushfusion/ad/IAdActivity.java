@@ -6,12 +6,12 @@ import android.widget.RelativeLayout;
 
 public class IAdActivity extends Activity {
 	/** Called when the activity is first created. */
-	RelativeLayout adView;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.ad);
-		adView = (RelativeLayout) findViewById(R.id.ad_show);
+		
+		
 		AdCreator creator = new AdCreator(this,"",new AdCreator.CallBack() {
 			
 			@Override
