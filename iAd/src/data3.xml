@@ -12,7 +12,7 @@
         <image anim="anim4" url="http://www.sinaimg.cn/dy/slidenews/1_t160/2012_17/2841_160498_472599.jpg" >
         </image>
     </images>
-    <text anim="mAnimation" direction="left" position="bottom" scroll="5" >
+    <text anim="left" direction="left" position="bottom" scroll="5" >
     </text>
 	
 	<contact></contact>

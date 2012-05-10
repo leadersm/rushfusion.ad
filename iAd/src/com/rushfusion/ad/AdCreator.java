@@ -22,10 +22,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 public class AdCreator {
 
@@ -45,6 +45,9 @@ public class AdCreator {
 	public RelativeLayout adViewParent;
 	private CallBack mCallback;
 	private String mAdUrl;
+	private int ad_width = LayoutParams.WRAP_CONTENT;
+	private int ad_height = LayoutParams.WRAP_CONTENT;
+	
 	
 	public AdCreator(Activity context,String adUrl,CallBack callback) {
 		mContext = context;
@@ -90,6 +93,9 @@ public class AdCreator {
 		}
 	}
 	
+	/**
+	 * 貌似没必要、、TBD
+	 */
 	private void startNoNetworkModel() {
 		Map<String, Object> data = null;
 		try {
@@ -145,7 +151,7 @@ public class AdCreator {
 	 */
 	private View setAdByPosition(String position, int layoutId) {
 		View v = LinearLayout.inflate(mContext, layoutId, null);
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width,ad_height);
 		if(position.equals("left")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
@@ -221,8 +227,9 @@ public class AdCreator {
 			text.put("position", text_position);
 			String scroll = root.get("ad").get("text").attr("scroll");
 			text.put("scroll", scroll);
-			Log.i(TAG,"Text :anim-->"+anim+"-direction-->"+direction+"-position->"+position+"-scroll->"+scroll);
-			
+			String value = root.get("ad").get("text").value();
+			text.put("value", value);
+			Log.i(TAG,"Text :anim-->"+anim+"-direction-->"+direction+"-position->"+position+"-scroll->"+scroll+"-value->"+value);
 			data.put("text", text);
 			
 			
@@ -287,18 +294,11 @@ public class AdCreator {
 		emailTv.setText(email);
 		webTv.setText(website);
 		
-		ImageView iv = (ImageView) v.findViewById(R.id.image);
+		ViewFlipper iv = (ViewFlipper) v.findViewById(R.id.image);
 		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));
 		
 		TextView textView = (TextView) v.findViewById(R.id.text);
-		textView.setTextSize(28);
-		textView.setTextColor(Color.WHITE);
-		textView.setText(text.get("text"));
-		String anim = text.get("anim");
-		String direction = text.get("direction");
-		String text_position = text.get("position");
-		String scroll = text.get("scroll");
-		textTransfer(textView, anim, direction, text_position, scroll);
+		textTransfer(textView,text,R.id.image);
 	}
 
 
@@ -315,20 +315,13 @@ public class AdCreator {
 		//------------------------image---------------------------
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
-		ImageView iv = (ImageView) v.findViewById(R.id.image);
+		ViewFlipper iv = (ViewFlipper) v.findViewById(R.id.image);
 		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));
 		//-----------------------text------------------------------
 		TextView textView = (TextView) v.findViewById(R.id.text);
-		textView.setTextSize(28);
-		textView.setTextColor(Color.WHITE);
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
-		textView.setText(text.get("text"));
-		String anim = text.get("anim");
-		String direction = text.get("direction");
-		String text_position = text.get("position");
-		String scroll = text.get("scroll");
-		textTransfer(textView, anim, direction, text_position, scroll);
+		textTransfer(textView,text,R.id.image);
 	}
 
 	
@@ -343,16 +336,9 @@ public class AdCreator {
 		View v = setAdByPosition(position,R.layout.second);
 		adViewParent.addView(v);
 		TextView textView = (TextView) v.findViewById(R.id.text);
-		textView.setTextSize(28);
-		textView.setTextColor(Color.WHITE);
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
-		textView.setText(text.get("text"));
-		String anim = text.get("anim");
-		String direction = text.get("direction");
-		String text_position = text.get("position");
-		String scroll = text.get("scroll");
-		textTransfer(textView, anim, direction, text_position, scroll);
+		textTransfer(textView,text,0);
 	}
 
 	/**
@@ -368,17 +354,17 @@ public class AdCreator {
 		adViewParent.addView(v);
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
-		ImageView iv = (ImageView) v.findViewById(R.id.image);
+		ViewFlipper iv = (ViewFlipper) v.findViewById(R.id.image);
 		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));
 	}
 	
 	/**
 	 *  Picture switch
-	 * @param imageView the imageView to be attached
+	 * @param iv the ViewFlipper to be attached
 	 * @param images -one image contain the key "anim" "url"
 	 * @param delay -the images transfer interval
 	 */
-	private void imageTransfer(ImageView imageView,List<HashMap<String,String>> images,int delay){
+	private void imageTransfer(ViewFlipper iv,List<HashMap<String,String>> images,int delay){
 		
 	}
 
@@ -390,7 +376,38 @@ public class AdCreator {
 	 * @param position
 	 * @param scroll
 	 */
-	private void textTransfer(TextView textView, String anim,String direction,String position,String scroll) {
+	private void textTransfer(TextView textView,HashMap<String,String> text,int imageId) {
+		textView.setTextSize(28);
+		textView.setTextColor(Color.WHITE);
+		textView.setText(text.get("value"));
+		if(imageId!=0){
+			String position = text.get("position");
+			RelativeLayout.LayoutParams params = null;
+			if(position.equals("left")){
+				params = new RelativeLayout.LayoutParams(28,ad_height);
+				params.addRule(RelativeLayout.LEFT_OF,imageId);
+			}else if(position.equals("right")){
+				params = new RelativeLayout.LayoutParams(28,ad_height);
+				params.addRule(RelativeLayout.RIGHT_OF,imageId);
+			}else if(position.equals("top")){
+				params = new RelativeLayout.LayoutParams(ad_width,28);
+				params.addRule(RelativeLayout.ABOVE,imageId);
+				params.addRule(RelativeLayout.ALIGN_LEFT,imageId);
+			}else if(position.equals("bottom")){
+				params = new RelativeLayout.LayoutParams(ad_width,28);
+				params.addRule(RelativeLayout.BELOW,imageId);
+				params.addRule(RelativeLayout.ALIGN_LEFT,imageId);
+			}else
+				try {
+					throw new Exception("unDefined text position-->"+position);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			textView.setLayoutParams(params);
+		}
+		String anim = text.get("anim");
+		String direction = text.get("direction");
+		String scroll = text.get("scroll");
 		if(anim.equals("left")){
 			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.left));
 		}else if(anim.equals("right"))
