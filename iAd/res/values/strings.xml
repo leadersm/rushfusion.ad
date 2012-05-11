@@ -3,5 +3,11 @@
 
     <string name="hello">Hello World, IAdActivity!</string>
     <string name="app_name">IAd</string>
+    <string name="contact">contact</string>
+    <string name="phone">phone</string>
+    <string name="email">email</string>
+    <string name="address">address</string>
+    <string name="website">website</string>
+    <string name="ad_content">广告信息在这里~~</string>
 
 </resources>

@@ -26,18 +26,21 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 public class AdCreator {
 
+	public String TEST_XML = "data4.xml" ;
+	
+	
 	private static final String TAG = "AdCreator";
 
 	public static final int AD_TYPE_IMAGE_ONLY = 1;
@@ -54,9 +57,15 @@ public class AdCreator {
 	public RelativeLayout adViewParent;
 	private CallBack mCallback;
 	private String mAdUrl;
+	
 	private int ad_width = 300;
 	private int ad_height = 200;
+	private int image_w = LayoutParams.MATCH_PARENT;
+	private int image_h = 150;
+	private int text_w;
+	private int text_h;
 
+	
     private static final int POLL = 100;
 	private static final int STOP = POLL + 100;
 	private  Timer timer;
@@ -95,16 +104,7 @@ public class AdCreator {
 			mCallback.onError(e1,ERROR_START);
 			e1.printStackTrace();
 		}
-		String type = (String) data.get("type");//tbd
-		if (type=="1") {//image only
-			showAdType_1(data);
-		} else if (type=="2") {//text only
-			showAdType_2(data);
-		} else if(type=="3"){//image + text
-			showAdType_3(data);
-		}else if(type=="4"){//full
-			showAdType_4(data);
-		}
+		showDynamicAdvertisement(data);
 	}
 
 	/**
@@ -114,22 +114,13 @@ public class AdCreator {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
-			in = getClass().getClassLoader().getResourceAsStream("data4.xml");
+			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
 			data = parseXml(in);
 		} catch (Exception e1) {
 			mCallback.onError(e1,ERROR_START);
 			e1.printStackTrace();
 		}
-		int type = Integer.parseInt(data.get("type").toString());//tbd
-		if (type==1) {//image only
-			showAdType_1(data);
-		} else if (type==2) {//text only
-			showAdType_2(data);
-		} else if(type==3){//image + text
-			showAdType_3(data);
-		}else if(type==4){//full
-			showAdType_4(data);
-		}
+		showDynamicAdvertisement(data);
 	}
 
 	public CallBack getmCallback() {
@@ -163,8 +154,39 @@ public class AdCreator {
 	 * @param layoutId
 	 * @return
 	 */
-	private View setAdByPosition(String position, int layoutId) {
-		View v = LinearLayout.inflate(mContext, layoutId, null);
+	private View showDynamicAdvertisement(Map<String, Object> data) {
+		int type = Integer.parseInt((String) data.get("type"));
+		String position = (String) data.get("position");
+		int layoutId = 0;
+		if (type==1) {//image only
+			layoutId = R.layout.first;
+		} else if (type==2) {//text only
+			layoutId = R.layout.second;
+		} else if(type==3){//image + text
+			layoutId = R.layout.third;
+		}else if(type==4){//full
+			layoutId = R.layout.fourth;
+		}
+		View v = getViewByPosition(position,layoutId);
+		dispatchViewByType(v,type,data);
+		return v;
+	}
+
+	private void dispatchViewByType(View v, int type, Map<String, Object> data) {
+		if (type==1) {//image only
+			showAdType_1(v,data);
+		} else if (type==2) {//text only
+			showAdType_2(v,data);
+		} else if(type==3){//image + text
+			showAdType_3(v,data);
+		}else if(type==4){//full
+			showAdType_4(v,data);
+		}
+		adViewParent.addView(v);
+	}
+
+	private View getViewByPosition(String position,int layoutId) {
+		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width,ad_height);
 		if(position.equals("left")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -174,10 +196,10 @@ public class AdCreator {
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}else if(position.equals("top")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			params.addRule(RelativeLayout.CENTER_VERTICAL);
+			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		}else if(position.equals("bottom")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-			params.addRule(RelativeLayout.CENTER_VERTICAL);
+			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		}else if(position.equals("center")){
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
@@ -272,16 +294,84 @@ public class AdCreator {
 		return data;
 	}
 
+	private void setRelationBy(View adView,ViewFlipper vf ,TextView textView,String textposition) {
+		
+		// TODO Auto-generated method stub
+		RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(image_w, image_h);
+		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(text_w, text_h);
+		RelativeLayout.LayoutParams userParams = new RelativeLayout.LayoutParams(image_w, ad_height-image_h);
+		RelativeLayout userInfo = (RelativeLayout) adView.findViewById(R.id.userinfo);
+		
+		if(textposition.equals("left")){
+			textParams.width = 100;
+			textParams.height = ad_height;
+			TextView title = (TextView) adView.findViewById(R.id.title);
+			if(title==null||title.getText().equals(""))
+				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			else
+				textParams.addRule(RelativeLayout.BELOW,R.id.title);
+				
+			userParams.width = ad_width - 100;
+			imageParams.width = ad_width - 100;
+			image_w = ad_width - 100;
+			userParams.addRule(RelativeLayout.BELOW, R.id.image);
+			userParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.image);
+			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
+			imageParams.addRule(RelativeLayout.RIGHT_OF, R.id.text);
+		}else if(textposition.equals("right")){
+			textParams.width = 100;
+			textParams.height = ad_height;
+			TextView title = (TextView) adView.findViewById(R.id.title);
+			if(title==null||title.getText().equals(""))
+				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			else
+				textParams.addRule(RelativeLayout.BELOW,R.id.title);
+			userParams.width = ad_width - 100;	
+			imageParams.width = ad_width - 100;
+			image_w = ad_width - 100;
+			userParams.addRule(RelativeLayout.BELOW, R.id.image);
+			textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
+			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
+		}else if(textposition.equals("top")){
+			textParams.width = ad_width;
+			textParams.height = ad_height-image_h;
+			TextView title = (TextView) adView.findViewById(R.id.title);
+			if(title==null||title.getText().equals(""))
+				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			else
+				textParams.addRule(RelativeLayout.BELOW,R.id.title);
+				userParams.addRule(RelativeLayout.BELOW, R.id.image);
+			imageParams.addRule(RelativeLayout.BELOW,R.id.text);
+		}else if(textposition.equals("bottom")){
+			textParams.width = ad_width;
+			textParams.height = ad_height-image_h;
+			textParams.addRule(RelativeLayout.BELOW, R.id.image);
+			if(userInfo!=null){
+				userParams.addRule(RelativeLayout.BELOW, R.id.text);
+				userInfo.setLayoutParams(userParams);
+			}
+			TextView title = (TextView) adView.findViewById(R.id.title);
+			if(title==null||title.getText().equals(""))
+				imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			else
+				imageParams.addRule(RelativeLayout.BELOW,R.id.title);
+		}
+		if(userInfo!=null)
+			userInfo.setLayoutParams(userParams);
+		vf.setLayoutParams(imageParams);
+		textView.setLayoutParams(textParams);
+	}
+
 	/**
 	 * full
+	 * @param v 
 	 * @param data
 	 * @param downloader
 	 * @param images
 	 */
-	private void showAdType_4(Map<String, Object> data) {
-		String position = (String) data.get("position");
-		View v = setAdByPosition(position,R.layout.fourth);
-		adViewParent.addView(v);
+	private void showAdType_4(View v, Map<String, Object> data) {
 
 		String title = (String) data.get("title");
 		@SuppressWarnings("unchecked")
@@ -308,46 +398,51 @@ public class AdCreator {
 		emailTv.setText(email);
 		webTv.setText(website);
 
-		ViewFlipper iv = (ViewFlipper) v.findViewById(R.id.image);
-		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));
+		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
 		TextView textView = (TextView) v.findViewById(R.id.text);
+		
+		setRelationBy(v,vf, textView, text.get("position"));
+		
+		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
 		textTransfer(textView,text,R.id.image);
 	}
 
 
 	/**
 	 * image + text
+	 * @param v2 
 	 * @param data
 	 * @param downloader
 	 * @param images
 	 */
-	private void showAdType_3(Map<String, Object> data) {
-		String position = (String) data.get("position");
-		View v = setAdByPosition(position,R.layout.third);
-		adViewParent.addView(v);
-		//------------------------image---------------------------
+	private void showAdType_3(View v, Map<String, Object> data) {
+		TextView title = (TextView) v.findViewById(R.id.title);
+		title.setText(data.get("title").toString());
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
-		ViewFlipper iv = (ViewFlipper) v.findViewById(R.id.image);
-		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));
-		//-----------------------text------------------------------
-		TextView textView = (TextView) v.findViewById(R.id.text);
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
-		textTransfer(textView,text,R.id.image);
-	}
+		
+		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
+		TextView textView = (TextView) v.findViewById(R.id.text);
+		
+		setRelationBy(v,vf,textView,text.get("position"));
 
+		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
+		textTransfer(textView,text,R.id.image);
+		
+	}
 
 	/**
 	 * text only
+	 * @param v2 
 	 * @param data
 	 * @param downloader
 	 * @param images
 	 */
-	private void showAdType_2(Map<String, Object> data) {
-		String position = (String) data.get("position");
-		View v = setAdByPosition(position,R.layout.second);
-		adViewParent.addView(v);
+	private void showAdType_2(View v, Map<String, Object> data) {
+		TextView title = (TextView) v.findViewById(R.id.title);
+		title.setText(data.get("title").toString());
 		TextView textView = (TextView) v.findViewById(R.id.text);
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
@@ -356,19 +451,20 @@ public class AdCreator {
 
 	/**
 	 * image Only
+	 * @param v 
 	 * @param data
 	 * @param downloader
 	 * @param images
 	 */
-	private void showAdType_1(Map<String, Object> data) {
-		String position = (String) data.get("position");
-		Log.i(TAG,"position->"+position);
-		View v = setAdByPosition(position,R.layout.first);
-		adViewParent.addView(v);
+	private void showAdType_1(View v, Map<String, Object> data) {
+		TextView title = (TextView) v.findViewById(R.id.title);
+		title.setText(data.get("title").toString());
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
-		ViewFlipper iv = (ViewFlipper) v.findViewById(R.id.image);
-		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));
+		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
+		image_w = ad_width;
+		image_h = ad_height;
+		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
 	}
 
 	/**
@@ -403,7 +499,7 @@ public class AdCreator {
 					protected void onPostExecute(Bitmap result) {
 						if(result!=null){
 								ImageView iv = new ImageView(mContext);
-								iv.setLayoutParams(new LayoutParams(ad_width, 100));
+								iv.setLayoutParams(new LayoutParams(image_w, image_h));
 								iv.setScaleType(ScaleType.FIT_XY);
 								iv.setImageBitmap(result);
 								iv.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_left));
@@ -471,11 +567,6 @@ public class AdCreator {
 			timer.cancel();
 			timer = null;
 		}
-
-		if (task != null) {
-			task.cancel();
-			task = null;
-		}
 	}
 
 
@@ -488,34 +579,8 @@ public class AdCreator {
 	 * @param scroll
 	 */
 	private void textTransfer(TextView textView,HashMap<String,String> text,int imageId) {
-		textView.setTextSize(25);
 		textView.setTextColor(Color.WHITE);
 		textView.setText(text.get("value"));
-		if(imageId!=0){
-			String position = text.get("position");
-			RelativeLayout.LayoutParams params = null;
-			if(position.equals("left")){
-				params = new RelativeLayout.LayoutParams(28,ad_height);
-				params.addRule(RelativeLayout.LEFT_OF,imageId);
-			}else if(position.equals("right")){
-				params = new RelativeLayout.LayoutParams(28,ad_height);
-				params.addRule(RelativeLayout.RIGHT_OF,imageId);
-			}else if(position.equals("top")){
-				params = new RelativeLayout.LayoutParams(ad_width,28);
-				params.addRule(RelativeLayout.ABOVE,imageId);
-				params.addRule(RelativeLayout.ALIGN_LEFT,imageId);
-			}else if(position.equals("bottom")){
-				params = new RelativeLayout.LayoutParams(ad_width,28);
-				params.addRule(RelativeLayout.BELOW,imageId);
-				params.addRule(RelativeLayout.ALIGN_LEFT,imageId);
-			}else
-				try {
-					throw new Exception("unDefined text position-->"+position);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			textView.setLayoutParams(params);
-		}
 		String anim = text.get("anim");
 		String direction = text.get("direction");
 		String scroll = text.get("scroll");
@@ -537,8 +602,18 @@ public class AdCreator {
 		ad_width = width;
 		ad_height = height;
 	}
+	/**
+	 * set imageView w and h
+	 * @param w
+	 * @param h
+	 */
+	public void setImageSize(int w,int h){
+		image_w = w;
+		image_h = h;
+	}
+	
 	 /**
-     * Downloader imager
+     * Download image
      * @param path
      * @return
      * @throws Exception
@@ -550,5 +625,8 @@ public class AdCreator {
     	Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
     	return bitmap;
     }
-
+  
+  
+  
+  
 }
