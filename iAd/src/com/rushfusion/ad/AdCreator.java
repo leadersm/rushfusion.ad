@@ -58,6 +58,9 @@ public class AdCreator {
 	private CallBack mCallback;
 	private String mAdUrl;
 	
+	
+	
+	
 	private int ad_width = 300;
 	private int ad_height = 200;
 	private int image_w = LayoutParams.MATCH_PARENT;
@@ -66,12 +69,19 @@ public class AdCreator {
 	private int text_h;
 
 	
+	private RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(image_w, image_h);
+	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(text_w, text_h);
+	
+	
     private static final int POLL = 100;
 	private static final int STOP = POLL + 100;
 	private  Timer timer;
 	private int mCurrentPhotoIndex = 0;
 	private Handler handler;
 
+	
+	
+	
 	public AdCreator(Activity context,String adUrl,CallBack callback) {
 		mContext = context;
 		mCallback = callback;
@@ -297,8 +307,6 @@ public class AdCreator {
 	private void setRelationBy(View adView,ViewFlipper vf ,TextView textView,String textposition) {
 		
 		// TODO Auto-generated method stub
-		RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(image_w, image_h);
-		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(text_w, text_h);
 		RelativeLayout.LayoutParams userParams = new RelativeLayout.LayoutParams(image_w, ad_height-image_h);
 		RelativeLayout userInfo = (RelativeLayout) adView.findViewById(R.id.userinfo);
 		
@@ -399,12 +407,12 @@ public class AdCreator {
 		webTv.setText(website);
 
 		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		TextView textView = (TextView) v.findViewById(R.id.text);
+		AdText textView = (AdText) v.findViewById(R.id.text);
 		
 		setRelationBy(v,vf, textView, text.get("position"));
 		
 		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
-		textTransfer(textView,text,R.id.image);
+		textTransfer(textView,text);
 	}
 
 
@@ -424,12 +432,12 @@ public class AdCreator {
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
 		
 		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		TextView textView = (TextView) v.findViewById(R.id.text);
+		AdText textView = (AdText) v.findViewById(R.id.text);
 		
 		setRelationBy(v,vf,textView,text.get("position"));
 
 		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
-		textTransfer(textView,text,R.id.image);
+		textTransfer(textView,text);
 		
 	}
 
@@ -443,10 +451,12 @@ public class AdCreator {
 	private void showAdType_2(View v, Map<String, Object> data) {
 		TextView title = (TextView) v.findViewById(R.id.title);
 		title.setText(data.get("title").toString());
-		TextView textView = (TextView) v.findViewById(R.id.text);
+		AdText textView = (AdText) v.findViewById(R.id.text);
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
-		textTransfer(textView,text,0);
+		textParams.width = ad_width;
+		textParams.height = ad_height;
+		textTransfer(textView,text);
 	}
 
 	/**
@@ -561,13 +571,13 @@ public class AdCreator {
 		}
 	};
 	
-	private void stopTimer() {
-
-		if (timer != null) {
-			timer.cancel();
-			timer = null;
-		}
-	}
+//	private void stopTimer() {
+//
+//		if (timer != null) {
+//			timer.cancel();
+//			timer = null;
+//		}
+//	}
 
 
 	/**
@@ -578,12 +588,9 @@ public class AdCreator {
 	 * @param position
 	 * @param scroll
 	 */
-	private void textTransfer(TextView textView,HashMap<String,String> text,int imageId) {
+	private void textTransfer(AdText textView,HashMap<String,String> text) {
 		textView.setTextColor(Color.WHITE);
-		textView.setText(text.get("value"));
 		String anim = text.get("anim");
-		String direction = text.get("direction");
-		String scroll = text.get("scroll");
 		
 		if(anim.equals("left")){
 			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_left));
@@ -591,6 +598,8 @@ public class AdCreator {
 		{
 			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_right));
 		}
+		textView.setText(textParams.width, textParams.height, text);
+		
 	}
 
 	/**
@@ -602,6 +611,8 @@ public class AdCreator {
 		ad_width = width;
 		ad_height = height;
 	}
+	
+	
 	/**
 	 * set imageView w and h
 	 * @param w
@@ -626,7 +637,10 @@ public class AdCreator {
     	return bitmap;
     }
   
-  
+  public void stop(){
+	  if(adViewParent!=null)
+	  adViewParent.removeAllViews();
+  }
   
   
 }
