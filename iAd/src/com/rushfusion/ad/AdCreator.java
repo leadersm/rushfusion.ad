@@ -751,5 +751,52 @@ public class AdCreator {
         } 
         return lineTexts; 
     }
+	
+	
+	
+	/**
+     * @author Mike
+     * @param TextView textview, Paint p
+     * @return String[]
+     * @throws Exception
+     */
+	private String[] getLineStrs(TextView textview, Paint p) {
+		int width = textview.getWidth();
+
+		String text = (String) textview.getText();
+		float textSize = textview.getTextSize();
+		Paint paint = new Paint();
+		paint.setTextSize(textSize);
+
+		int index = 0;
+		int start = 0;
+		int end = 0;
+		
+		float textLength = paint.measureText(text);
+
+		int lineNum = (int) Math.ceil(textLength / width);
+		Log.d("split", "textView1 lineNum is:" + lineNum);
+		String[] mSplitTextParts = new String[lineNum];
+		
+		for (int i = 0; i <= text.length(); i++) {
+			end = i;
+
+			float measureLength = paint.measureText(text, start, end);
+			Log.d("split", "textView1 measureLength is:" + measureLength);
+
+			if (measureLength >= width) {
+					mSplitTextParts[index] = text.substring(start, end);
+					start = end;
+					index++;	
+			}
+
+			if (end == text.length()) {
+				mSplitTextParts[index] = text.substring(start, end);
+			}
+
+	}
+		return mSplitTextParts;
   
+}
+	
 }
