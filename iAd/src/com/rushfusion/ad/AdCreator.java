@@ -175,7 +175,7 @@ public class AdCreator {
 		}else if(position.equals("top")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		}else if(position.equals("bottom")){
+		}else if(position.equals("bottom")){                     //没有data.xml文件设置过position为bottom的，这个条件有用吗？
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
 		}else if(position.equals("center")){
@@ -323,7 +323,7 @@ public class AdCreator {
 	 */
 	private void showAdType_3(Map<String, Object> data) {
 		String position = (String) data.get("position");
-		View v = setAdByPosition(position,R.layout.third);
+		View v = setAdByPosition(position,R.layout.third);//判断此时ad需要按照哪种position来放，并且以third的布局来安排
 		adViewParent.addView(v);
 		//------------------------image---------------------------
 		@SuppressWarnings("unchecked")
@@ -351,7 +351,7 @@ public class AdCreator {
 		TextView textView = (TextView) v.findViewById(R.id.text);
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
-		textTransfer(textView,text,0);
+		textTransfer(textView,text,0);  //对text做一些操作
 	}
 
 	/**
@@ -368,7 +368,7 @@ public class AdCreator {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
 		ViewFlipper iv = (ViewFlipper) v.findViewById(R.id.image);
-		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));
+		imageTransfer(iv,images,Integer.parseInt(data.get("interval").toString()));  //对image做一些操作
 	}
 
 	/**
