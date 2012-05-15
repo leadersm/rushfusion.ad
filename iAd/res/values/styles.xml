@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <style name="style_title">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    
+    
+    <style name="style_contact">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignLeft">@+id/image</item>
+        <item name="android:text">@string/contact</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="style_phone">
+        <item name="android:ellipsize">end</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignLeft">@+id/contact</item>
+        <item name="android:layout_below">@+id/contact</item>
+        <item name="android:text">@string/phone</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    
+    <style name="style_address">
+        <item name="android:ellipsize">end</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignLeft">@+id/phone</item>
+        <item name="android:layout_below">@+id/phone</item>
+        <item name="android:text">@string/address</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    
+    
+    <style name="style_email">
+        <item name="android:ellipsize">end</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignLeft">@+id/address</item>
+        <item name="android:layout_below">@+id/address</item>
+        <item name="android:text">@string/email</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    
+    <style name="style_website">
+        <item name="android:ellipsize">end</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignLeft">@+id/email</item>
+        <item name="android:layout_below">@+id/email</item>
+        <item name="android:text">@string/website</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    
+    
+</resources>
