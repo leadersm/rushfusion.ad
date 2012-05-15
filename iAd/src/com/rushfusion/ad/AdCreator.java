@@ -182,6 +182,9 @@ public class AdCreator {
 			layoutId = R.layout.third;
 		}else if(type==4){//full
 			layoutId = R.layout.fourth;
+		} else{
+			mCallback.onError(new Exception("type error, type-->"+type), ERROR_AD_TYPE);
+			return null;
 		}
 		View v = getViewByPosition(position,layoutId);
 		dispatchViewByType(v,type,data);
@@ -204,22 +207,34 @@ public class AdCreator {
 	private View getViewByPosition(String position,int layoutId) {
 		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width,ad_height);
-		if(position.equals("left")){
+		if(position.equals("1")){
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else if(position.equals("2")){
+			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else if(position.equals("3")){
+			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else if(position.equals("4")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		}else if(position.equals("right")){
+		}else if(position.equals("5")){
+			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			params.addRule(RelativeLayout.CENTER_VERTICAL);
+		}else if(position.equals("6")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		}else if(position.equals("top")){
-			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		}else if(position.equals("bottom")){
+		}else if(position.equals("7")){
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		}else if(position.equals("8")){
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		}else if(position.equals("center")){
-			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else
+			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		}else if(position.equals("9")){
+			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		}else
 			try {
 				throw new Exception("unKnown position-->"+position);
 			} catch (Exception e) {
@@ -773,27 +788,5 @@ public class AdCreator {
 		}
 		return mSplitTextParts;
     }
-//	private String[] getLineStrs(String content, Paint p, float width) { 
-//		
-//		System.out.println("width-->"+width);
-//        int length = content.length(); 
-//        float textWidth = p.measureText(content); 
-//        if(textWidth <= width) { 
-//            return new String[]{content}; 
-//        } 
-//        int lines = (int) Math.ceil(textWidth / width)+1; //计算行数 //width
-//        
-//        int start = 0, end = length/lines, i = 0; 
-//        String[] lineTexts = new String[lines]; 
-//        while(end < length && i < lines) {
-//           lineTexts[i++] = (String) content.subSequence(start, end);
-//           System.out.println("sub-->"+ content.substring(start, end));
-//           start = end; 
-//           end += length/lines;
-//           if(end >length)
-//        	   end = length;
-//        } 
-//        return lineTexts; 
-//    }
   
 }
