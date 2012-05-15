@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -458,7 +460,7 @@ public class AdCreator {
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
 		textParams.width = ad_width;
-		textParams.height = ad_height;
+		textParams.height = ad_height-title.getHeight();
 		textTransfer(textView,text);
 	}
 
@@ -475,8 +477,8 @@ public class AdCreator {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
 		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		image_w = ad_width;
-		image_h = ad_height;
+		imageParams.width = ad_width;
+		imageParams.height = ad_height;
 		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
 	}
 
@@ -529,7 +531,6 @@ public class AdCreator {
 					 case POLL:
 						 vf.clearAnimation();
 						 mCurrentPhotoIndex = mCurrentPhotoIndex % (images.size());
-						 Log.d("current", "mCurrentPhotoIndex:>>>" + mCurrentPhotoIndex);
 						 String animPosition =images.get(mCurrentPhotoIndex).get("anim");
 						 //判断动画显示的方向
 						 if("left".equals(animPosition)){
@@ -593,8 +594,10 @@ public class AdCreator {
 	 */
 	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
 		String anim = text.get("anim");
-//		String value = text.get("value");
-		String value = text.get("value").replace('\n', ' ').trim();
+		String value = text.get("value");
+		Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+		Matcher m = p.matcher(value);
+		value = m.replaceAll("").trim();
 		final String direction = text.get("direction");
 		String scroll = text.get("scroll");
 		if (anim.equals("left")) {
@@ -602,22 +605,27 @@ public class AdCreator {
 		} else if (anim.equals("right")) {
 			vf.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_right));
 		}
+		
 		TextView textview = new TextView(mContext);
-		vf.addView(textview);
+		vf.addView(textview);//tbd
+		
 		FontMetrics fm = textview.getPaint().getFontMetrics();
 		float baseline = fm.descent - fm.ascent + fm.leading;
-		System.out.println(" baseLine-->"+baseline);
-		if(50<baseline){
+		if(textParams.height<baseline){
 			textview.setText(value);
 			return;//tbd
 		}
-		int maxLines = (int) Math.ceil((textParams.height/baseline)-1);
+		System.out.println("textParams.H-->"+textParams.height+" baseLineH-->"+baseline+"maxLines-->"+Math.ceil((textParams.height/baseline)));
+		int maxLines = (int) Math.ceil((textParams.height/baseline));
+		
 		final String [] strs = getValuesByLines(textParams.width, value, maxLines, textview.getPaint());
 		for (int i = 0; i < strs.length; i++) {
-			TextView textView1 = new TextView(mContext);
-			textView1.setText(strs[i]);
-			Log.d("AdCreator", "textView1:>>>"+ strs[i]);
-			vf.addView(textView1);
+			if(strs[i]!=null){
+				TextView textView1 = new TextView(mContext);
+				textView1.setText(strs[i]);
+				Log.d("AdCreator", "textView1:>>>"+ strs[i]);
+				vf.addView(textView1);
+			}
 		}
 		 vf.removeView(textview);
 		final int animList[] = new int[] { R.anim.push_in_left,
@@ -708,48 +716,84 @@ public class AdCreator {
 	  if(adViewParent!=null)
 	  adViewParent.removeAllViews();
   }
-	private String[] getValuesByLines(int w,String value,int lines,Paint paint) {
+	private String[] getValuesByLines(int w,String value,int maxlines,Paint paint) {
 		String [] linestrs = getLineStrs(value, paint, w);
-		String [] values = new String [(int) Math.ceil(linestrs.length/lines)+1];
-		System.out.println("累计行数-->"+linestrs.length + "  最大行数-->"+lines+"  页数-->"+values.length);
+		System.out.println("页数"+Math.ceil(linestrs.length/maxlines));
+		String [] values = new String [(int) Math.ceil(linestrs.length/maxlines)];
+		System.out.println("累计行数-->"+linestrs.length + "  最大行数-->"+maxlines+"  页数-->"+values.length);
 		for(int i = 0;i<values.length;i++){
-			values[i] = getValueFrom(linestrs,lines,i);
+			values[i] = getValueFrom(linestrs,maxlines,i);
 			System.out.println("value-->"+i+"<-->"+values[i]);
 		}
 		return values;
 	}
 	
-	private String getValueFrom(String[] linestrs,int lines,int num){
+	private String getValueFrom(String[] linestrs,int maxlines,int num){
 		StringBuffer result = new StringBuffer();
-		for(int i=num*lines;i<(num+1)*lines;i++){
+		for(int i=num*maxlines;i<(num+1)*maxlines;i++){
 			if(i>=linestrs.length)
 				break;
+			if(linestrs[i]!=null)
 			result.append(linestrs[i]);
+			System.out.println("sub-->"+ linestrs[i]);
 		}
 		return result.toString();	
 	}
 	
 	
 	private String[] getLineStrs(String content, Paint p, float width) { 
-		
-		System.out.println("width-->"+width);
-        int length = content.length(); 
-        float textWidth = p.measureText(content); 
-        if(textWidth <= width) { 
-            return new String[]{content}; 
-        } 
-        int lines = (int) Math.ceil(textWidth / width)+1; //计算行数 //width
-        int start = 0, end = length/lines, i = 0; 
-        String[] lineTexts = new String[lines]; 
-        while(end < length && i < lines) {
-           lineTexts[i++] = (String) content.subSequence(start, end);
-           System.out.println("sub-->"+ content.substring(start, end));
-           start = end; 
-           end += length/lines;
-           if(end >=length)
-        	   end = length-1;
-        } 
-        return lineTexts; 
+		int index = 0;
+		int start = 0;
+		int end = 0;
+		float textLength = p.measureText(content);
+		System.out.println("textLength->"+textLength);
+		System.out.println("width->"+width);
+		int lineNum = (int) Math.ceil(textLength / width);
+		if(textLength<width){
+          return new String[]{content}; 
+		}
+		Log.d("split", "textView1 lineNum is:" + lineNum);
+		String[] mSplitTextParts = new String[lineNum];
+		for (int i = 0; i <= content.length(); i++,end++) {
+			float measureLength = p.measureText(content, start, end);
+			if (measureLength >= width) {
+				Log.d("split", "textView1 measureLength is:" + measureLength);
+					mSplitTextParts[index] = content.substring(start, end);
+					start = end;
+					if(mSplitTextParts[index]==null)
+						mSplitTextParts[index]="";
+					index++;
+			}
+			if (end == content.length()) {
+				mSplitTextParts[index] = content.substring(start, end);
+				if(mSplitTextParts[index]==null)
+					mSplitTextParts[index]="";
+				index++;
+			}
+		}
+		return mSplitTextParts;
     }
+//	private String[] getLineStrs(String content, Paint p, float width) { 
+//		
+//		System.out.println("width-->"+width);
+//        int length = content.length(); 
+//        float textWidth = p.measureText(content); 
+//        if(textWidth <= width) { 
+//            return new String[]{content}; 
+//        } 
+//        int lines = (int) Math.ceil(textWidth / width)+1; //计算行数 //width
+//        
+//        int start = 0, end = length/lines, i = 0; 
+//        String[] lineTexts = new String[lines]; 
+//        while(end < length && i < lines) {
+//           lineTexts[i++] = (String) content.subSequence(start, end);
+//           System.out.println("sub-->"+ content.substring(start, end));
+//           start = end; 
+//           end += length/lines;
+//           if(end >length)
+//        	   end = length;
+//        } 
+//        return lineTexts; 
+//    }
   
 }
