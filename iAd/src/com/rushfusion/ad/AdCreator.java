@@ -19,7 +19,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.FontMetrics;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -58,6 +59,8 @@ public class AdCreator {
 	private CallBack mCallback;
 	private String mAdUrl;
 	
+	
+	
 	private int ad_width = 300;
 	private int ad_height = 200;
 	private int image_w = LayoutParams.MATCH_PARENT;
@@ -66,12 +69,23 @@ public class AdCreator {
 	private int text_h;
 
 	
+	private RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(image_w, image_h);
+	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(text_w, text_h);
+	
+	
     private static final int POLL = 100;
 	private static final int STOP = POLL + 100;
+	private static final int PUSHTEXT = 200;
+
 	private  Timer timer;
 	private int mCurrentPhotoIndex = 0;
+	private int mCurrentTextIndex = 0;
 	private Handler handler;
+	private Handler handlerText;
 
+	
+	
+	
 	public AdCreator(Activity context,String adUrl,CallBack callback) {
 		mContext = context;
 		mCallback = callback;
@@ -294,11 +308,8 @@ public class AdCreator {
 		return data;
 	}
 
-	private void setRelationBy(View adView,ViewFlipper vf ,TextView textView,String textposition) {
+	private void setRelationBy(View adView,ViewFlipper imageVF ,ViewFlipper textVF,String textposition) {
 		
-		// TODO Auto-generated method stub
-		RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(image_w, image_h);
-		RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(text_w, text_h);
 		RelativeLayout.LayoutParams userParams = new RelativeLayout.LayoutParams(image_w, ad_height-image_h);
 		RelativeLayout userInfo = (RelativeLayout) adView.findViewById(R.id.userinfo);
 		
@@ -360,8 +371,8 @@ public class AdCreator {
 		}
 		if(userInfo!=null)
 			userInfo.setLayoutParams(userParams);
-		vf.setLayoutParams(imageParams);
-		textView.setLayoutParams(textParams);
+		imageVF.setLayoutParams(imageParams);
+		textVF.setLayoutParams(textParams);
 	}
 
 	/**
@@ -398,13 +409,13 @@ public class AdCreator {
 		emailTv.setText(email);
 		webTv.setText(website);
 
-		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		TextView textView = (TextView) v.findViewById(R.id.text);
+		ViewFlipper imageVF = (ViewFlipper) v.findViewById(R.id.image);
+		ViewFlipper textVF = (ViewFlipper) v.findViewById(R.id.text);
 		
-		setRelationBy(v,vf, textView, text.get("position"));
+		setRelationBy(v,imageVF, textVF, text.get("position"));
 		
-		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
-		textTransfer(textView,text,R.id.image);
+		imageTransfer(imageVF,images,Integer.parseInt(data.get("interval").toString()));
+		textTransfer(textVF,text);
 	}
 
 
@@ -424,12 +435,12 @@ public class AdCreator {
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
 		
 		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		TextView textView = (TextView) v.findViewById(R.id.text);
+		ViewFlipper textView = (ViewFlipper) v.findViewById(R.id.text);
 		
 		setRelationBy(v,vf,textView,text.get("position"));
 
 		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
-		textTransfer(textView,text,R.id.image);
+		textTransfer(textView,text);
 		
 	}
 
@@ -443,10 +454,12 @@ public class AdCreator {
 	private void showAdType_2(View v, Map<String, Object> data) {
 		TextView title = (TextView) v.findViewById(R.id.title);
 		title.setText(data.get("title").toString());
-		TextView textView = (TextView) v.findViewById(R.id.text);
+		ViewFlipper textView = (ViewFlipper) v.findViewById(R.id.text);
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
-		textTransfer(textView,text,0);
+		textParams.width = ad_width;
+		textParams.height = ad_height;
+		textTransfer(textView,text);
 	}
 
 	/**
@@ -499,7 +512,7 @@ public class AdCreator {
 					protected void onPostExecute(Bitmap result) {
 						if(result!=null){
 								ImageView iv = new ImageView(mContext);
-								iv.setLayoutParams(new LayoutParams(image_w, image_h));
+								iv.setLayoutParams(imageParams);
 								iv.setScaleType(ScaleType.FIT_XY);
 								iv.setImageBitmap(result);
 								iv.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_left));
@@ -561,13 +574,13 @@ public class AdCreator {
 		}
 	};
 	
-	private void stopTimer() {
-
-		if (timer != null) {
-			timer.cancel();
-			timer = null;
-		}
-	}
+//	private void stopTimer() {
+//
+//		if (timer != null) {
+//			timer.cancel();
+//			timer = null;
+//		}
+//	}
 
 
 	/**
@@ -578,20 +591,83 @@ public class AdCreator {
 	 * @param position
 	 * @param scroll
 	 */
-	private void textTransfer(TextView textView,HashMap<String,String> text,int imageId) {
-		textView.setTextColor(Color.WHITE);
-		textView.setText(text.get("value"));
+	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
 		String anim = text.get("anim");
-		String direction = text.get("direction");
+//		String value = text.get("value");
+		String value = text.get("value").replace('\n', ' ').trim();
+		final String direction = text.get("direction");
 		String scroll = text.get("scroll");
-		
-		if(anim.equals("left")){
-			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_left));
-		}else if(anim.equals("right"))
-		{
-			textView.setAnimation(AnimationUtils.loadAnimation(mContext, R.anim.push_in_right));
+		if (anim.equals("left")) {
+			vf.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_left));
+		} else if (anim.equals("right")) {
+			vf.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_right));
 		}
+		TextView textview = new TextView(mContext);
+		vf.addView(textview);
+		FontMetrics fm = textview.getPaint().getFontMetrics();
+		float baseline = fm.descent - fm.ascent + fm.leading;
+		System.out.println(" baseLine-->"+baseline);
+		if(50<baseline){
+			textview.setText(value);
+			return;//tbd
+		}
+		int maxLines = (int) Math.ceil((textParams.height/baseline)-1);
+		final String [] strs = getValuesByLines(textParams.width, value, maxLines, textview.getPaint());
+		for (int i = 0; i < strs.length; i++) {
+			TextView textView1 = new TextView(mContext);
+			textView1.setText(strs[i]);
+			Log.d("AdCreator", "textView1:>>>"+ strs[i]);
+			vf.addView(textView1);
+		}
+		 vf.removeView(textview);
+		final int animList[] = new int[] { R.anim.push_in_left,
+				R.anim.push_out_left, R.anim.push_in_right,
+				R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
+				R.anim.push_in_bottom, R.anim.push_out_bottom };
+		handlerText = new Handler() {
+			public void handleMessage(Message msg) {
+				super.handleMessage(msg);
+				switch (msg.what) {
+				case PUSHTEXT:
+					vf.clearAnimation();
+					mCurrentTextIndex = mCurrentTextIndex % (strs.length);
+					if ("left".equals(direction)) {
+						vf.clearAnimation();
+						vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[0]));
+						vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[1]));
+					} else if ("right".equals(direction)) {
+						vf.clearAnimation();
+						vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[2]));
+						vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[3]));
+					}else if("top".equals(direction)){
+						 vf.clearAnimation();
+						 vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[4]));
+						 vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[5]));
+					 }
+					 else if("bottom".equals(direction)){
+						 vf.clearAnimation();
+						 vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[6]));
+						 vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[7]));
+					 }
+					vf.showNext();
+					mCurrentTextIndex++;
+					break;
+			
+				}
+			}
+		};
+		Timer timerText = new Timer();
+		timerText.schedule(tasktext, 2000, Integer.parseInt(scroll) * 1000);
 	}
+
+	TimerTask tasktext = new TimerTask() {
+		public void run() {
+			Message message = new Message();
+			message.what = PUSHTEXT;
+			handlerText.removeMessages(PUSHTEXT);
+			handlerText.sendEmptyMessageDelayed(PUSHTEXT, 500);
+		}
+	};
 
 	/**
 	 * you can set the ad size or not
@@ -602,6 +678,8 @@ public class AdCreator {
 		ad_width = width;
 		ad_height = height;
 	}
+	
+	
 	/**
 	 * set imageView w and h
 	 * @param w
@@ -626,7 +704,52 @@ public class AdCreator {
     	return bitmap;
     }
   
-  
-  
+  public void stop(){
+	  if(adViewParent!=null)
+	  adViewParent.removeAllViews();
+  }
+	private String[] getValuesByLines(int w,String value,int lines,Paint paint) {
+		String [] linestrs = getLineStrs(value, paint, w);
+		String [] values = new String [(int) Math.ceil(linestrs.length/lines)+1];
+		System.out.println("累计行数-->"+linestrs.length + "  最大行数-->"+lines+"  页数-->"+values.length);
+		for(int i = 0;i<values.length;i++){
+			values[i] = getValueFrom(linestrs,lines,i);
+			System.out.println("value-->"+i+"<-->"+values[i]);
+		}
+		return values;
+	}
+	
+	private String getValueFrom(String[] linestrs,int lines,int num){
+		StringBuffer result = new StringBuffer();
+		for(int i=num*lines;i<(num+1)*lines;i++){
+			if(i>=linestrs.length)
+				break;
+			result.append(linestrs[i]);
+		}
+		return result.toString();	
+	}
+	
+	
+	private String[] getLineStrs(String content, Paint p, float width) { 
+		
+		System.out.println("width-->"+width);
+        int length = content.length(); 
+        float textWidth = p.measureText(content); 
+        if(textWidth <= width) { 
+            return new String[]{content}; 
+        } 
+        int lines = (int) Math.ceil(textWidth / width)+1; //计算行数 //width
+        int start = 0, end = length/lines, i = 0; 
+        String[] lineTexts = new String[lines]; 
+        while(end < length && i < lines) {
+           lineTexts[i++] = (String) content.subSequence(start, end);
+           System.out.println("sub-->"+ content.substring(start, end));
+           start = end; 
+           end += length/lines;
+           if(end >=length)
+        	   end = length-1;
+        } 
+        return lineTexts; 
+    }
   
 }
