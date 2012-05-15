@@ -9,21 +9,11 @@
         android:id="@+id/title"
         style="@style/style_title"/>
 
-<!--     <TextView
+    <ViewFlipper
         android:id="@+id/text"
-        android:layout_below="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:text="@string/ad_content"
-        /> -->
-    <com.rushfusion.ad.AdText
-        android:id="@+id/text"
         android:layout_below="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:text="@string/ad_content"
-        />
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>
