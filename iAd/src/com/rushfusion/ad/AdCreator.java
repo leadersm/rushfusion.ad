@@ -704,12 +704,13 @@ public class AdCreator {
     	return bitmap;
     }
   
+  
   public void stop(){
 	  if(adViewParent!=null)
 	  adViewParent.removeAllViews();
   }
 	private String[] getValuesByLines(int w,String value,int lines,Paint paint) {
-		String [] linestrs = getLineStrs(value, paint, w);
+		String [] linestrs = getLineStrs(value, paint, w, 21);
 		String [] values = new String [(int) Math.ceil(linestrs.length/lines)+1];
 		System.out.println("累计行数-->"+linestrs.length + "  最大行数-->"+lines+"  页数-->"+values.length);
 		for(int i = 0;i<values.length;i++){
@@ -754,44 +755,35 @@ public class AdCreator {
 	
 	
 	
-	/**
-     * @author Mike
-     * @param TextView textview, Paint p
-     * @return String[]
-     * @throws Exception
-     */
-	private String[] getLineStrs(TextView textview, Paint p) {
-		int width = textview.getWidth();
 
-		String text = (String) textview.getText();
-		float textSize = textview.getTextSize();
-		Paint paint = new Paint();
-		paint.setTextSize(textSize);
+	private String[] getLineStrs(String content, Paint p, float width, float textSize) {
+		 
+		p.setTextSize(textSize);
 
 		int index = 0;
 		int start = 0;
 		int end = 0;
 		
-		float textLength = paint.measureText(text);
+		float textLength = p.measureText(content);
 
 		int lineNum = (int) Math.ceil(textLength / width);
 		Log.d("split", "textView1 lineNum is:" + lineNum);
 		String[] mSplitTextParts = new String[lineNum];
 		
-		for (int i = 0; i <= text.length(); i++) {
+		for (int i = 0; i <= content.length(); i++) {
 			end = i;
 
-			float measureLength = paint.measureText(text, start, end);
+			float measureLength = p.measureText(content, start, end);
 			Log.d("split", "textView1 measureLength is:" + measureLength);
 
 			if (measureLength >= width) {
-					mSplitTextParts[index] = text.substring(start, end);
+					mSplitTextParts[index] = content.substring(start, end);
 					start = end;
 					index++;	
 			}
 
-			if (end == text.length()) {
-				mSplitTextParts[index] = text.substring(start, end);
+			if (end == content.length()) {
+				mSplitTextParts[index] = content.substring(start, end);
 			}
 
 	}
