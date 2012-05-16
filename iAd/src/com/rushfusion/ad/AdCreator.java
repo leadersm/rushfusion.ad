@@ -86,10 +86,10 @@ public class AdCreator {
 	
 	
 	
-	public AdCreator(Activity context,String adUrl,CallBack callback) {
+	public AdCreator(Activity context,String adUrl,CallBack callback) { //初始化
 		mContext = context;
 		mCallback = callback;
-		mAdUrl = adUrl;
+		mAdUrl = adUrl; //把广告的url赋值给mAdUrl
 		adViewParent = new RelativeLayout(context);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.ALIGN_PARENT_TOP);
@@ -97,13 +97,13 @@ public class AdCreator {
 	}
 
 	public void start(){
-		if(!checkNetwork(mContext)){
+		if(!checkNetwork(mContext)){ //网络不可用的时候启动无网络模式
 			mCallback.onError(new Exception("the network is not enabled！！"), ERROR_NETWORK_NOT_ENABLED);
 			Log.w(TAG, "the network is not enabled！！the no network model has been started");
 			startNoNetworkModel();
 			return;
 		}
-		if(mAdUrl.equals("")||mAdUrl==null){
+		if(mAdUrl.equals("")||mAdUrl==null){ //广告的Url为空则启动无网络模式
 			mCallback.onError(new Exception("the AdUrl is null "), ERROR_URL);
 			Log.w(TAG, "the AdUrl is null ");
 			startNoNetworkModel();
@@ -112,8 +112,8 @@ public class AdCreator {
 		URL url;
 		Map<String, Object> data = null;
 		try {
-			url = new URL(mAdUrl);
-			data = parseXml(url.openConnection().getInputStream());
+			url = new URL(mAdUrl); //当广告有Url的时候则打开链接
+			data = parseXml(url.openConnection().getInputStream());//这里url.openConnection().getInputStream()返回的是inputStream,通过解析输入流来得到一个Map对象data
 		} catch (Exception e1) {
 			mCallback.onError(e1,ERROR_START);
 			e1.printStackTrace();
@@ -128,7 +128,9 @@ public class AdCreator {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
+			//将指定的xml文件转换成inputstream
 			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
+			//parseXml()方法返回的是一个map对象，里面存放了很多的键值对
 			data = parseXml(in);
 		} catch (Exception e1) {
 			mCallback.onError(e1,ERROR_START);
@@ -172,13 +174,13 @@ public class AdCreator {
 		int type = Integer.parseInt((String) data.get("type"));
 		String position = (String) data.get("position");
 		int layoutId = 0;
-		if (type==1) {//image only
+		if (type==1) {//image only 当type=1时，加载first这个布局文件
 			layoutId = R.layout.first;
-		} else if (type==2) {//text only
+		} else if (type==2) {//text only  当type=2时，加载second这个布局文件
 			layoutId = R.layout.second;
-		} else if(type==3){//image + text
+		} else if(type==3){//image + text  当type=3时，加载third这个布局文件
 			layoutId = R.layout.third;
-		}else if(type==4){//full
+		}else if(type==4){//full   当type=4时，加载fourth这个布局文件
 			layoutId = R.layout.fourth;
 		}
 		View v = getViewByPosition(position,layoutId);
@@ -198,7 +200,7 @@ public class AdCreator {
 		}
 		adViewParent.addView(v);
 	}
-
+	//根据不同的layoutId扩充不同的布局文件得到view，根据不同的position设置params，然后v.setLayoutParams(params)，返回v
 	private View getViewByPosition(String position,int layoutId) {
 		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width,ad_height);
@@ -233,13 +235,14 @@ public class AdCreator {
 	 * @return data
 	 * @throws FactoryConfigurationError
 	 */
-	private Map<String, Object> parseXml(InputStream is) throws FactoryConfigurationError {
+	private Map<String, Object> parseXml(InputStream in) throws FactoryConfigurationError {
 		Map<String, Object> data = new HashMap<String, Object>();
 		try {
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(in);
 			Dom2Map root = Dom2Map.parse(doc);
 
-			String position = root.get("ad").attr("position");
+			//<ad position="top" type="4" >像这样，position和type都是ad的属性，所以用attr
+			String position = root.get("ad").attr("position"); 
 			data.put("position", position);
 			Log.i(TAG,"position-->" + position);
 
@@ -248,7 +251,8 @@ public class AdCreator {
 			Log.i(TAG,"type-->" + type);
 
 
-			String title = root.get("ad").get("title").value();
+			//<title>title:4th</title>像这样，尖括号中间的内容是值，所以用value，同时要注意需要一层一层get
+			String title = root.get("ad").get("title").value(); 
 			data.put("title", title);
 			Log.i(TAG,"title-->" + title);
 
@@ -260,6 +264,9 @@ public class AdCreator {
 			ArrayList<Dom2Map> nodes = root.get("ad").get("images").get("image").getGroup();
 			Log.i(TAG,"images.size-->" + nodes.size());
 			for (Dom2Map node : nodes) {
+				//image这个map用来存放键值对，放在循环里面，每次循环都会new一个map出来好存放键值对，第一次循环new出一个map用来存放xml文件中第一个image的信息，
+				//包括url对应的http://i2.sinaimg.cn/ast/idx/2012/0504/U5246P54T135D1F3929DT20120504182741.jpg和
+				//anime对应的left这两个键值对，然后images这个ArrayList把这个map添加进去。然后开始第二次循环。。。
 				HashMap<String,String> image = new HashMap<String, String>();
 				image.put("url", node.attr("url"));
 				image.put("anim", node.attr("anim"));
