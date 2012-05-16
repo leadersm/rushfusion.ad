@@ -106,7 +106,7 @@ public class IAdActivity extends Activity {
 						}
 					});
 			creator1.TEST_XML = "data1.xml";
-			creator1.setAdSize(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+			creator1.setAdSize(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			creator1.start();
 		}
 	};

@@ -89,6 +89,7 @@ public class AdCreator {
 		mCallback = callback;
 		mAdUrl = adUrl;
 		adViewParent = new RelativeLayout(context);
+		adViewParent.setBackgroundColor(context.getResources().getColor(R.color.bg));
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
 				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
@@ -559,6 +560,7 @@ public class AdCreator {
 				protected void onPostExecute(Bitmap result) {
 					if (result != null) {
 						ImageView iv = new ImageView(mContext);
+						iv.setAlpha(170);
 						iv.setLayoutParams(imageParams);
 						iv.setScaleType(ScaleType.FIT_XY);
 						iv.setImageBitmap(result);
@@ -795,8 +797,7 @@ public class AdCreator {
 			Paint paint) {
 		String[] linestrs = getLineStrs(value, paint, w);
 		System.out.println("页数" + Math.ceil(linestrs.length / maxlines));
-		String[] values = new String[(int) Math
-				.ceil(linestrs.length / maxlines)];
+		String[] values = new String[(int) Math.ceil(linestrs.length / maxlines)];
 		// String [] values = new String
 		// [linestrs.length%maxlines>0?(int)Math.ceil(linestrs.length/maxlines)+1:(int)Math.ceil(linestrs.length/maxlines)];
 
