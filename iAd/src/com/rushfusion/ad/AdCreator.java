@@ -54,7 +54,8 @@ public class AdCreator {
 	public static final int ERROR_NETWORK_NOT_ENABLED = 101;
 	public static final int ERROR_AD_TYPE = 102;
 	public static final int ERROR_URL= 103;
-	public static final int ERROR_START= 104;
+	public static final int ERROR_UNKNOWN_POSITION= 104;
+	public static final int ERROR_START= 105;
 
 	private Activity mContext;
 	public RelativeLayout adViewParent;
@@ -235,11 +236,7 @@ public class AdCreator {
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		}else
-			try {
-				throw new Exception("unKnown position-->"+position);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			mCallback.onError(new Exception("unKnown position-->"+position), ERROR_UNKNOWN_POSITION);
 		v.setLayoutParams(params);
 		return v;
 	}
@@ -341,7 +338,7 @@ public class AdCreator {
 				
 			userParams.width = ad_width - 100;
 			imageParams.width = ad_width - 100;
-			image_w = ad_width - 100;
+			image_w = imageParams.width;
 			userParams.addRule(RelativeLayout.BELOW, R.id.image);
 			userParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.image);
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -363,8 +360,6 @@ public class AdCreator {
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
 		}else if(textposition.equals("top")){
-			textParams.width = ad_width;
-			textParams.height = ad_height-image_h;
 			TextView title = (TextView) adView.findViewById(R.id.title);
 			if(title==null||title.getText().equals(""))
 				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -372,10 +367,10 @@ public class AdCreator {
 				textParams.addRule(RelativeLayout.BELOW,R.id.title);
 				userParams.addRule(RelativeLayout.BELOW, R.id.image);
 			imageParams.addRule(RelativeLayout.BELOW,R.id.text);
-		}else if(textposition.equals("bottom")){
+			imageParams.height = RelativeLayout.LayoutParams.MATCH_PARENT;
 			textParams.width = ad_width;
-			textParams.height = ad_height-image_h;
-			textParams.addRule(RelativeLayout.BELOW, R.id.image);
+			textParams.height = ad_height-image_h-title.getHeight();
+		}else if(textposition.equals("bottom")){
 			if(userInfo!=null){
 				userParams.addRule(RelativeLayout.BELOW, R.id.text);
 				userInfo.setLayoutParams(userParams);
@@ -385,6 +380,9 @@ public class AdCreator {
 				imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			else
 				imageParams.addRule(RelativeLayout.BELOW,R.id.title);
+			textParams.width = ad_width;
+			textParams.height = ad_height-image_h-title.getHeight();
+			textParams.addRule(RelativeLayout.BELOW, R.id.image);
 		}
 		if(userInfo!=null)
 			userInfo.setLayoutParams(userParams);
@@ -423,6 +421,7 @@ public class AdCreator {
 		contactTv.setText(contact);
 		phoneTv.setText(phone);
 		adsTv.setText(address);
+		adsTv.requestFocus();
 		emailTv.setText(email);
 		webTv.setText(website);
 
@@ -634,15 +633,20 @@ public class AdCreator {
 		int maxLines = (int) Math.ceil((textParams.height/baseline));
 		
 		final String [] strs = getValuesByLines(textParams.width, value, maxLines, textview.getPaint());
+		if(strs.length==1){
+			textview.setText(strs[0]);
+			return;//tbd
+		}
 		for (int i = 0; i < strs.length; i++) {
-			if(strs[i]!=null){
+			System.out.println("strs["+i+"]-->"+strs[i]);
+			if(strs[i]!=null&&!strs[i].equals("")){
 				TextView textView1 = new TextView(mContext);
 				textView1.setText(strs[i]);
 				Log.d("AdCreator", "textView1:>>>"+ strs[i]);
 				vf.addView(textView1);
 			}
 		}
-		 vf.removeView(textview);
+		vf.removeView(textview);
 		final int animList[] = new int[] { R.anim.push_in_left,
 				R.anim.push_out_left, R.anim.push_in_right,
 				R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
@@ -735,6 +739,9 @@ public class AdCreator {
 		String [] linestrs = getLineStrs(value, paint, w);
 		System.out.println("页数"+Math.ceil(linestrs.length/maxlines));
 		String [] values = new String [(int) Math.ceil(linestrs.length/maxlines)];
+//		String [] values = new String [linestrs.length%maxlines>0?(int)Math.ceil(linestrs.length/maxlines)+1:(int)Math.ceil(linestrs.length/maxlines)];
+		
+		
 		System.out.println("累计行数-->"+linestrs.length + "  最大行数-->"+maxlines+"  页数-->"+values.length);
 		for(int i = 0;i<values.length;i++){
 			values[i] = getValueFrom(linestrs,maxlines,i);
@@ -749,7 +756,7 @@ public class AdCreator {
 			if(i>=linestrs.length)
 				break;
 			if(linestrs[i]!=null)
-			result.append(linestrs[i]);
+				result.append(linestrs[i]);
 			System.out.println("sub-->"+ linestrs[i]);
 		}
 		return result.toString();	
@@ -763,7 +770,9 @@ public class AdCreator {
 		float textLength = p.measureText(content);
 		System.out.println("textLength->"+textLength);
 		System.out.println("width->"+width);
+		
 		int lineNum = (int) Math.ceil(textLength / width);
+		
 		if(textLength<width){
           return new String[]{content}; 
 		}
@@ -773,17 +782,11 @@ public class AdCreator {
 			float measureLength = p.measureText(content, start, end);
 			if (measureLength >= width) {
 				Log.d("split", "textView1 measureLength is:" + measureLength);
-					mSplitTextParts[index] = content.substring(start, end);
+					mSplitTextParts[index++] = content.substring(start, end);
 					start = end;
-					if(mSplitTextParts[index]==null)
-						mSplitTextParts[index]="";
-					index++;
 			}
 			if (end == content.length()) {
-				mSplitTextParts[index] = content.substring(start, end);
-				if(mSplitTextParts[index]==null)
-					mSplitTextParts[index]="";
-				index++;
+				mSplitTextParts[index++] = content.substring(start, end);
 			}
 		}
 		return mSplitTextParts;

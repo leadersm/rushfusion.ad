@@ -94,8 +94,7 @@ public class IAdActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			creator1 = new AdCreator(
-					IAdActivity.this, "", new AdCreator.CallBack() {
+			creator1 = new AdCreator(IAdActivity.this, "", new AdCreator.CallBack() {
 						
 						@Override
 						public void onError(Exception e,
@@ -114,8 +113,7 @@ public class IAdActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			creator2 = new AdCreator(
-					IAdActivity.this, "", new AdCreator.CallBack() {
+			creator2 = new AdCreator(IAdActivity.this, "", new AdCreator.CallBack() {
 
 						@Override
 						public void onError(Exception e,
@@ -134,8 +132,7 @@ public class IAdActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			creator3 = new AdCreator(
-					IAdActivity.this, "", new AdCreator.CallBack() {
+			creator3 = new AdCreator(IAdActivity.this, "", new AdCreator.CallBack() {
 
 						@Override
 						public void onError(Exception e,
@@ -145,7 +142,7 @@ public class IAdActivity extends Activity {
 						}
 					});
 			creator3.TEST_XML = "data3.xml";
-			creator3.setAdSize(300, 300);
+			creator3.setAdSize(300, 400);
 			creator3.start();
 		}
 	};
@@ -153,8 +150,7 @@ public class IAdActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			creator4 = new AdCreator(
-					IAdActivity.this, "", new AdCreator.CallBack() {
+			creator4 = new AdCreator(IAdActivity.this, "", new AdCreator.CallBack() {
 
 						@Override
 						public void onError(Exception e,
