@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -52,7 +54,8 @@ public class AdCreator {
 	public static final int ERROR_NETWORK_NOT_ENABLED = 101;
 	public static final int ERROR_AD_TYPE = 102;
 	public static final int ERROR_URL= 103;
-	public static final int ERROR_START= 104;
+	public static final int ERROR_UNKNOWN_POSITION= 104;
+	public static final int ERROR_START= 105;
 
 	private Activity mContext;
 	public RelativeLayout adViewParent;
@@ -180,6 +183,9 @@ public class AdCreator {
 			layoutId = R.layout.third;
 		}else if(type==4){//full
 			layoutId = R.layout.fourth;
+		} else{
+			mCallback.onError(new Exception("type error, type-->"+type), ERROR_AD_TYPE);
+			return null;
 		}
 		View v = getViewByPosition(position,layoutId);
 		dispatchViewByType(v,type,data);
@@ -202,27 +208,35 @@ public class AdCreator {
 	private View getViewByPosition(String position,int layoutId) {
 		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width,ad_height);
-		if(position.equals("left")){
+		if(position.equals("1")){
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else if(position.equals("2")){
+			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else if(position.equals("3")){
+			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else if(position.equals("4")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		}else if(position.equals("right")){
+		}else if(position.equals("5")){
+			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+			params.addRule(RelativeLayout.CENTER_VERTICAL);
+		}else if(position.equals("6")){
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		}else if(position.equals("top")){
-			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		}else if(position.equals("bottom")){
+		}else if(position.equals("7")){
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		}else if(position.equals("8")){
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-		}else if(position.equals("center")){
-			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else
-			try {
-				throw new Exception("unKnown position-->"+position);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		}else if(position.equals("9")){
+			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+		}else
+			mCallback.onError(new Exception("unKnown position-->"+position), ERROR_UNKNOWN_POSITION);
 		v.setLayoutParams(params);
 		return v;
 	}
@@ -324,7 +338,7 @@ public class AdCreator {
 				
 			userParams.width = ad_width - 100;
 			imageParams.width = ad_width - 100;
-			image_w = ad_width - 100;
+			image_w = imageParams.width;
 			userParams.addRule(RelativeLayout.BELOW, R.id.image);
 			userParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.image);
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -346,8 +360,6 @@ public class AdCreator {
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
 		}else if(textposition.equals("top")){
-			textParams.width = ad_width;
-			textParams.height = ad_height-image_h;
 			TextView title = (TextView) adView.findViewById(R.id.title);
 			if(title==null||title.getText().equals(""))
 				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -355,10 +367,10 @@ public class AdCreator {
 				textParams.addRule(RelativeLayout.BELOW,R.id.title);
 				userParams.addRule(RelativeLayout.BELOW, R.id.image);
 			imageParams.addRule(RelativeLayout.BELOW,R.id.text);
-		}else if(textposition.equals("bottom")){
+			imageParams.height = RelativeLayout.LayoutParams.MATCH_PARENT;
 			textParams.width = ad_width;
-			textParams.height = ad_height-image_h;
-			textParams.addRule(RelativeLayout.BELOW, R.id.image);
+			textParams.height = ad_height-image_h-title.getHeight();
+		}else if(textposition.equals("bottom")){
 			if(userInfo!=null){
 				userParams.addRule(RelativeLayout.BELOW, R.id.text);
 				userInfo.setLayoutParams(userParams);
@@ -368,6 +380,9 @@ public class AdCreator {
 				imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			else
 				imageParams.addRule(RelativeLayout.BELOW,R.id.title);
+			textParams.width = ad_width;
+			textParams.height = ad_height-image_h-title.getHeight();
+			textParams.addRule(RelativeLayout.BELOW, R.id.image);
 		}
 		if(userInfo!=null)
 			userInfo.setLayoutParams(userParams);
@@ -406,6 +421,7 @@ public class AdCreator {
 		contactTv.setText(contact);
 		phoneTv.setText(phone);
 		adsTv.setText(address);
+		adsTv.requestFocus();
 		emailTv.setText(email);
 		webTv.setText(website);
 
@@ -458,7 +474,7 @@ public class AdCreator {
 		@SuppressWarnings("unchecked")
 		HashMap<String,String> text = ((HashMap<String, String>) data.get("text"));
 		textParams.width = ad_width;
-		textParams.height = ad_height;
+		textParams.height = ad_height-title.getHeight();
 		textTransfer(textView,text);
 	}
 
@@ -475,8 +491,8 @@ public class AdCreator {
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
 		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		image_w = ad_width;
-		image_h = ad_height;
+		imageParams.width = ad_width;
+		imageParams.height = ad_height;
 		imageTransfer(vf,images,Integer.parseInt(data.get("interval").toString()));
 	}
 
@@ -521,7 +537,6 @@ public class AdCreator {
 						super.onPostExecute(result);
 					}
 				 }.execute();
-			}
 			 handler = new Handler() {
 				 public void handleMessage(Message msg) {
 					 super.handleMessage(msg);
@@ -529,7 +544,6 @@ public class AdCreator {
 					 case POLL:
 						 vf.clearAnimation();
 						 mCurrentPhotoIndex = mCurrentPhotoIndex % (images.size());
-						 Log.d("current", "mCurrentPhotoIndex:>>>" + mCurrentPhotoIndex);
 						 String animPosition =images.get(mCurrentPhotoIndex).get("anim");
 						 //判断动画显示的方向
 						 if("left".equals(animPosition)){
@@ -563,6 +577,7 @@ public class AdCreator {
 			 };
 			 timer= new Timer();
 			 timer.schedule(task, 2000, delay*1000);
+			 }
 	}
 	
 	TimerTask task = new TimerTask() {
@@ -593,8 +608,10 @@ public class AdCreator {
 	 */
 	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
 		String anim = text.get("anim");
-//		String value = text.get("value");
-		String value = text.get("value").replace('\n', ' ').trim();
+		String value = text.get("value");
+		Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+		Matcher m = p.matcher(value);
+		value = m.replaceAll("").trim();
 		final String direction = text.get("direction");
 		String scroll = text.get("scroll");
 		if (anim.equals("left")) {
@@ -602,24 +619,34 @@ public class AdCreator {
 		} else if (anim.equals("right")) {
 			vf.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_right));
 		}
+		
 		TextView textview = new TextView(mContext);
-		vf.addView(textview);
+		vf.addView(textview);//tbd
+		
 		FontMetrics fm = textview.getPaint().getFontMetrics();
 		float baseline = fm.descent - fm.ascent + fm.leading;
-		System.out.println(" baseLine-->"+baseline);
-		if(50<baseline){
+		if(textParams.height<baseline){
 			textview.setText(value);
 			return;//tbd
 		}
-		int maxLines = (int) Math.ceil((textParams.height/baseline)-1);
+		System.out.println("textParams.H-->"+textParams.height+" baseLineH-->"+baseline+"maxLines-->"+Math.ceil((textParams.height/baseline)));
+		int maxLines = (int) Math.ceil((textParams.height/baseline));
+		
 		final String [] strs = getValuesByLines(textParams.width, value, maxLines, textview.getPaint());
-		for (int i = 0; i < strs.length; i++) {
-			TextView textView1 = new TextView(mContext);
-			textView1.setText(strs[i]);
-			Log.d("AdCreator", "textView1:>>>"+ strs[i]);
-			vf.addView(textView1);
+		if(strs.length==1){
+			textview.setText(strs[0]);
+			return;//tbd
 		}
-		 vf.removeView(textview);
+		for (int i = 0; i < strs.length; i++) {
+			System.out.println("strs["+i+"]-->"+strs[i]);
+			if(strs[i]!=null&&!strs[i].equals("")){
+				TextView textView1 = new TextView(mContext);
+				textView1.setText(strs[i]);
+				Log.d("AdCreator", "textView1:>>>"+ strs[i]);
+				vf.addView(textView1);
+			}
+		}
+		vf.removeView(textview);
 		final int animList[] = new int[] { R.anim.push_in_left,
 				R.anim.push_out_left, R.anim.push_in_right,
 				R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
@@ -709,48 +736,61 @@ public class AdCreator {
 	  if(adViewParent!=null)
 	  adViewParent.removeAllViews();
   }
-	private String[] getValuesByLines(int w,String value,int lines,Paint paint) {
-		String [] linestrs = getLineStrs(value, paint, w, 21);
-		String [] values = new String [(int) Math.ceil(linestrs.length/lines)+1];
-		System.out.println("累计行数-->"+linestrs.length + "  最大行数-->"+lines+"  页数-->"+values.length);
+	private String[] getValuesByLines(int w,String value,int maxlines,Paint paint) {
+		String [] linestrs = getLineStrs(value, paint, w);
+		System.out.println("页数"+Math.ceil(linestrs.length/maxlines));
+		String [] values = new String [(int) Math.ceil(linestrs.length/maxlines)];
+//		String [] values = new String [linestrs.length%maxlines>0?(int)Math.ceil(linestrs.length/maxlines)+1:(int)Math.ceil(linestrs.length/maxlines)];
+		
+		
+		System.out.println("累计行数-->"+linestrs.length + "  最大行数-->"+maxlines+"  页数-->"+values.length);
 		for(int i = 0;i<values.length;i++){
-			values[i] = getValueFrom(linestrs,lines,i);
+			values[i] = getValueFrom(linestrs,maxlines,i);
 			System.out.println("value-->"+i+"<-->"+values[i]);
 		}
 		return values;
 	}
 	
-	private String getValueFrom(String[] linestrs,int lines,int num){
+	private String getValueFrom(String[] linestrs,int maxlines,int num){
 		StringBuffer result = new StringBuffer();
-		for(int i=num*lines;i<(num+1)*lines;i++){
+		for(int i=num*maxlines;i<(num+1)*maxlines;i++){
 			if(i>=linestrs.length)
 				break;
-			result.append(linestrs[i]);
+			if(linestrs[i]!=null)
+				result.append(linestrs[i]);
+			System.out.println("sub-->"+ linestrs[i]);
 		}
 		return result.toString();	
 	}
 	
 	
 	private String[] getLineStrs(String content, Paint p, float width) { 
+		int index = 0;
+		int start = 0;
+		int end = 0;
+		float textLength = p.measureText(content);
+		System.out.println("textLength->"+textLength);
+		System.out.println("width->"+width);
 		
-		System.out.println("width-->"+width);
-        int length = content.length(); 
-        float textWidth = p.measureText(content); 
-        if(textWidth <= width) { 
-            return new String[]{content}; 
-        } 
-        int lines = (int) Math.ceil(textWidth / width)+1; //计算行数 //width
-        int start = 0, end = length/lines, i = 0; 
-        String[] lineTexts = new String[lines]; 
-        while(end < length && i < lines) {
-           lineTexts[i++] = (String) content.subSequence(start, end);
-           System.out.println("sub-->"+ content.substring(start, end));
-           start = end; 
-           end += length/lines;
-           if(end >=length)
-        	   end = length-1;
-        } 
-        return lineTexts; 
+		int lineNum = (int) Math.ceil(textLength / width);
+		
+		if(textLength<width){
+          return new String[]{content}; 
+		}
+		Log.d("split", "textView1 lineNum is:" + lineNum);
+		String[] mSplitTextParts = new String[lineNum];
+		for (int i = 0; i <= content.length(); i++,end++) {
+			float measureLength = p.measureText(content, start, end);
+			if (measureLength >= width) {
+				Log.d("split", "textView1 measureLength is:" + measureLength);
+					mSplitTextParts[index++] = content.substring(start, end);
+					start = end;
+			}
+			if (end == content.length()) {
+				mSplitTextParts[index++] = content.substring(start, end);
+			}
+		}
+		return mSplitTextParts;
     }
 	
 	
