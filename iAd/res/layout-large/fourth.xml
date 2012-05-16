@@ -24,22 +24,27 @@
 
         <TextView
             android:id="@+id/contact"
+            android:textSize="18dip"
             style="@style/style_contact" />
 
         <TextView
             android:id="@+id/phone"
+            android:textSize="18dip"
             style="@style/style_phone" />
 
         <TextView
             android:id="@+id/address"
+            android:textSize="18dip"
             style="@style/style_address_large" />
 
         <TextView
             android:id="@+id/email"
+            android:textSize="18dip"
             style="@style/style_email" />
 
         <TextView
             android:id="@+id/website"
+            android:textSize="18dip"
             style="@style/style_website" />
     </RelativeLayout>
 

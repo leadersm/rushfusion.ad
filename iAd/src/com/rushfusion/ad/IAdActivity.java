@@ -2,8 +2,6 @@ package com.rushfusion.ad;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -25,20 +23,6 @@ public class IAdActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.ad);
-		
-		DisplayMetrics metric = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metric);
-        int width = metric.widthPixels;  // 屏幕宽度（像素）
-        int height = metric.heightPixels;  // 屏幕高度（像素）
-        float density = metric.density;  // 屏幕密度（0.75 / 1.0 / 1.5）
-        int densityDpi = metric.densityDpi;  // 屏幕密度DPI（120 / 160 / 240）
-        
-        Log.d("screen", "width pixel is :" + width);
-        Log.d("screen", "height pixel is :" + height);
-        Log.d("screen", "density is :" + density);
-        Log.d("screen", "densityDpi is :" + densityDpi);
-		
-        
 		
 		final Button start1 = (Button) findViewById(R.id.button1);
 		final Button start2 = (Button) findViewById(R.id.button2);
@@ -122,7 +106,7 @@ public class IAdActivity extends Activity {
 						}
 					});
 			creator1.TEST_XML = "data1.xml";
-			creator1.setAdSize(RelativeLayout.LayoutParams.FILL_PARENT, 150);
+			creator1.setAdSize(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
 			creator1.start();
 		}
 	};
