@@ -32,7 +32,7 @@
 
         <TextView
             android:id="@+id/address"
-            style="@style/style_address" />
+            style="@style/style_address_large" />
 
         <TextView
             android:id="@+id/email"

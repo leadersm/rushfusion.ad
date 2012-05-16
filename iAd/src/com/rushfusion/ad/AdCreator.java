@@ -537,7 +537,6 @@ public class AdCreator {
 						super.onPostExecute(result);
 					}
 				 }.execute();
-			}
 			 handler = new Handler() {
 				 public void handleMessage(Message msg) {
 					 super.handleMessage(msg);
@@ -578,6 +577,7 @@ public class AdCreator {
 			 };
 			 timer= new Timer();
 			 timer.schedule(task, 2000, delay*1000);
+			 }
 	}
 	
 	TimerTask task = new TimerTask() {
@@ -731,6 +731,7 @@ public class AdCreator {
     	return bitmap;
     }
   
+  
   public void stop(){
 	  if(adViewParent!=null)
 	  adViewParent.removeAllViews();
@@ -791,5 +792,48 @@ public class AdCreator {
 		}
 		return mSplitTextParts;
     }
+	
+	
+	
+
+	private String[] getLineStrs(String content, Paint p, float width, float textSize) {
+		Log.d("split", "textView1 content is:" + content);
+		p.setTextSize(textSize);
+
+		int index = 0;
+		int start = 0;
+		int end = 0;
+		
+		float textLength = p.measureText(content);
+
+		int lineNum = (int) Math.ceil(textLength / width);
+		Log.d("split", "textView1 lineNum is:" + lineNum);
+		String[] mSplitTextParts = new String[lineNum];
+		
+		for (int i = 0; i <= content.length(); i++) {
+			end = i;
+
+			float measureLength = p.measureText(content, start, end);
+			Log.d("split", "textView1 measureLength is:" + measureLength);
+
+			if (measureLength >= width) {
+					mSplitTextParts[index] = content.substring(start, end);
+					start = end;
+					index++;	
+			}
+
+			if (end == content.length()) {
+				mSplitTextParts[index] = content.substring(start, end);
+				Log.d("split", "textView1 end char is:" + content.charAt(end-1));
+				Log.d("split", "textView1 mSplitTextParts[end] is:" + mSplitTextParts[index]);
+				return mSplitTextParts;
+			}
+
+	}
+		
+		
+		return null;
   
+}
+	
 }

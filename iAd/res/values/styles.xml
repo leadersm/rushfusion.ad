@@ -42,7 +42,20 @@
         <item name="android:focusableInTouchMode">true</item>
     </style>
     
-    <style name="style_address">
+
+    <style name="style_address_large">
+        <item name="android:ellipsize">end</item>
+        <item name="android:textSize">10dip</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignLeft">@+id/phone</item>
+        <item name="android:layout_below">@+id/phone</item>
+        <item name="android:text">@string/address</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    
+    <style name="style_address_xlarge">
+
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignLeft">@+id/phone</item>

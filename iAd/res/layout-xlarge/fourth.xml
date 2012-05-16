@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#000000"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/style_title" />
+
+    <ViewFlipper
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+    </ViewFlipper>
+
+    <RelativeLayout
+        android:id="@+id/userinfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/image" >
+
+        <TextView
+            android:id="@+id/contact"
+            style="@style/style_contact" />
+
+        <TextView
+            android:id="@+id/phone"
+            style="@style/style_phone" />
+
+        <TextView
+            android:id="@+id/address"
+            style="@style/style_address_xlarge" />
+
+        <TextView
+            android:id="@+id/email"
+            style="@style/style_email" />
+
+        <TextView
+            android:id="@+id/website"
+            style="@style/style_website" />
+    </RelativeLayout>
+
+     <ViewFlipper
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/title"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>
