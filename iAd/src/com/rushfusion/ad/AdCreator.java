@@ -757,7 +757,7 @@ public class AdCreator {
 	
 
 	private String[] getLineStrs(String content, Paint p, float width, float textSize) {
-		 
+		Log.d("split", "textView1 content is:" + content);
 		p.setTextSize(textSize);
 
 		int index = 0;
@@ -784,10 +784,15 @@ public class AdCreator {
 
 			if (end == content.length()) {
 				mSplitTextParts[index] = content.substring(start, end);
+				Log.d("split", "textView1 end char is:" + content.charAt(end-1));
+				Log.d("split", "textView1 mSplitTextParts[end] is:" + mSplitTextParts[index]);
+				return mSplitTextParts;
 			}
 
 	}
-		return mSplitTextParts;
+		
+		
+		return null;
   
 }
 	
