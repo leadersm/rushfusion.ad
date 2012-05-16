@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ad position="9" type="3" >
+<ad position="2" type="3" >
     <title>title:3rd</title>
     
     <images interval="5" >
@@ -10,6 +10,14 @@
         <image anim="right" url="http://www.sinaimg.cn/dy/slidenews/1_t160/2012_19/28436_162400_264737.jpg" >
         </image>
         <image anim="top" url="http://www.sinaimg.cn/dy/slidenews/1_t160/2012_17/2841_160498_472599.jpg" >
+        </image>
+        <image anim="left" url="http://img1.gtimg.com/news/pics/hv1/41/189/1040/67674236.jpg" >
+        </image>
+        <image anim="left" url="http://img1.gtimg.com/news/pics/hv1/213/180/1040/67672113.jpg" >
+        </image>
+        <image anim="left" url="http://img1.gtimg.com/tech/pics/hv1/93/115/1040/67655418.jpg" >
+        </image>
+        <image anim="left" url="http://img1.gtimg.com/auto/pics/hv1/49/146/1040/67663279.jpg" >
         </image>
     </images>
     <text anim="left" direction="top" position="bottom" scroll="5" >

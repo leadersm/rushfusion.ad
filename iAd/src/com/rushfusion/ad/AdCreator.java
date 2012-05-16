@@ -763,7 +763,7 @@ public class AdCreator {
 	}
 	
 	
-	private String[] getLineStrs(String content, Paint p, float width) { 
+	private String[] getLineStrs(String content, Paint p, float width) {
 		int index = 0;
 		int start = 0;
 		int end = 0;
@@ -782,8 +782,8 @@ public class AdCreator {
 			float measureLength = p.measureText(content, start, end);
 			if (measureLength >= width) {
 				Log.d("split", "textView1 measureLength is:" + measureLength);
-					mSplitTextParts[index++] = content.substring(start, end);
-					start = end;
+				mSplitTextParts[index++] = content.substring(start, end);
+				start = end;
 			}
 			if (end == content.length()) {
 				mSplitTextParts[index++] = content.substring(start, end);

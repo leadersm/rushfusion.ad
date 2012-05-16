@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 public class IAdActivity extends Activity {
 	/** Called when the activity is first created. */
@@ -104,7 +105,7 @@ public class IAdActivity extends Activity {
 						}
 					});
 			creator1.TEST_XML = "data1.xml";
-			creator1.setAdSize(300, 300);
+			creator1.setAdSize(RelativeLayout.LayoutParams.FILL_PARENT, 150);
 			creator1.start();
 		}
 	};
@@ -142,7 +143,7 @@ public class IAdActivity extends Activity {
 						}
 					});
 			creator3.TEST_XML = "data3.xml";
-			creator3.setAdSize(300, 400);
+			creator3.setAdSize(300, 300);
 			creator3.start();
 		}
 	};

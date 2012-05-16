@@ -1,21 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ad position="5" type="1" >
-    <title>title:1st</title>
+<ad
+    position="8"
+    type="1" >
+
+    <title>
+title:1st
+    </title>
+
     <images interval="5" >
-        <image anim="left" url="http://i2.sinaimg.cn/ast/idx/2012/0504/U5246P54T135D1F3929DT20120504182741.jpg" >
+
+        <image
+            anim="left"
+            url="http://y0.ifengimg.com/mappa/2012/04/28/01de438cbd478c824454971fce04ba4c.jpg" >
         </image>
-        <image anim="top" url="http://i3.sinaimg.cn/ast/idx/2012/0503/U5246P54T135D1F3930DT20120503194215.jpg" >
+
+        <image
+            anim="left"
+            url="http://y0.ifengimg.com/mappa/2012/02/29/e6faa20951425db5a55799a1101cca57.jpg" >
         </image>
-        <image anim="bottom" url="http://www.sinaimg.cn/dy/slidenews/1_t160/2012_19/28436_162400_264737.jpg" >
+        <image
+            anim="right"
+            url="http://y1.ifengimg.com/mappa/2012/05/10/2494604c59d889ff1c56ce4101925507.jpg" >
         </image>
-        <image anim="right" url="http://www.sinaimg.cn/dy/slidenews/1_t160/2012_17/2841_160498_472599.jpg" >
+        <image
+            anim="right"
+            url="http://y0.ifengimg.com/tres/recommend/routon/120514-750x90-H1-ifeng.jpg" >
         </image>
     </images>
-    <text ></text>
-	<contact></contact>
-	<phone></phone>
-	<address></address>
-	<email></email>
-	<website></website>
-	<!-- image Only -->
+
+    <text>
+    </text>
+
+    <contact>
+    </contact>
+
+    <phone>
+    </phone>
+
+    <address>
+    </address>
+
+    <email>
+    </email>
+
+    <website>
+    </website>
+    <!-- image Only -->
+
 </ad>
