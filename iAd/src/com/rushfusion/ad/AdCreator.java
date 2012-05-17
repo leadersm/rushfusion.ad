@@ -83,6 +83,8 @@ public class AdCreator {
 	private int mCurrentTextIndex = 0;
 	private Handler handler;
 	private Handler handlerText;
+	private float textSize = 24;
+	
 
 	public AdCreator(Activity context, String adUrl, CallBack callback) {
 		mContext = context;
@@ -246,9 +248,6 @@ public class AdCreator {
 
 	/**
 	 * initialize
-	 * 
-	 * @param mKind
-	 * @return data
 	 * @throws FactoryConfigurationError
 	 */
 	private Map<String, Object> parseXml(InputStream is)
@@ -670,6 +669,7 @@ public class AdCreator {
 		FontMetrics fm = textview.getPaint().getFontMetrics();
 		float baseline = fm.descent - fm.ascent + fm.leading;
 		if (textParams.height < baseline) {
+			setTextSize(textview.getTextSize());
 			textview.setText(value);
 			return;// tbd
 		}
@@ -678,9 +678,9 @@ public class AdCreator {
 				+ Math.ceil((textParams.height / baseline)));
 		int maxLines = (int) Math.ceil((textParams.height / baseline));
 
-		final String[] strs = getValuesByLines(textParams.width, value,
-				maxLines, textview.getPaint());
+		final String[] strs = getValuesByLines(textParams.width, value,maxLines, textview.getPaint());
 		if (strs.length == 1) {
+			setTextSize(textview.getTextSize());
 			textview.setText(strs[0]);
 			return;// tbd
 		}
@@ -688,6 +688,7 @@ public class AdCreator {
 			System.out.println("strs[" + i + "]-->" + strs[i]);
 			if (strs[i] != null && !strs[i].equals("")) {
 				TextView textView = new TextView(mContext);
+				setTextSize(textView.getTextSize());
 				textView.setTextColor(Color.WHITE);
 				textView.setText(strs[i]);
 				Log.d("AdCreator", "textView1:>>>" + strs[i]);
@@ -793,21 +794,26 @@ public class AdCreator {
 			adViewParent.removeAllViews();
 	}
 
-	private String[] getValuesByLines(int w, String value, int maxlines,
-			Paint paint) {
-		String[] linestrs = getLineStrs(value, paint, w);
-		System.out.println("页数" + Math.ceil(linestrs.length / maxlines));
-		String[] values = new String[(int) Math.ceil(linestrs.length / maxlines)];
-		// String [] values = new String
-		// [linestrs.length%maxlines>0?(int)Math.ceil(linestrs.length/maxlines)+1:(int)Math.ceil(linestrs.length/maxlines)];
-
-		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines
-				+ "  页数-->" + values.length);
+	private String[] getValuesByLines(int w, String value, int maxlines,Paint paint) {
+		String[] linestrs = getLineStrs(value, paint, w,getTextSize());
+		
+		String[] values = new String[(int) Math.ceil((double)linestrs.length / maxlines)];
+		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines + "  页数-->" + values.length);
 		for (int i = 0; i < values.length; i++) {
 			values[i] = getValueFrom(linestrs, maxlines, i);
 			System.out.println("value-->" + i + "<-->" + values[i]);
 		}
 		return values;
+	}
+
+
+	
+	public float getTextSize() {
+		return textSize;
+	}
+
+	public void setTextSize(float textSize) {
+		this.textSize = textSize;
 	}
 
 	private String getValueFrom(String[] linestrs, int maxlines, int num) {
@@ -822,7 +828,8 @@ public class AdCreator {
 		return result.toString();
 	}
 
-	private String[] getLineStrs(String content, Paint p, float width) {
+	private String[] getLineStrs(String content, Paint p, float width,float textSize) {
+		p.setTextSize(textSize);
 		int index = 0;
 		int start = 0;
 		int end = 0;
@@ -849,48 +856,6 @@ public class AdCreator {
 			}
 		}
 		return mSplitTextParts;
-	}
-
-	private String[] getLineStrs(String content, Paint p, float width,
-			float textSize) {
-		Log.d("split", "textView1 content is:" + content);
-		p.setTextSize(textSize);
-
-		int index = 0;
-		int start = 0;
-		int end = 0;
-
-		float textLength = p.measureText(content);
-
-		int lineNum = (int) Math.ceil(textLength / width);
-		Log.d("split", "textView1 lineNum is:" + lineNum);
-		String[] mSplitTextParts = new String[lineNum];
-
-		for (int i = 0; i <= content.length(); i++) {
-			end = i;
-
-			float measureLength = p.measureText(content, start, end);
-			Log.d("split", "textView1 measureLength is:" + measureLength);
-
-			if (measureLength >= width) {
-				mSplitTextParts[index] = content.substring(start, end);
-				start = end;
-				index++;
-			}
-
-			if (end == content.length()) {
-				mSplitTextParts[index] = content.substring(start, end);
-				Log.d("split",
-						"textView1 end char is:" + content.charAt(end - 1));
-				Log.d("split", "textView1 mSplitTextParts[end] is:"
-						+ mSplitTextParts[index]);
-				return mSplitTextParts;
-			}
-
-		}
-
-		return null;
-
 	}
 
 }

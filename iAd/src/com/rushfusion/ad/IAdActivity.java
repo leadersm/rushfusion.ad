@@ -125,7 +125,7 @@ public class IAdActivity extends Activity {
 						}
 					});
 			creator2.TEST_XML = "data2.xml";
-			creator2.setAdSize(300, 300);
+			creator2.setAdSize(500, 100);
 			creator2.start();
 		}
 	};
