@@ -3,7 +3,7 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="300dip"
     android:layout_height="300dip"
-    android:orientation="vertical" >
+    >
 
     <TextView
         android:id="@+id/title"

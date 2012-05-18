@@ -64,15 +64,15 @@ public class AdCreator {
 			R.anim.push_in_top, R.anim.push_out_top, R.anim.push_in_bottom,
 			R.anim.push_out_bottom };
 
-	private RelativeLayout.LayoutParams adParams;//= new RelativeLayout.LayoutParams(image_w, image_h);
-	private RelativeLayout.LayoutParams imageParams ;//= new RelativeLayout.LayoutParams(image_w, image_h);
-	private RelativeLayout.LayoutParams textParams  ;//= new RelativeLayout.LayoutParams(text_w, text_h);
-	private RelativeLayout.LayoutParams view1params ;//= new RelativeLayout.LayoutParams(getView1Params(), 150);
-	private RelativeLayout.LayoutParams view2params ;//= new RelativeLayout.LayoutParams(text_w, text_h);
-	private RelativeLayout.LayoutParams view3params ;//= new RelativeLayout.LayoutParams(text_w, text_h);
-	private RelativeLayout.LayoutParams view4params ;//= new RelativeLayout.LayoutParams(text_w, text_h);
+	private RelativeLayout.LayoutParams adParams;
+	private RelativeLayout.LayoutParams imageParams ;
+	private RelativeLayout.LayoutParams textParams  ;
+	private RelativeLayout.LayoutParams view1params ;
+	private RelativeLayout.LayoutParams view2params ;
+	private RelativeLayout.LayoutParams view3params ;
+	private RelativeLayout.LayoutParams view4params ;
 	private int adAlpha = 170;
-	private float textSize = 24;
+	private float adTextSize = 24;
 	private int textColor = Color.WHITE;
 	
 	private static final int ChangeAd = 200;
@@ -123,7 +123,6 @@ public class AdCreator {
 		if (!checkNetwork(mContext)) {
 			mCallback.onError(new Exception("the network is not enabled！！"),ERROR_NETWORK_NOT_ENABLED);
 			Log.w(TAG,"the network is not enabled！！the no network model has been started");
-			startDebugModel();
 			return;
 		}
 		if (mAdUrl.equals("") || mAdUrl == null) {
@@ -202,7 +201,7 @@ public class AdCreator {
 
 	private void startAdTask(int interval, final List<Ad> ads) {
 		adTimer = new Timer();
-		adTimer.schedule(adTask, 2000, interval * 1000);
+		adTimer.schedule(adTask,2000,interval * 5000);
 		adHandler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {
@@ -462,11 +461,11 @@ public class AdCreator {
 	private void initAdView2(View v, Ad ad) {
 		TextView title = (TextView) v.findViewById(R.id.title);
 		title.setText(ad.getTitle());
-		title.setTextColor(getTextColor());
+		title.setTextColor(getAdTextColor());
 		textVF = (ViewFlipper) v.findViewById(R.id.text);
 		content = ad.getContent();
 		setTextParams(new RelativeLayout.LayoutParams(getAdParams().width,getAdParams().height-title.getHeight()));
-		v.setLayoutParams(getTextParams());
+		v.setLayoutParams(getAdParams());
 		textTransfer(textVF, content);
 	}
 
@@ -609,7 +608,7 @@ public class AdCreator {
 			}
 		};
 		imageTimer = new Timer();
-		imageTimer.schedule(imageTask, 2000, delay * 1000);
+		imageTimer.schedule(imageTask, delay * 1000, delay * 1000);
 	}
 
 	/**
@@ -636,13 +635,13 @@ public class AdCreator {
 		}
 
 		TextView textview = new TextView(mContext);
-		textview.setTextColor(Color.WHITE);
+		textview.setTextColor(getAdTextColor());
 		vf.addView(textview);// tbd
 
 		FontMetrics fm = textview.getPaint().getFontMetrics();
 		float baseline = fm.descent - fm.ascent + fm.leading;
 		if (textParams.height < baseline) {
-			setTextSize(textview.getTextSize());
+			setAdTextSize(textview.getTextSize());
 			textview.setText(value);
 			return;// tbd
 		}
@@ -654,7 +653,7 @@ public class AdCreator {
 		strs = getValuesByLines(textParams.width, value, maxLines,
 				textview.getPaint());
 		if (strs.length == 1) {
-			setTextSize(textview.getTextSize());
+			setAdTextSize(textview.getTextSize());
 			textview.setText(strs[0]);
 			return;// tbd
 		}
@@ -662,8 +661,8 @@ public class AdCreator {
 			System.out.println("strs[" + i + "]-->" + strs[i]);
 			if (strs[i] != null && !strs[i].equals("")) {
 				TextView textView = new TextView(mContext);
-				setTextSize(textView.getTextSize());
-				textView.setTextColor(Color.WHITE);
+				setAdTextSize(textView.getTextSize());
+				textView.setTextColor(getAdTextColor());
 				textView.setText(strs[i]);
 				Log.d("AdCreator", "textView1:>>>" + strs[i]);
 				vf.addView(textView);
@@ -678,7 +677,7 @@ public class AdCreator {
 			}
 		};
 		textTimer = new Timer();
-		textTimer.schedule(textTask, 2000, Integer.parseInt(scroll) * 1000);
+		textTimer.schedule(textTask, Integer.parseInt(scroll) * 1000, Integer.parseInt(scroll) * 1000);
 	}
 
 
@@ -698,13 +697,15 @@ public class AdCreator {
 	}
 
 	public void stop() {
+		adTask.cancel();
+		creator = null;
 		if (adViewParent != null)
 			adViewParent.removeAllViews();
 	}
 
 	private String[] getValuesByLines(int w, String value, int maxlines,
 			Paint paint) {
-		String[] linestrs = getLineStrs(value, paint, w, getTextSize());
+		String[] linestrs = getLineStrs(value, paint, w, getAdTextSize());
 
 		String[] values = new String[(int) Math.ceil((double) linestrs.length
 				/ maxlines)];
@@ -760,12 +761,12 @@ public class AdCreator {
 		return mSplitTextParts;
 	}
 
-	public float getTextSize() {
-		return textSize;
+	public float getAdTextSize() {
+		return adTextSize;
 	}
 
-	public void setTextSize(float textSize) {
-		this.textSize = textSize;
+	public void setAdTextSize(float textSize) {
+		this.adTextSize = textSize;
 	}
 
 	public RelativeLayout.LayoutParams getImageParams() {
@@ -816,11 +817,11 @@ public class AdCreator {
 		this.view4params = view4params;
 	}
 
-	public int getTextColor() {
+	public int getAdTextColor() {
 		return textColor;
 	}
 
-	public void setTextColor(int textColor) {
+	public void setAdTextColor(int textColor) {
 		this.textColor = textColor;
 	}
 
