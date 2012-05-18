@@ -9,5 +9,7 @@
     <string name="address">address</string>
     <string name="website">website</string>
     <string name="ad_content">广告信息在这里~~</string>
+    <string name="value">从上图可以看出，mushroomA是在mushroomB之前的，这个时间关系不取决于谁先执行push，而取决于本地仓库中谁先执行commit。所以merge会按照时间顺序严格的记录每一次commit.从上图可以看出，mushroomA是在mushroomB之前的，这个时间关系不取决于谁先执行push，而取决于本地仓库中谁先执行commit。所以merge会按照时间顺序严格的记录每一次commit.从上图可以看出，mushroomA是在mushroomB之前的，这个时间关系不取决于谁先执行push，而取决于</string>
+        
 
 </resources>

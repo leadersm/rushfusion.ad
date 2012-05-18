@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetrics;
 import android.net.ConnectivityManager;
@@ -43,6 +46,7 @@ public class AdCreator {
 
 	public String TEST_XML = "data4.xml" ;
 	
+	private Paint mPaint = new Paint();
 	
 	private static final String TAG = "AdCreator";
 
@@ -627,7 +631,8 @@ public class AdCreator {
 			vf.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_right));
 		}
 		
-		TextView textview = new TextView(mContext);
+//		TextView textview = new TextView(mContext);
+		MyView textview = new MyView(mContext, value);
 		vf.addView(textview);//tbd
 		
 		FontMetrics fm = textview.getPaint().getFontMetrics();
@@ -647,8 +652,9 @@ public class AdCreator {
 		for (int i = 0; i < strs.length; i++) {
 			System.out.println("strs["+i+"]-->"+strs[i]);
 			if(strs[i]!=null&&!strs[i].equals("")){
-				TextView textView1 = new TextView(mContext);
-				textView1.setText(strs[i]);
+//				TextView textView1 = new TextView(mContext);
+				MyView textView1 = new MyView(mContext, strs[i]);
+//				textView1.setText(strs[i]);
 				Log.d("AdCreator", "textView1:>>>"+ strs[i]);
 				vf.addView(textView1);
 			}
@@ -742,6 +748,9 @@ public class AdCreator {
 	  if(adViewParent!=null)
 	  adViewParent.removeAllViews();
   }
+  
+  
+  
 	private String[] getValuesByLines(int w,String value,int maxlines,Paint paint) {
 		String [] linestrs = getLineStrs(value, paint, w);
 		System.out.println("页数"+Math.ceil(linestrs.length/maxlines));
@@ -768,6 +777,8 @@ public class AdCreator {
 		}
 		return result.toString();	
 	}
+	
+	
 	
 	
 	private String[] getLineStrs(String content, Paint p, float width) { 
