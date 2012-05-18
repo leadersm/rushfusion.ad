@@ -12,11 +12,6 @@ import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.FactoryConfigurationError;
-
-import org.w3c.dom.Document;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -40,9 +35,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+import com.rushfusion.ad.util.AdXmlParser;
+
 public class AdCreator {
 
-	public String TEST_XML = "data4.xml";
+	public String TEST_XML = "data.xml";
 
 	private static final String TAG = "AdCreator";
 
@@ -57,89 +54,117 @@ public class AdCreator {
 	public static final int ERROR_UNKNOWN_POSITION = 104;
 	public static final int ERROR_START = 105;
 
-	private Activity mContext;
-	public RelativeLayout adViewParent;
-	private CallBack mCallback;
-	private String mAdUrl;
+	private static Activity mContext;
+	public static RelativeLayout adViewParent;
+	private static CallBack mCallback;
+	private static String mAdUrl;
 
-	private int ad_width = 300;
-	private int ad_height = 200;
-	private int image_w = LayoutParams.MATCH_PARENT;
-	private int image_h = 150;
-	private int text_w;
-	private int text_h;
+	private int animList[] = new int[] { R.anim.push_in_left,
+			R.anim.push_out_left, R.anim.push_in_right, R.anim.push_out_right,
+			R.anim.push_in_top, R.anim.push_out_top, R.anim.push_in_bottom,
+			R.anim.push_out_bottom };
 
-	private RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(
-			image_w, image_h);
-	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
-			text_w, text_h);
+	private RelativeLayout.LayoutParams adParams;//= new RelativeLayout.LayoutParams(image_w, image_h);
+	private RelativeLayout.LayoutParams imageParams ;//= new RelativeLayout.LayoutParams(image_w, image_h);
+	private RelativeLayout.LayoutParams textParams  ;//= new RelativeLayout.LayoutParams(text_w, text_h);
+	private RelativeLayout.LayoutParams view1params ;//= new RelativeLayout.LayoutParams(getView1Params(), 150);
+	private RelativeLayout.LayoutParams view2params ;//= new RelativeLayout.LayoutParams(text_w, text_h);
+	private RelativeLayout.LayoutParams view3params ;//= new RelativeLayout.LayoutParams(text_w, text_h);
+	private RelativeLayout.LayoutParams view4params ;//= new RelativeLayout.LayoutParams(text_w, text_h);
+	private int adAlpha = 170;
+	private float textSize = 24;
+	private int textColor = Color.WHITE;
+	
+	private static final int ChangeAd = 200;
+	private static final int ChangeImage = 201;
+	private static final int ChangeContent = 202;
 
-	private static final int POLL = 100;
-	private static final int STOP = POLL + 100;
-	private static final int PUSHTEXT = 200;
+	private ViewFlipper imageVF;
+	private ArrayList<HashMap<String, String>> images;
+	private ViewFlipper textVF;
+	private HashMap<String, String> content;
+	private String[] strs;
 
-	private Timer timer;
 	private int mCurrentPhotoIndex = 0;
 	private int mCurrentTextIndex = 0;
-	private Handler handler;
-	private Handler handlerText;
-	private float textSize = 24;
+	private int mCurrentAdIndex = 0;
 	
+	private static AdCreator creator;
+	private Handler adHandler;
+	private Timer adTimer;
+	private Timer textTimer;
+	private Timer imageTimer;
+	
+	
+	private AdCreator() {
 
-	public AdCreator(Activity context, String adUrl, CallBack callback) {
-		mContext = context;
-		mCallback = callback;
-		mAdUrl = adUrl;
-		adViewParent = new RelativeLayout(context);
-		adViewParent.setBackgroundColor(context.getResources().getColor(R.color.bg));
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-				RelativeLayout.ALIGN_PARENT_TOP);
-		mContext.addContentView(adViewParent, params);
+	}
+
+	public static AdCreator getInstance(Activity context, String adUrl,
+			CallBack callback) {
+		if (creator == null) {
+			creator = new AdCreator();
+			mContext = context;
+			mCallback = callback;
+			mAdUrl = adUrl;
+			adViewParent = new RelativeLayout(context);
+			adViewParent.setBackgroundColor(context.getResources().getColor(
+					R.color.bg));
+			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+					LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
+					RelativeLayout.ALIGN_PARENT_TOP);
+			mContext.addContentView(adViewParent, params);
+		}
+		return creator;
 	}
 
 	public void start() {
 		if (!checkNetwork(mContext)) {
-			mCallback.onError(new Exception("the network is not enabled！！"),
-					ERROR_NETWORK_NOT_ENABLED);
-			Log.w(TAG,
-					"the network is not enabled！！the no network model has been started");
-			startNoNetworkModel();
+			mCallback.onError(new Exception("the network is not enabled！！"),ERROR_NETWORK_NOT_ENABLED);
+			Log.w(TAG,"the network is not enabled！！the no network model has been started");
+			startDebugModel();
 			return;
 		}
 		if (mAdUrl.equals("") || mAdUrl == null) {
 			mCallback.onError(new Exception("the AdUrl is null "), ERROR_URL);
 			Log.w(TAG, "the AdUrl is null ");
-			startNoNetworkModel();
+			startDebugModel();
 			return;
 		}
 		URL url;
 		Map<String, Object> data = null;
 		try {
 			url = new URL(mAdUrl);
-			data = parseXml(url.openConnection().getInputStream());
+			data = AdXmlParser.parseXml(url.openConnection().getInputStream());
 		} catch (Exception e1) {
 			mCallback.onError(e1, ERROR_START);
 			e1.printStackTrace();
 		}
-		showDynamicAdvertisement(data);
+		int interval = (Integer) data.get("interval");
+		@SuppressWarnings("unchecked")
+		List<Ad> ads = (List<Ad>) data.get("ads");
+		startAdTask(interval, ads);
 	}
 
+
 	/**
-	 * 貌似没必要、、TBD
+	 * for debug
 	 */
-	private void startNoNetworkModel() {
+	private void startDebugModel() {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
 			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
-			data = parseXml(in);
+			data = AdXmlParser.parseXml(in);
 		} catch (Exception e1) {
 			mCallback.onError(e1, ERROR_START);
 			e1.printStackTrace();
 		}
-		showDynamicAdvertisement(data);
+		int interval = (Integer) data.get("interval");
+		@SuppressWarnings("unchecked")
+		List<Ad> ads = (List<Ad>) data.get("ads");
+		startAdTask(interval, ads);
 	}
 
 	public CallBack getmCallback() {
@@ -157,8 +182,7 @@ public class AdCreator {
 	 * @return
 	 */
 	public static boolean checkNetwork(Context context) {
-		ConnectivityManager cm = (ConnectivityManager) context
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo nwi = cm.getActiveNetworkInfo();
 		if (nwi != null) {
 			return nwi.isAvailable();
@@ -166,221 +190,182 @@ public class AdCreator {
 		return false;
 	}
 
-	/**
-	 * Dynamic layout
-	 * 
-	 * @param position
-	 * @param layoutId
-	 * @return
-	 */
-	private View showDynamicAdvertisement(Map<String, Object> data) {
-		int type = Integer.parseInt((String) data.get("type"));
-		String position = (String) data.get("position");
+
+	TimerTask adTask = new TimerTask() {
+		public void run() {
+			Message message = new Message();
+			message.what = ChangeAd;
+			adHandler.sendMessage(message);
+		}
+	};
+
+
+	private void startAdTask(int interval, final List<Ad> ads) {
+		adTimer = new Timer();
+		adTimer.schedule(adTask, 2000, interval * 1000);
+		adHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				super.handleMessage(msg);
+				switch (msg.what) {
+				case ChangeAd:
+					showNextAd(ads);
+					break;
+				case ChangeImage:
+					showNextImage(imageVF, images, animList);
+					break;
+				case ChangeContent:
+					showNextText(textVF, content, strs);
+					break;
+				default:
+					break;
+				}
+			}
+		};
+	}
+
+	protected void showNextAd(List<Ad> ads) {
+		if(imageTimer!=null){
+			imageTimer.cancel();
+			imageTimer = null;
+		}
+		if(textTimer!=null){
+			textTimer.cancel();
+			textTimer = null;
+		}
+		if(adViewParent.getChildCount()!=0)
+		adViewParent.removeAllViews();
+		
+		Ad ad = ads.get(mCurrentAdIndex++ % ads.size());
+		int type = ad.getType();
+		int position = ad.getPosition();
+		
+		View v = setAdViewPosition(position, type);
+		dispatchViewByType(v, type, ad);
+	}
+
+	private void dispatchViewByType(View v, int type, Ad ad) {
+		if (type == 1) {// image only
+			initAdView1(v, ad);
+		} else if (type == 2) {// text only
+			initAdView2(v, ad);
+		} else if (type == 3) {// image + text
+			initAdView3(v, ad);
+		} else if (type == 4) {// full
+			initAdView4(v, ad);
+		}
+	}
+
+	private View setAdViewPosition(int position, int type) {
 		int layoutId = 0;
 		if (type == 1) {// image only
+			setAdParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, 150));
 			layoutId = R.layout.first;
 		} else if (type == 2) {// text only
+			setAdParams(new RelativeLayout.LayoutParams(300, 300));
 			layoutId = R.layout.second;
 		} else if (type == 3) {// image + text
+			setAdParams(new RelativeLayout.LayoutParams(300, 300));
 			layoutId = R.layout.third;
 		} else if (type == 4) {// full
+			setAdParams(new RelativeLayout.LayoutParams(300, 300));
 			layoutId = R.layout.fourth;
 		} else {
-			mCallback.onError(new Exception("type error, type-->" + type),
-					ERROR_AD_TYPE);
-			return null;
+			mCallback.onError(new Exception("type error, type-->" + type),ERROR_AD_TYPE);
 		}
-		View v = getViewByPosition(position, layoutId);
-		dispatchViewByType(v, type, data);
-		return v;
-	}
-
-	private void dispatchViewByType(View v, int type, Map<String, Object> data) {
-		if (type == 1) {// image only
-			showAdType_1(v, data);
-		} else if (type == 2) {// text only
-			showAdType_2(v, data);
-		} else if (type == 3) {// image + text
-			showAdType_3(v, data);
-		} else if (type == 4) {// full
-			showAdType_4(v, data);
-		}
-		adViewParent.addView(v);
-	}
-
-	private View getViewByPosition(String position, int layoutId) {
+		RelativeLayout.LayoutParams params = getAdParams();
 		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-				ad_width, ad_height);
-		if (position.equals("1")) {
+		switch (position) {
+		case 1:
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("2")) {
+			break;
+		case 2:
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("3")) {
+			break;
+		case 3:
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("4")) {
+			break;
+		case 4:
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("5")) {
+			break;
+		case 5:
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("6")) {
+			break;
+		case 6:
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("7")) {
+			break;
+		case 7:
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		} else if (position.equals("8")) {
+			break;
+		case 8:
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		} else if (position.equals("9")) {
+			break;
+		case 9:
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		} else
-			mCallback.onError(new Exception("unKnown position-->" + position),
-					ERROR_UNKNOWN_POSITION);
+			break;
+
+		default:
+			mCallback.onError(new Exception("unKnown position-->" + position),ERROR_UNKNOWN_POSITION);
+			break;
+		}
 		v.setLayoutParams(params);
+		adViewParent.addView(v);
 		return v;
 	}
 
-	/**
-	 * initialize
-	 * @throws FactoryConfigurationError
-	 */
-	private Map<String, Object> parseXml(InputStream is)
-			throws FactoryConfigurationError {
-		Map<String, Object> data = new HashMap<String, Object>();
-		try {
-			Document doc = DocumentBuilderFactory.newInstance()
-					.newDocumentBuilder().parse(is);
-			Dom2Map root = Dom2Map.parse(doc);
+	private void setRelationBy(View adView, String textposition) {
 
-			String position = root.get("ad").attr("position");
-			data.put("position", position);
-			Log.i(TAG, "position-->" + position);
-
-			String type = root.get("ad").attr("type");
-			data.put("type", type);
-			Log.i(TAG, "type-->" + type);
-
-			String title = root.get("ad").get("title").value();
-			data.put("title", title);
-			Log.i(TAG, "title-->" + title);
-
-			String interval = root.get("ad").get("images").attr("interval");
-			data.put("interval", interval);
-			Log.i(TAG, "interval-->" + interval);
-
-			ArrayList<HashMap<String, String>> images = new ArrayList<HashMap<String, String>>();
-			ArrayList<Dom2Map> nodes = root.get("ad").get("images")
-					.get("image").getGroup();
-			Log.i(TAG, "images.size-->" + nodes.size());
-			for (Dom2Map node : nodes) {
-				HashMap<String, String> image = new HashMap<String, String>();
-				image.put("url", node.attr("url"));
-				image.put("anim", node.attr("anim"));
-				Log.i(TAG,
-						"anim-->" + node.attr("anim") + "--url-->"
-								+ node.attr("url"));
-				images.add(image);
-			}
-			data.put("images", images);
-
-			HashMap<String, String> text = new HashMap<String, String>();
-			String anim = root.get("ad").get("text").attr("anim");
-			text.put("anim", anim);
-			String direction = root.get("ad").get("text").attr("direction");
-			text.put("direction", direction);
-			String text_position = root.get("ad").get("text").attr("position");
-			text.put("position", text_position);
-			String scroll = root.get("ad").get("text").attr("scroll");
-			text.put("scroll", scroll);
-			String value = root.get("ad").get("text").value();
-			text.put("value", value);
-			Log.i(TAG, "Text :anim-->" + anim + "-direction-->" + direction
-					+ "-position->" + position + "-scroll->" + scroll
-					+ "-value->" + value);
-			data.put("text", text);
-
-			String contact = root.get("ad").get("contact").value();
-			data.put("contact", contact);
-			Log.i(TAG, "contact-->" + contact);
-
-			String phone = root.get("ad").get("phone").value();
-			data.put("phone", phone);
-			Log.i(TAG, "phone-->" + phone);
-
-			String address = root.get("ad").get("address").value();
-			data.put("address", address);
-			Log.i(TAG, "address-->" + address);
-
-			String email = root.get("ad").get("email").value();
-			data.put("email", email);
-			Log.i(TAG, "email-->" + email);
-
-			String website = root.get("ad").get("website").value();
-			data.put("website", website);
-			Log.i(TAG, "website-->" + website);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return data;
-	}
-
-	private void setRelationBy(View adView, ViewFlipper imageVF,
-			ViewFlipper textVF, String textposition) {
-
-		RelativeLayout.LayoutParams userParams = new RelativeLayout.LayoutParams(
-				image_w, ad_height - image_h);
-		RelativeLayout userInfo = (RelativeLayout) adView
-				.findViewById(R.id.userinfo);
+		RelativeLayout.LayoutParams userParams = new RelativeLayout.LayoutParams(getImageParams().width, getAdParams().height - getImageParams().height);
+		RelativeLayout userInfo = (RelativeLayout) adView.findViewById(R.id.userinfo);
 
 		if (textposition.equals("left")) {
-			textParams.width = 100;
-			textParams.height = ad_height;
+			getTextParams().width = 100;
+			getTextParams().height = getAdParams().height;
 			TextView title = (TextView) adView.findViewById(R.id.title);
 			if (title == null || title.getText().equals(""))
-				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				getTextParams().addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			else
-				textParams.addRule(RelativeLayout.BELOW, R.id.title);
+				getTextParams().addRule(RelativeLayout.BELOW, R.id.title);
 
-			userParams.width = ad_width - 100;
-			imageParams.width = ad_width - 100;
-			image_w = imageParams.width;
+			userParams.width = imageParams.width = getAdParams().width - 100;
 			userParams.addRule(RelativeLayout.BELOW, R.id.image);
 			userParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.image);
-			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
-			imageParams.addRule(RelativeLayout.RIGHT_OF, R.id.text);
+			getTextParams().addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			getImageParams().addRule(RelativeLayout.ALIGN_TOP, R.id.text);
+			getImageParams().addRule(RelativeLayout.RIGHT_OF, R.id.text);
 		} else if (textposition.equals("right")) {
-			textParams.width = 100;
-			textParams.height = ad_height;
+			getTextParams().width = 100;
+			getTextParams().height = getAdParams().height;
 			TextView title = (TextView) adView.findViewById(R.id.title);
 			if (title == null || title.getText().equals(""))
-				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				getTextParams().addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			else
-				textParams.addRule(RelativeLayout.BELOW, R.id.title);
-			userParams.width = ad_width - 100;
-			imageParams.width = ad_width - 100;
-			image_w = ad_width - 100;
+				getTextParams().addRule(RelativeLayout.BELOW, R.id.title);
+			userParams.width = getImageParams().width = getAdParams().width - 100;
 			userParams.addRule(RelativeLayout.BELOW, R.id.image);
-			textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
-			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
+			getTextParams().addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+			getImageParams().addRule(RelativeLayout.ALIGN_TOP, R.id.text);
+			getImageParams().addRule(RelativeLayout.LEFT_OF, R.id.text);
 		} else if (textposition.equals("top")) {
 			TextView title = (TextView) adView.findViewById(R.id.title);
 			if (title == null || title.getText().equals(""))
-				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				getTextParams().addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			else
-				textParams.addRule(RelativeLayout.BELOW, R.id.title);
+				getTextParams().addRule(RelativeLayout.BELOW, R.id.title);
 			userParams.addRule(RelativeLayout.BELOW, R.id.image);
-			imageParams.addRule(RelativeLayout.BELOW, R.id.text);
-			imageParams.height = RelativeLayout.LayoutParams.MATCH_PARENT;
-			textParams.width = ad_width;
-			textParams.height = ad_height - image_h - title.getHeight();
+			getImageParams().addRule(RelativeLayout.BELOW, R.id.text);
+			getImageParams().height = RelativeLayout.LayoutParams.MATCH_PARENT;
+			getTextParams().width = getAdParams().width;
+			getTextParams().height = getAdParams().height - getImageParams().height - title.getHeight();
 		} else if (textposition.equals("bottom")) {
 			if (userInfo != null) {
 				userParams.addRule(RelativeLayout.BELOW, R.id.text);
@@ -388,49 +373,46 @@ public class AdCreator {
 			}
 			TextView title = (TextView) adView.findViewById(R.id.title);
 			if (title == null || title.getText().equals(""))
-				imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				getImageParams().addRule(RelativeLayout.ALIGN_PARENT_TOP);
 			else
-				imageParams.addRule(RelativeLayout.BELOW, R.id.title);
-			textParams.width = ad_width;
-			textParams.height = ad_height - image_h - title.getHeight();
-			textParams.addRule(RelativeLayout.BELOW, R.id.image);
+				getImageParams().addRule(RelativeLayout.BELOW, R.id.title);
+			getTextParams().width = getAdParams().width;
+			getTextParams().height = getAdParams().height - getImageParams().height - title.getHeight();
+			getTextParams().addRule(RelativeLayout.BELOW, R.id.image);
 		}
 		if (userInfo != null)
 			userInfo.setLayoutParams(userParams);
-		imageVF.setLayoutParams(imageParams);
-		textVF.setLayoutParams(textParams);
+		imageVF.setLayoutParams(getImageParams());
+		textVF.setLayoutParams(getTextParams());
 	}
 
 	/**
 	 * full
 	 * 
 	 * @param v
-	 * @param data
+	 * @param ad
 	 * @param downloader
 	 * @param images
 	 */
-	private void showAdType_4(View v, Map<String, Object> data) {
-
-		String title = (String) data.get("title");
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
-				.get("images");
-		@SuppressWarnings("unchecked")
-		HashMap<String, String> text = ((HashMap<String, String>) data
-				.get("text"));
-		String contact = (String) data.get("contact");
-		String phone = (String) data.get("phone");
-		String address = (String) data.get("address");
-		String email = (String) data.get("email");
-		String website = (String) data.get("website");
-
+	private void initAdView4(View v, Ad ad) {
+		String title = ad.getTitle();
+		images = ad.getImages();
+		content = ad.getContent();
+		String contact = (String) ad.getCompany().get("contact");
+		String phone = (String) ad.getCompany().get("phone");
+		String address = (String) ad.getCompany().get("address");
+		String email = (String) ad.getCompany().get("email");
+		String website = (String) ad.getCompany().get("website");
+		//-------------------------------------------------------
 		TextView titleTv = (TextView) v.findViewById(R.id.title);
 		TextView contactTv = (TextView) v.findViewById(R.id.contact);
 		TextView phoneTv = (TextView) v.findViewById(R.id.phone);
 		TextView adsTv = (TextView) v.findViewById(R.id.address);
 		TextView emailTv = (TextView) v.findViewById(R.id.email);
 		TextView webTv = (TextView) v.findViewById(R.id.website);
-
+		imageVF = (ViewFlipper) v.findViewById(R.id.image);
+		textVF = (ViewFlipper) v.findViewById(R.id.text);
+		//-------------------------------------------------------
 		titleTv.setText(title);
 		contactTv.setText(contact);
 		phoneTv.setText(phone);
@@ -438,43 +420,34 @@ public class AdCreator {
 		adsTv.requestFocus();
 		emailTv.setText(email);
 		webTv.setText(website);
-
-		ViewFlipper imageVF = (ViewFlipper) v.findViewById(R.id.image);
-		ViewFlipper textVF = (ViewFlipper) v.findViewById(R.id.text);
-
-		setRelationBy(v, imageVF, textVF, text.get("position"));
-
-		imageTransfer(imageVF, images,
-				Integer.parseInt(data.get("interval").toString()));
-		textTransfer(textVF, text);
+		//-------------------------------------------------------
+		setRelationBy(v,content.get("position"));
+		imageTransfer(imageVF, images, ad.getImageInterval());
+		textTransfer(textVF, content);
 	}
 
 	/**
 	 * image + text
 	 * 
 	 * @param v2
-	 * @param data
+	 * @param ad
 	 * @param downloader
 	 * @param images
 	 */
-	private void showAdType_3(View v, Map<String, Object> data) {
+	private void initAdView3(View v, Ad ad) {
+		setImageParams(new RelativeLayout.LayoutParams(300,150));
 		TextView title = (TextView) v.findViewById(R.id.title);
-		title.setText(data.get("title").toString());
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
-				.get("images");
-		@SuppressWarnings("unchecked")
-		HashMap<String, String> text = ((HashMap<String, String>) data
-				.get("text"));
+		title.setText(ad.getTitle());
+		images = ad.getImages();
+		content = ad.getContent();
 
-		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		ViewFlipper textView = (ViewFlipper) v.findViewById(R.id.text);
+		imageVF = (ViewFlipper) v.findViewById(R.id.image);
+		textVF = (ViewFlipper) v.findViewById(R.id.text);
 
-		setRelationBy(v, vf, textView, text.get("position"));
-
-		imageTransfer(vf, images,
-				Integer.parseInt(data.get("interval").toString()));
-		textTransfer(textView, text);
+		setRelationBy(v,content.get("position"));
+		imageVF.setLayoutParams(getImageParams());
+		imageTransfer(imageVF, images, ad.getImageInterval());
+		textTransfer(textVF, content);
 
 	}
 
@@ -482,43 +455,104 @@ public class AdCreator {
 	 * text only
 	 * 
 	 * @param v2
-	 * @param data
+	 * @param ad
 	 * @param downloader
 	 * @param images
 	 */
-	private void showAdType_2(View v, Map<String, Object> data) {
+	private void initAdView2(View v, Ad ad) {
 		TextView title = (TextView) v.findViewById(R.id.title);
-		title.setText(data.get("title").toString());
-		ViewFlipper textView = (ViewFlipper) v.findViewById(R.id.text);
-		@SuppressWarnings("unchecked")
-		HashMap<String, String> text = ((HashMap<String, String>) data
-				.get("text"));
-		textParams.width = ad_width;
-		textParams.height = ad_height - title.getHeight();
-		textTransfer(textView, text);
+		title.setText(ad.getTitle());
+		title.setTextColor(getTextColor());
+		textVF = (ViewFlipper) v.findViewById(R.id.text);
+		content = ad.getContent();
+		setTextParams(new RelativeLayout.LayoutParams(getAdParams().width,getAdParams().height-title.getHeight()));
+		v.setLayoutParams(getTextParams());
+		textTransfer(textVF, content);
 	}
 
 	/**
 	 * image Only
 	 * 
 	 * @param v
-	 * @param data
+	 * @param ad
 	 * @param downloader
 	 * @param images
 	 */
-	private void showAdType_1(View v, Map<String, Object> data) {
-		TextView title = (TextView) v.findViewById(R.id.title);
-		title.setText(data.get("title").toString());
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
-				.get("images");
-		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		imageParams.width = ad_width;
-		imageParams.height = ad_height;
-		imageTransfer(vf, images,
-				Integer.parseInt(data.get("interval").toString()));
+	private void initAdView1(View v, Ad ad) {
+		setImageParams(getAdParams());
+		images = ad.getImages();
+		imageVF = (ViewFlipper) v.findViewById(R.id.image);
+		v.setLayoutParams(getImageParams());
+		imageTransfer(imageVF, images, ad.getImageInterval());
 	}
 
+
+	private void showNextImage(ViewFlipper vf,List<HashMap<String, String>> images,int[] animList) {
+		vf.clearAnimation();
+		mCurrentPhotoIndex = mCurrentPhotoIndex % (images.size());
+		String animPosition = images.get(mCurrentPhotoIndex).get("anim");
+		// 判断动画显示的方向
+		if ("left".equals(animPosition)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[0]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[1]));
+		} else if ("right".equals(animPosition)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[2]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[3]));
+		} else if ("top".equals(animPosition)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[4]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[5]));
+		} else if ("bottom".equals(animPosition)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[6]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[7]));
+		}
+		vf.showNext();
+		mCurrentPhotoIndex++;
+	}
+
+	private void showNextText(final ViewFlipper vf,HashMap<String, String> content, final String[] strs) {
+		final String direction = content.get("direction");
+		vf.clearAnimation();
+		mCurrentTextIndex = mCurrentTextIndex % (strs.length);
+		if ("left".equals(direction)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[0]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[1]));
+		} else if ("right".equals(direction)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[2]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[3]));
+		} else if ("top".equals(direction)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[4]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[5]));
+		} else if ("bottom".equals(direction)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[6]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
+					animList[7]));
+		}
+		vf.showNext();
+		mCurrentTextIndex++;
+	}
 	/**
 	 * Picture switch
 	 * 
@@ -529,13 +563,9 @@ public class AdCreator {
 	 * @param delay
 	 *            -the images transfer interval
 	 */
-	private void imageTransfer(final ViewFlipper vf,
-			final List<HashMap<String, String>> images, int delay) {
+	private void imageTransfer(final ViewFlipper imageVf,final List<HashMap<String, String>> images, int delay) {
+		imageVF = imageVf;
 		// 显示的动画效果
-		final int animList[] = new int[] { R.anim.push_in_left,
-				R.anim.push_out_left, R.anim.push_in_right,
-				R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
-				R.anim.push_in_bottom, R.anim.push_out_bottom };
 		for (int i = 0; i < images.size(); i++) {
 			HashMap<String, String> imagesInfo = images.get(i);
 			final String imagepath = imagesInfo.get("url");
@@ -559,83 +589,28 @@ public class AdCreator {
 				protected void onPostExecute(Bitmap result) {
 					if (result != null) {
 						ImageView iv = new ImageView(mContext);
-						iv.setAlpha(170);
+						iv.setAlpha(getAdAlpha());
 						iv.setLayoutParams(imageParams);
 						iv.setScaleType(ScaleType.FIT_XY);
 						iv.setImageBitmap(result);
-						iv.setAnimation(AnimationUtils.loadAnimation(mContext,
-								R.anim.push_in_left));
-						vf.addView(iv);
+						iv.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_left));
+						imageVf.addView(iv);
 					}
 					super.onPostExecute(result);
 				}
 			}.execute();
-			handler = new Handler() {
-				public void handleMessage(Message msg) {
-					super.handleMessage(msg);
-					switch (msg.what) {
-					case POLL:
-						vf.clearAnimation();
-						mCurrentPhotoIndex = mCurrentPhotoIndex
-								% (images.size());
-						String animPosition = images.get(mCurrentPhotoIndex)
-								.get("anim");
-						// 判断动画显示的方向
-						if ("left".equals(animPosition)) {
-							vf.clearAnimation();
-							vf.setInAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[0]));
-							vf.setOutAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[1]));
-						} else if ("right".equals(animPosition)) {
-							vf.clearAnimation();
-							vf.setInAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[2]));
-							vf.setOutAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[3]));
-						} else if ("top".equals(animPosition)) {
-							vf.clearAnimation();
-							vf.setInAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[4]));
-							vf.setOutAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[5]));
-						} else if ("bottom".equals(animPosition)) {
-							vf.clearAnimation();
-							vf.setInAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[6]));
-							vf.setOutAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[7]));
-						}
-						vf.showNext();
-						mCurrentPhotoIndex++;
-						break;
-					case STOP:
-						// vf.stopFlipping();
-						break;
-					}
-				}
-			};
 		}
-			timer = new Timer();
-			timer.schedule(task, 2000, delay * 1000);
+
+		TimerTask imageTask = new TimerTask() {
+			public void run() {
+				Message message = new Message();
+				message.what = ChangeImage;
+				adHandler.sendMessage(message);
+			}
+		};
+		imageTimer = new Timer();
+		imageTimer.schedule(imageTask, 2000, delay * 1000);
 	}
-
-	TimerTask task = new TimerTask() {
-		public void run() {
-			Message message = new Message();
-			message.what = POLL;
-			handler.removeMessages(POLL);
-			handler.sendEmptyMessageDelayed(POLL, 500);
-		}
-	};
-
-	// private void stopTimer() {
-	//
-	// if (timer != null) {
-	// timer.cancel();
-	// timer = null;
-	// }
-	// }
 
 	/**
 	 * Text switch
@@ -646,20 +621,18 @@ public class AdCreator {
 	 * @param position
 	 * @param scroll
 	 */
-	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
-		String anim = text.get("anim");
-		String value = text.get("value");
+	private void textTransfer(final ViewFlipper vf,HashMap<String, String> content) {
+		textVF = vf;
+		String anim = content.get("anim");
+		String value = content.get("value");
 		Pattern p = Pattern.compile("\\s*|\t|\r|\n");
 		Matcher m = p.matcher(value);
 		value = m.replaceAll("").trim();
-		final String direction = text.get("direction");
-		String scroll = text.get("scroll");
-		if (anim.equals("left")) {
-			vf.setAnimation(AnimationUtils.loadAnimation(mContext,
-					R.anim.push_in_left));
-		} else if (anim.equals("right")) {
-			vf.setAnimation(AnimationUtils.loadAnimation(mContext,
-					R.anim.push_in_right));
+		String scroll = content.get("scroll");
+		if (anim.equals("left")) {vf.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_left));
+		
+		} else if (anim.equals("right")) {vf.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_right));
+		
 		}
 
 		TextView textview = new TextView(mContext);
@@ -678,7 +651,8 @@ public class AdCreator {
 				+ Math.ceil((textParams.height / baseline)));
 		int maxLines = (int) Math.ceil((textParams.height / baseline));
 
-		final String[] strs = getValuesByLines(textParams.width, value,maxLines, textview.getPaint());
+		strs = getValuesByLines(textParams.width, value, maxLines,
+				textview.getPaint());
 		if (strs.length == 1) {
 			setTextSize(textview.getTextSize());
 			textview.setText(strs[0]);
@@ -696,83 +670,17 @@ public class AdCreator {
 			}
 		}
 		vf.removeView(textview);
-		final int animList[] = new int[] { R.anim.push_in_left,
-				R.anim.push_out_left, R.anim.push_in_right,
-				R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
-				R.anim.push_in_bottom, R.anim.push_out_bottom };
-		handlerText = new Handler() {
-			public void handleMessage(Message msg) {
-				super.handleMessage(msg);
-				switch (msg.what) {
-				case PUSHTEXT:
-					vf.clearAnimation();
-					mCurrentTextIndex = mCurrentTextIndex % (strs.length);
-					if ("left".equals(direction)) {
-						vf.clearAnimation();
-						vf.setInAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[0]));
-						vf.setOutAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[1]));
-					} else if ("right".equals(direction)) {
-						vf.clearAnimation();
-						vf.setInAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[2]));
-						vf.setOutAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[3]));
-					} else if ("top".equals(direction)) {
-						vf.clearAnimation();
-						vf.setInAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[4]));
-						vf.setOutAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[5]));
-					} else if ("bottom".equals(direction)) {
-						vf.clearAnimation();
-						vf.setInAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[6]));
-						vf.setOutAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[7]));
-					}
-					vf.showNext();
-					mCurrentTextIndex++;
-					break;
-
-				}
+		TimerTask textTask = new TimerTask() {
+			public void run() {
+				Message message = new Message();
+				message.what = ChangeContent;
+				adHandler.sendMessage(message);
 			}
 		};
-		Timer timerText = new Timer();
-		timerText.schedule(tasktext, 2000, Integer.parseInt(scroll) * 1000);
+		textTimer = new Timer();
+		textTimer.schedule(textTask, 2000, Integer.parseInt(scroll) * 1000);
 	}
 
-	TimerTask tasktext = new TimerTask() {
-		public void run() {
-			Message message = new Message();
-			message.what = PUSHTEXT;
-			handlerText.removeMessages(PUSHTEXT);
-			handlerText.sendEmptyMessageDelayed(PUSHTEXT, 500);
-		}
-	};
-
-	/**
-	 * you can set the ad size or not
-	 * 
-	 * @param width
-	 * @param height
-	 */
-	public void setAdSize(int width, int height) {
-		ad_width = width;
-		ad_height = height;
-	}
-
-	/**
-	 * set imageView w and h
-	 * 
-	 * @param w
-	 * @param h
-	 */
-	public void setImageSize(int w, int h) {
-		image_w = w;
-		image_h = h;
-	}
 
 	/**
 	 * Download image
@@ -794,11 +702,14 @@ public class AdCreator {
 			adViewParent.removeAllViews();
 	}
 
-	private String[] getValuesByLines(int w, String value, int maxlines,Paint paint) {
-		String[] linestrs = getLineStrs(value, paint, w,getTextSize());
-		
-		String[] values = new String[(int) Math.ceil((double)linestrs.length / maxlines)];
-		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines + "  页数-->" + values.length);
+	private String[] getValuesByLines(int w, String value, int maxlines,
+			Paint paint) {
+		String[] linestrs = getLineStrs(value, paint, w, getTextSize());
+
+		String[] values = new String[(int) Math.ceil((double) linestrs.length
+				/ maxlines)];
+		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines
+				+ "  页数-->" + values.length);
 		for (int i = 0; i < values.length; i++) {
 			values[i] = getValueFrom(linestrs, maxlines, i);
 			System.out.println("value-->" + i + "<-->" + values[i]);
@@ -806,15 +717,6 @@ public class AdCreator {
 		return values;
 	}
 
-
-	
-	public float getTextSize() {
-		return textSize;
-	}
-
-	public void setTextSize(float textSize) {
-		this.textSize = textSize;
-	}
 
 	private String getValueFrom(String[] linestrs, int maxlines, int num) {
 		StringBuffer result = new StringBuffer();
@@ -858,4 +760,85 @@ public class AdCreator {
 		return mSplitTextParts;
 	}
 
+	public float getTextSize() {
+		return textSize;
+	}
+
+	public void setTextSize(float textSize) {
+		this.textSize = textSize;
+	}
+
+	public RelativeLayout.LayoutParams getImageParams() {
+		return imageParams;
+	}
+
+	public void setImageParams(RelativeLayout.LayoutParams imageParams) {
+		this.imageParams = imageParams;
+	}
+
+	public RelativeLayout.LayoutParams getTextParams() {
+		return textParams;
+	}
+
+	public void setTextParams(RelativeLayout.LayoutParams textParams) {
+		this.textParams = textParams;
+	}
+
+	public RelativeLayout.LayoutParams getView1params() {
+		return view1params;
+	}
+
+	public void setView1params(RelativeLayout.LayoutParams view1params) {
+		this.view1params = view1params;
+	}
+
+	public RelativeLayout.LayoutParams getView2params() {
+		return view2params;
+	}
+
+	public void setView2params(RelativeLayout.LayoutParams view2params) {
+		this.view2params = view2params;
+	}
+
+	public RelativeLayout.LayoutParams getView3params() {
+		return view3params;
+	}
+
+	public void setView3params(RelativeLayout.LayoutParams view3params) {
+		this.view3params = view3params;
+	}
+
+	public RelativeLayout.LayoutParams getView4params() {
+		return view4params;
+	}
+
+	public void setView4params(RelativeLayout.LayoutParams view4params) {
+		this.view4params = view4params;
+	}
+
+	public int getTextColor() {
+		return textColor;
+	}
+
+	public void setTextColor(int textColor) {
+		this.textColor = textColor;
+	}
+
+	public RelativeLayout.LayoutParams getAdParams() {
+		return adParams;
+	}
+
+	public void setAdParams(RelativeLayout.LayoutParams adParams) {
+		this.adParams = adParams;
+	}
+
+	public int getAdAlpha() {
+		return adAlpha;
+	}
+
+	public void setAdAlpha(int adAlpha) {
+		this.adAlpha = adAlpha;
+	}
+	
+	
 }
