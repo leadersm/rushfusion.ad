@@ -216,8 +216,7 @@ public class AdCreator {
 
 	private View getViewByPosition(String position, int layoutId) {
 		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-				ad_width, ad_height);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width, ad_height);
 		if (position.equals("1")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -742,8 +741,8 @@ public class AdCreator {
 	 * @param h
 	 */
 	public void setImageSize(int w, int h) {
-		image_w = w;
-		image_h = h;
+		imageParams.width = w;
+		imageParams.height = h;
 	}
 
 	/**
