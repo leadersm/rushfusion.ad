@@ -111,13 +111,13 @@ public class AdCreator {
 					ERROR_NETWORK_NOT_ENABLED);
 			Log.w(TAG,
 					"the network is not enabled！！the no network model has been started");
-			startNoNetworkModel();
+			startDebugModel();
 			return;
 		}
 		if (mAdUrl.equals("") || mAdUrl == null) {
 			mCallback.onError(new Exception("the AdUrl is null "), ERROR_URL);
 			Log.w(TAG, "the AdUrl is null ");
-			startNoNetworkModel();
+			startDebugModel();
 			return;
 		}
 		URL url;
@@ -133,9 +133,9 @@ public class AdCreator {
 	}
 
 	/**
-	 * 貌似没必要、、TBD
+	 * TBD
 	 */
-	private void startNoNetworkModel() {
+	private void startDebugModel() {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
@@ -604,7 +604,7 @@ public class AdCreator {
 			
 		}
 			Timer imagetimer = new Timer();
-			imagetimer.schedule(imagetask, 2000, delay * 1000);
+			imagetimer.schedule(imagetask, delay * 1000, delay * 1000);
 	}
 	
 	
@@ -667,7 +667,7 @@ public class AdCreator {
 		}
 		vf.removeView(textview);
 		Timer timerText = new Timer();
-		timerText.schedule(tasktext, 2000, Integer.parseInt(scroll) * 1000);
+		timerText.schedule(tasktext, Integer.parseInt(scroll) * 1000, Integer.parseInt(scroll) * 1000);
 	}
 	
 	
