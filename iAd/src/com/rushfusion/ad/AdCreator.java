@@ -636,6 +636,7 @@ public class AdCreator {
 		textview.setTextColor(Color.WHITE);
 		vf.addView(textview);// tbd
 		FontMetrics fm = textview.getPaint().getFontMetrics();
+		LayoutInflater inflater = LayoutInflater.from(mContext);
 		float baseline = fm.descent - fm.ascent + fm.leading;
 		if (textParams.height < baseline) {
 			setTextSize(textview.getTextSize());
@@ -646,7 +647,9 @@ public class AdCreator {
 				+ " baseLineH-->" + baseline + "maxLines-->"
 				+ Math.ceil((textParams.height / baseline)));
 		int maxLines = (int) Math.ceil((textParams.height / baseline));
-
+		int textsize =textParams.width;
+		Singleton st =Singleton.getInstance();
+		st.setTextsize(textsize);
 		this.strs = getValuesByLines(textParams.width, value,maxLines, textview.getPaint());
 		if (strs.length == 1) {
 			setTextSize(textview.getTextSize());
@@ -656,12 +659,13 @@ public class AdCreator {
 		for (int i = 0; i < strs.length; i++) {
 			System.out.println("strs[" + i + "]-->" + strs[i]);
 			if (strs[i] != null && !strs[i].equals("")) {
-				TextView textView = new TextView(mContext);
-				setTextSize(textView.getTextSize());
-				textView.setTextColor(Color.WHITE);
-				textView.setText(strs[i]);
+				View intextView = inflater.inflate(R.layout.viewfillper, null);
+				CYTextView myTextView = (CYTextView) intextView.findViewById(R.id.ad_mytext);
+				setTextSize(myTextView.getTextSize());
+				myTextView.setTextColor(Color.WHITE);
+				myTextView.setText(strs[i]);
 				Log.d("AdCreator", "textView1:>>>" + strs[i]);
-				vf.addView(textView);
+				vf.addView(intextView);
 			}
 		}
 		vf.removeView(textview);
