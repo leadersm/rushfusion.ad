@@ -100,8 +100,7 @@ public class AdCreator {
 
 	}
 
-	public static AdCreator getInstance(Activity context, String adUrl,
-			CallBack callback) {
+	public static AdCreator getInstance(Activity context, String adUrl,CallBack callback) {
 		if (creator == null) {
 			creator = new AdCreator();
 			mContext = context;
@@ -201,7 +200,7 @@ public class AdCreator {
 
 	private void startAdTask(int interval, final List<Ad> ads) {
 		adTimer = new Timer();
-		adTimer.schedule(adTask,2000,interval * 5000);
+		adTimer.schedule(adTask,2000,interval * 1000);
 		adHandler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {

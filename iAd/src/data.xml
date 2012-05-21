@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ads interval="5">
-<ad position="8" type="1" playtime="20" times="2">
+<ads interval="20">
+<ad position="8" type="1" playtime="25" times="2">
     <title>title:1st</title>
     <images interval="5" >
         <image anim="left" url="http://y0.ifengimg.com/mappa/2012/04/28/01de438cbd478c824454971fce04ba4c.jpg" >
@@ -23,7 +23,7 @@
 	</company>
 	<links>广告的链接</links>
 </ad>
-<ad position="4" type="2" playtime="20" times="2">
+<ad position="4" type="2" playtime="10" times="2">
     <title>title:2nd</title>
     <images interval="5" >
         <image anim="" url="" >
@@ -46,7 +46,7 @@
 	</company>
 	<links>广告的链接</links>
 </ad>
-<ad position="2" type="3"  playtime="20" times="2">
+<ad position="2" type="3"  playtime="15" times="2">
     <title>title:3rd</title>
     
     <images interval="5" >
@@ -80,7 +80,7 @@
 	</company>
 	<links>广告的链接</links>
 </ad>
-<ad position="3" type="4" playtime="20" times="2">
+<ad position="3" type="4" playtime="30" times="2">
     <title>title:4th</title>
     <images interval="5" >
         <image anim="left" url="http://i2.sinaimg.cn/ast/idx/2012/0504/U5246P54T135D1F3929DT20120504182741.jpg" >
