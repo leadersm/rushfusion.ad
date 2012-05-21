@@ -74,21 +74,22 @@ public class AdCreator {
 	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
 			text_w, text_h);
 
-	private static final int POLL = 201;
-	private static final int STOP = 202;
-	private static final int PUSHTEXT = 203;
-	private int animList[] = new int[] { R.anim.push_in_left,
-			R.anim.push_out_left, R.anim.push_in_right,
-			R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
-			R.anim.push_in_bottom, R.anim.push_out_bottom };
+	private static final int ChangeImage = 201;
+	private static final int ChangeText = 202;
+	private int animList[] = new int[] { R.anim.push_in_left,R.anim.push_out_left,
+								R.anim.push_in_right,R.anim.push_out_right, R.anim.push_in_top, 
+								R.anim.push_out_top,R.anim.push_in_bottom, R.anim.push_out_bottom };
+	private ViewFlipper imageVF;
+	private ViewFlipper textVF;
+	private List<HashMap<String, String>> images;
+	private String [] strs;
+	private String direction;
 	
-	
-	private Timer timer;
 	private int mCurrentPhotoIndex = 0;
 	private int mCurrentTextIndex = 0;
-	private Handler handler;
-	private Handler handlerText;
 	private float textSize = 24;
+	
+	
 	
 
 	public AdCreator(Activity context, String adUrl, CallBack callback) {
@@ -255,8 +256,7 @@ public class AdCreator {
 	 * initialize
 	 * @throws FactoryConfigurationError
 	 */
-	private Map<String, Object> parseXml(InputStream is)
-			throws FactoryConfigurationError {
+	private Map<String, Object> parseXml(InputStream is)throws FactoryConfigurationError {
 		Map<String, Object> data = new HashMap<String, Object>();
 		try {
 			Document doc = DocumentBuilderFactory.newInstance()
@@ -520,9 +520,39 @@ public class AdCreator {
 		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
 		imageParams.width = ad_width;
 		imageParams.height = ad_height;
-		imageTransfer(vf, images,
-				Integer.parseInt(data.get("interval").toString()));
+		imageTransfer(vf, images,Integer.parseInt(data.get("interval").toString()));
 	}
+	
+	Handler handler = new Handler() {
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			switch (msg.what) {
+			case ChangeImage:
+				setImageAnimation(imageVF,images);
+				break;
+			case ChangeText:
+				setTextAnimation(textVF,direction,strs);
+				break;
+			}
+		}
+	};
+	
+	TimerTask imagetask = new TimerTask() {
+		public void run() {
+			Message message = new Message();
+			message.what = ChangeImage;
+			handler.sendMessage(message);
+		}
+	};
+	
+	TimerTask tasktext = new TimerTask() {
+		public void run() {
+			Message message = new Message();
+			message.what = ChangeText;
+			handler.sendMessage(message);
+		}
+	};
+	
 
 	/**
 	 * Picture switch
@@ -534,8 +564,9 @@ public class AdCreator {
 	 * @param delay
 	 *            -the images transfer interval
 	 */
-	private void imageTransfer(final ViewFlipper vf,
-			final List<HashMap<String, String>> images, int delay) {
+	private void imageTransfer(final ViewFlipper vf,final List<HashMap<String, String>> images, int delay) {
+		this.imageVF = vf;
+		this.images = images;
 		for (int i = 0; i < images.size(); i++) {
 			HashMap<String, String> imagesInfo = images.get(i);
 			final String imagepath = imagesInfo.get("url");
@@ -570,73 +601,13 @@ public class AdCreator {
 					super.onPostExecute(result);
 				}
 			}.execute();
-			handler = new Handler() {
-				public void handleMessage(Message msg) {
-					super.handleMessage(msg);
-					switch (msg.what) {
-					case POLL:
-						vf.clearAnimation();
-						mCurrentPhotoIndex = mCurrentPhotoIndex
-								% (images.size());
-						String animPosition = images.get(mCurrentPhotoIndex)
-								.get("anim");
-						// 判断动画显示的方向
-						if ("left".equals(animPosition)) {
-							vf.clearAnimation();
-							vf.setInAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[0]));
-							vf.setOutAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[1]));
-						} else if ("right".equals(animPosition)) {
-							vf.clearAnimation();
-							vf.setInAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[2]));
-							vf.setOutAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[3]));
-						} else if ("top".equals(animPosition)) {
-							vf.clearAnimation();
-							vf.setInAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[4]));
-							vf.setOutAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[5]));
-						} else if ("bottom".equals(animPosition)) {
-							vf.clearAnimation();
-							vf.setInAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[6]));
-							vf.setOutAnimation(AnimationUtils.loadAnimation(
-									mContext, animList[7]));
-						}
-						vf.showNext();
-						mCurrentPhotoIndex++;
-						break;
-					case STOP:
-						// vf.stopFlipping();
-						break;
-					}
-				}
-			};
+			
 		}
-			timer = new Timer();
-			timer.schedule(task, 2000, delay * 1000);
+			Timer imagetimer = new Timer();
+			imagetimer.schedule(imagetask, 2000, delay * 1000);
 	}
-
-	TimerTask task = new TimerTask() {
-		public void run() {
-			Message message = new Message();
-			message.what = POLL;
-			handler.removeMessages(POLL);
-			handler.sendEmptyMessageDelayed(POLL, 500);
-		}
-	};
-
-	// private void stopTimer() {
-	//
-	// if (timer != null) {
-	// timer.cancel();
-	// timer = null;
-	// }
-	// }
-
+	
+	
 	/**
 	 * Text switch
 	 * 
@@ -647,12 +618,13 @@ public class AdCreator {
 	 * @param scroll
 	 */
 	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
+		this.textVF = vf;
 		String anim = text.get("anim");
 		String value = text.get("value");
 		Pattern p = Pattern.compile("\\s*|\t|\r|\n");
 		Matcher m = p.matcher(value);
 		value = m.replaceAll("").trim();
-		final String direction = text.get("direction");
+		direction = text.get("direction");
 		String scroll = text.get("scroll");
 		if (anim.equals("left")) {
 			vf.setAnimation(AnimationUtils.loadAnimation(mContext,
@@ -661,11 +633,9 @@ public class AdCreator {
 			vf.setAnimation(AnimationUtils.loadAnimation(mContext,
 					R.anim.push_in_right));
 		}
-
 		TextView textview = new TextView(mContext);
 		textview.setTextColor(Color.WHITE);
 		vf.addView(textview);// tbd
-
 		FontMetrics fm = textview.getPaint().getFontMetrics();
 		float baseline = fm.descent - fm.ascent + fm.leading;
 		if (textParams.height < baseline) {
@@ -678,7 +648,7 @@ public class AdCreator {
 				+ Math.ceil((textParams.height / baseline)));
 		int maxLines = (int) Math.ceil((textParams.height / baseline));
 
-		final String[] strs = getValuesByLines(textParams.width, value,maxLines, textview.getPaint());
+		this.strs = getValuesByLines(textParams.width, value,maxLines, textview.getPaint());
 		if (strs.length == 1) {
 			setTextSize(textview.getTextSize());
 			textview.setText(strs[0]);
@@ -696,57 +666,63 @@ public class AdCreator {
 			}
 		}
 		vf.removeView(textview);
-		handlerText = new Handler() {
-			public void handleMessage(Message msg) {
-				super.handleMessage(msg);
-				switch (msg.what) {
-				case PUSHTEXT:
-					vf.clearAnimation();
-					mCurrentTextIndex = mCurrentTextIndex % (strs.length);
-					if ("left".equals(direction)) {
-						vf.clearAnimation();
-						vf.setInAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[0]));
-						vf.setOutAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[1]));
-					} else if ("right".equals(direction)) {
-						vf.clearAnimation();
-						vf.setInAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[2]));
-						vf.setOutAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[3]));
-					} else if ("top".equals(direction)) {
-						vf.clearAnimation();
-						vf.setInAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[4]));
-						vf.setOutAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[5]));
-					} else if ("bottom".equals(direction)) {
-						vf.clearAnimation();
-						vf.setInAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[6]));
-						vf.setOutAnimation(AnimationUtils.loadAnimation(
-								mContext, animList[7]));
-					}
-					vf.showNext();
-					mCurrentTextIndex++;
-					break;
-
-				}
-			}
-		};
 		Timer timerText = new Timer();
 		timerText.schedule(tasktext, 2000, Integer.parseInt(scroll) * 1000);
 	}
+	
+	
+	
 
-	TimerTask tasktext = new TimerTask() {
-		public void run() {
-			Message message = new Message();
-			message.what = PUSHTEXT;
-			handlerText.removeMessages(PUSHTEXT);
-			handlerText.sendEmptyMessageDelayed(PUSHTEXT, 500);
+	private void setImageAnimation(ViewFlipper vf,List<HashMap<String, String>> images) {
+		vf.clearAnimation();
+		mCurrentPhotoIndex = mCurrentPhotoIndex % (images.size());
+		String animPosition = images.get(mCurrentPhotoIndex).get("anim");
+		// 判断动画显示的方向
+		if ("left".equals(animPosition)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[0]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[1]));
+		} else if ("right".equals(animPosition)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[2]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[3]));
+		} else if ("top".equals(animPosition)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[4]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[5]));
+		} else if ("bottom".equals(animPosition)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[6]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[7]));
 		}
-	};
+		vf.showNext();
+		mCurrentPhotoIndex++;
+	}
+	
+
+	private void setTextAnimation(final ViewFlipper vf,String direction,String[] strs) {
+		vf.clearAnimation();
+		mCurrentTextIndex = mCurrentTextIndex % (strs.length);
+		if ("left".equals(direction)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[0]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[1]));
+		} else if ("right".equals(direction)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[2]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[3]));
+		} else if ("top".equals(direction)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[4]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[5]));
+		} else if ("bottom".equals(direction)) {
+			vf.clearAnimation();
+			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[6]));
+			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[7]));
+		}
+		vf.showNext();
+		mCurrentTextIndex++;
+	}
 
 	/**
 	 * you can set the ad size or not
