@@ -148,6 +148,7 @@ public class IAdActivity extends Activity {
 			creator3.start();
 		}
 	};
+
 	Runnable r4 = new Runnable() {
 		@Override
 		public void run() {

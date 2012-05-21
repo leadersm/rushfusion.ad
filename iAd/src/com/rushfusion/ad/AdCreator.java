@@ -74,10 +74,15 @@ public class AdCreator {
 	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
 			text_w, text_h);
 
-	private static final int POLL = 100;
-	private static final int STOP = POLL + 100;
-	private static final int PUSHTEXT = 200;
-
+	private static final int POLL = 201;
+	private static final int STOP = 202;
+	private static final int PUSHTEXT = 203;
+	private int animList[] = new int[] { R.anim.push_in_left,
+			R.anim.push_out_left, R.anim.push_in_right,
+			R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
+			R.anim.push_in_bottom, R.anim.push_out_bottom };
+	
+	
 	private Timer timer;
 	private int mCurrentPhotoIndex = 0;
 	private int mCurrentTextIndex = 0;
@@ -531,11 +536,6 @@ public class AdCreator {
 	 */
 	private void imageTransfer(final ViewFlipper vf,
 			final List<HashMap<String, String>> images, int delay) {
-		// 显示的动画效果
-		final int animList[] = new int[] { R.anim.push_in_left,
-				R.anim.push_out_left, R.anim.push_in_right,
-				R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
-				R.anim.push_in_bottom, R.anim.push_out_bottom };
 		for (int i = 0; i < images.size(); i++) {
 			HashMap<String, String> imagesInfo = images.get(i);
 			final String imagepath = imagesInfo.get("url");
@@ -696,10 +696,6 @@ public class AdCreator {
 			}
 		}
 		vf.removeView(textview);
-		final int animList[] = new int[] { R.anim.push_in_left,
-				R.anim.push_out_left, R.anim.push_in_right,
-				R.anim.push_out_right, R.anim.push_in_top, R.anim.push_out_top,
-				R.anim.push_in_bottom, R.anim.push_out_bottom };
 		handlerText = new Handler() {
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
