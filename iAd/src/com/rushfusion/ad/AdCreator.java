@@ -682,27 +682,27 @@ public class AdCreator {
 		if(dm.widthPixels == 1280){
 			setAdTextSize(16);
 		}
-		TextView textview = new TextView(mContext);
-		textview.setTextColor(Color.WHITE);
-		textview.setTextSize(getAdTextSize());
-		vf.addView(textview);// tbd
-		FontMetrics fm = textview.getPaint().getFontMetrics();
+		Paint paint = new Paint();
+		paint.setTextSize(getAdTextSize());
+		FontMetrics fm = paint.getFontMetrics();
 		LayoutInflater inflater = LayoutInflater.from(mContext);
 		float baseline = fm.descent - fm.ascent + fm.leading;
+		
 		if (textParams.height < baseline) {
-			textview.setText(value);
+//			textview.setText(value);
 			return;// tbd
 		}
 		System.out.println("textParams.H-->" + textParams.height
 				+ " baseLineH-->" + baseline + "maxLines-->"
-				+ Math.ceil((textParams.height / baseline)));
+				+ Math.floor(((double)textParams.height / baseline)));
 		int textsize =textParams.width;
+		
 		Singleton st =Singleton.getInstance();
 		st.setTextsize(textsize);
 		int maxLines = (int) Math.floor(((double)textParams.height / baseline));
-		this.strs = getValuesByLines(textParams.width, value,maxLines, textview.getPaint());
+		this.strs = getValuesByLines(textParams.width, value,maxLines, paint);
 		if (strs.length == 1) {
-			textview.setText(strs[0]);
+//			textview.setText(strs[0]);
 			return;// tbd
 		}
 		for (int i = 0; i < strs.length; i++) {
@@ -717,7 +717,7 @@ public class AdCreator {
 				vf.addView(intextView);
 			}
 		}
-		vf.removeView(textview);
+//		vf.removeView(textview);
 		Timer timerText = new Timer();
 		timerText.schedule(tasktext, Integer.parseInt(scroll) * 1000, Integer.parseInt(scroll) * 1000);
 	}
@@ -832,13 +832,6 @@ public class AdCreator {
 
 
 	
-	public float getAdTextSize() {
-		return textSize;
-	}
-
-	public void setAdTextSize(float textSize) {
-		this.textSize = textSize;
-	}
 
 	private String getValueFrom(String[] linestrs, int maxlines, int num) {
 		StringBuffer result = new StringBuffer();
@@ -880,5 +873,13 @@ public class AdCreator {
 			}
 		}
 		return mSplitTextParts;
+	}
+	
+	public float getAdTextSize() {
+		return textSize;
+	}
+	
+	public void setAdTextSize(float textSize) {
+		this.textSize = textSize;
 	}
 }

@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,11 +20,14 @@ public class CYTextView extends TextView{
 	private int textColor;
 	private Context context;
 	
-	private Paint paint1 = new Paint();
+	private Paint paint1 = getPaint();
 	private float textShowWidth;
+	private float LineSpace = 0;//行间距
+	public  static  int m_iTextWidth;//文本的宽度
 
-	 private float LineSpace = 0;//行间距
-	  public  static  int m_iTextWidth;//文本的宽度
+	
+	
+	
 	public CYTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		text = attrs.getAttributeValue(
@@ -41,9 +43,6 @@ public class CYTextView extends TextView{
 		paint1.setTextSize(textSize);
 		paint1.setColor(textColor);
 		paint1.setAntiAlias(true);
-//		textShowWidth = ((Activity) context).getWindowManager().getDefaultDisplay().getWidth()
-//				- context.get
-//				- paddingLeft - paddingRight - marginLeft - marginRight;
 		Singleton s = Singleton.getInstance();
 		int textsize2 = s.getTextsize();
 		textShowWidth = textsize2;
@@ -55,7 +54,6 @@ public class CYTextView extends TextView{
 		text = this.getText().toString();//.replaceAll("\n", "\r\n");
 		if(text==null)return;
 		char[] textCharArray = text.toCharArray();
-		// �ѻ�Ŀ��
 		float drawedWidth = 0;
 		float charWidth;
 		for (int i = 0; i < textCharArray.length; i++) {
@@ -73,8 +71,6 @@ public class CYTextView extends TextView{
 			canvas.drawText(textCharArray, i, 1, paddingLeft + drawedWidth,
 					(lineCount + 1) * textSize, paint1);
 			drawedWidth += charWidth;
-			
-			Log.d("testMy", "drawedWidth is:" +drawedWidth);
 		}
 		setHeight((lineCount + 1) * (int) textSize + 5);
 	}
@@ -82,8 +78,6 @@ public class CYTextView extends TextView{
 	    {         
 	        int measuredHeight = measureHeight(heightMeasureSpec);         
 	        int measuredWidth = measureWidth(widthMeasureSpec);  
-	        System.out.println("measuredHeight========>"+measuredHeight);
-	        System.out.println("measuredWidth========>"+measuredWidth);
 	        this.setMeasuredDimension(measuredWidth, measuredHeight);
 	        this.setLayoutParams(new LinearLayout.LayoutParams(measuredWidth,measuredHeight));
 	        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -96,10 +90,6 @@ public class CYTextView extends TextView{
 	        // Default size if no limits are specified. 
 	      int result = m_iTextHeight;         
 	        if (specMode == MeasureSpec.AT_MOST){        
-	            // Calculate the ideal size of your         
-	            // control within this maximum size.         
-	            // If your control fills the available          
-	            // space return the outer bound.         
 	            result = specSize;          
 	        }else if (specMode == MeasureSpec.EXACTLY){          
 	            // If your control can fit within these bounds return that value.           
