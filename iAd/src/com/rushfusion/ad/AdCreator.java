@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
@@ -29,6 +30,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -202,13 +204,13 @@ public class AdCreator {
 	}
 
 	private void dispatchViewByType(View v, int type, Map<String, Object> data) {
-		if (type == 1) {// image only
+		if (type == AD_TYPE_IMAGE_ONLY) {
 			showAdType_1(v, data);
-		} else if (type == 2) {// text only
+		} else if (type == AD_TYPE_TEXT_ONLY) {
 			showAdType_2(v, data);
-		} else if (type == 3) {// image + text
+		} else if (type == AD_TYPE_IMAGE_AND_TEXT) {
 			showAdType_3(v, data);
-		} else if (type == 4) {// full
+		} else if (type == AD_TYPE_FULL) {
 			showAdType_4(v, data);
 		}
 		adViewParent.addView(v);
@@ -217,36 +219,78 @@ public class AdCreator {
 	private View getViewByPosition(String position, int layoutId) {
 		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width, ad_height);
-		if (position.equals("1")) {
+		if (position.equals("lefttop")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("2")) {
+		} else if (position.equals("topcenter")) {
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("3")) {
+		} else if (position.equals("righttop")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("4")) {
+		} else if (position.equals("leftcenter")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("5")) {
+		} else if (position.equals("center")) {
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("6")) {
+		} else if (position.equals("rightcenter")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("7")) {
+		} else if (position.equals("leftbottom")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		} else if (position.equals("8")) {
+		} else if (position.equals("bottomcenter")) {
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		} else if (position.equals("9")) {
+		} else if (position.equals("rightbottom")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		} else
-			mCallback.onError(new Exception("unKnown position-->" + position),
-					ERROR_UNKNOWN_POSITION);
+		}else if(position.equals("random")){
+			Random r = new Random();
+			int x = r.nextInt(9);
+			switch (x) {
+			case 0:
+				params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				break;
+			case 1:
+				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				break;
+			case 2:
+				params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				break;
+			case 3:
+				params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				params.addRule(RelativeLayout.CENTER_VERTICAL);
+				break;
+			case 4:
+				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				params.addRule(RelativeLayout.CENTER_VERTICAL);
+				break;
+			case 5:
+				params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				params.addRule(RelativeLayout.CENTER_VERTICAL);
+				break;
+			case 6:
+				params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				break;
+			case 7:
+				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				break;
+			case 8:
+				params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+				break;
+			default:
+				break;
+			}
+		}else
+			mCallback.onError(new Exception("unKnown position-->" + position),ERROR_UNKNOWN_POSITION);
 		v.setLayoutParams(params);
 		return v;
 	}
@@ -632,27 +676,32 @@ public class AdCreator {
 			vf.setAnimation(AnimationUtils.loadAnimation(mContext,
 					R.anim.push_in_right));
 		}
+		DisplayMetrics dm = new DisplayMetrics();   
+        mContext.getWindowManager().getDefaultDisplay().getMetrics(dm);
+		System.out.println("屏幕分辨率为:"+dm.widthPixels+" * "+dm.heightPixels);
+		if(dm.widthPixels == 1280){
+			setAdTextSize(16);
+		}
 		TextView textview = new TextView(mContext);
 		textview.setTextColor(Color.WHITE);
+		textview.setTextSize(getAdTextSize());
 		vf.addView(textview);// tbd
 		FontMetrics fm = textview.getPaint().getFontMetrics();
 		LayoutInflater inflater = LayoutInflater.from(mContext);
 		float baseline = fm.descent - fm.ascent + fm.leading;
 		if (textParams.height < baseline) {
-			setTextSize(textview.getTextSize());
 			textview.setText(value);
 			return;// tbd
 		}
 		System.out.println("textParams.H-->" + textParams.height
 				+ " baseLineH-->" + baseline + "maxLines-->"
 				+ Math.ceil((textParams.height / baseline)));
-		int maxLines = (int) Math.ceil((textParams.height / baseline));
 		int textsize =textParams.width;
 		Singleton st =Singleton.getInstance();
 		st.setTextsize(textsize);
+		int maxLines = (int) Math.floor(((double)textParams.height / baseline));
 		this.strs = getValuesByLines(textParams.width, value,maxLines, textview.getPaint());
 		if (strs.length == 1) {
-			setTextSize(textview.getTextSize());
 			textview.setText(strs[0]);
 			return;// tbd
 		}
@@ -661,7 +710,7 @@ public class AdCreator {
 			if (strs[i] != null && !strs[i].equals("")) {
 				View intextView = inflater.inflate(R.layout.viewfillper, null);
 				CYTextView myTextView = (CYTextView) intextView.findViewById(R.id.ad_mytext);
-				setTextSize(myTextView.getTextSize());
+				setAdTextSize(myTextView.getTextSize());
 				myTextView.setTextColor(Color.WHITE);
 				myTextView.setText(strs[i]);
 				Log.d("AdCreator", "textView1:>>>" + strs[i]);
@@ -770,7 +819,7 @@ public class AdCreator {
 	}
 
 	private String[] getValuesByLines(int w, String value, int maxlines,Paint paint) {
-		String[] linestrs = getLineStrs(value, paint, w,getTextSize());
+		String[] linestrs = getLineStrs(value, paint, w,getAdTextSize());
 		
 		String[] values = new String[(int) Math.ceil((double)linestrs.length / maxlines)];
 		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines + "  页数-->" + values.length);
@@ -783,11 +832,11 @@ public class AdCreator {
 
 
 	
-	public float getTextSize() {
+	public float getAdTextSize() {
 		return textSize;
 	}
 
-	public void setTextSize(float textSize) {
+	public void setAdTextSize(float textSize) {
 		this.textSize = textSize;
 	}
 
@@ -832,5 +881,4 @@ public class AdCreator {
 		}
 		return mSplitTextParts;
 	}
-
 }
