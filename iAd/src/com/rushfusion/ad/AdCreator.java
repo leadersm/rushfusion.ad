@@ -10,8 +10,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
@@ -22,15 +20,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Paint.FontMetrics;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,26 +64,28 @@ public class AdCreator {
 	private int image_h = 150;
 	private int text_w;
 	private int text_h;
-
+	private int title_h = 20;
+	
+	
 	private RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(
 			image_w, image_h);
 	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
 			text_w, text_h);
 
 	private static final int ChangeImage = 201;
-	private static final int ChangeText = 202;
+//	private static final int ChangeText = 202;
 	private int animList[] = new int[] { R.anim.push_in_left,R.anim.push_out_left,
 								R.anim.push_in_right,R.anim.push_out_right, R.anim.push_in_top, 
 								R.anim.push_out_top,R.anim.push_in_bottom, R.anim.push_out_bottom };
 	private ViewFlipper imageVF;
-	private ViewFlipper textVF;
+//	private ViewFlipper textVF;
 	private List<HashMap<String, String>> images;
-	private String [] strs;
-	private String direction;
+//	private String [] strs;
+//	private String direction;
 	
 	private int mCurrentPhotoIndex = 0;
-	private int mCurrentTextIndex = 0;
-	private float textSize = 24;
+//	private int mCurrentTextIndex = 0;
+	private float textSize = 20;
 	
 	
 	
@@ -392,9 +388,10 @@ public class AdCreator {
 			TextView title = (TextView) adView.findViewById(R.id.title);
 			if (title == null || title.getText().equals(""))
 				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			else
+			else{
 				textParams.addRule(RelativeLayout.BELOW, R.id.title);
-
+				textParams.height -= title_h;
+			}
 			userParams.width = ad_width - 100;
 			imageParams.width = ad_width - 100;
 			image_w = imageParams.width;
@@ -419,29 +416,34 @@ public class AdCreator {
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
 		} else if (textposition.equals("top")) {
-			TextView title = (TextView) adView.findViewById(R.id.title);
-			if (title == null || title.getText().equals(""))
-				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			else
-				textParams.addRule(RelativeLayout.BELOW, R.id.title);
+			textParams.width = ad_width;
 			userParams.addRule(RelativeLayout.BELOW, R.id.image);
 			imageParams.addRule(RelativeLayout.BELOW, R.id.text);
 			imageParams.height = RelativeLayout.LayoutParams.MATCH_PARENT;
-			textParams.width = ad_width;
-			textParams.height = ad_height - image_h - title.getHeight();
+			TextView title = (TextView) adView.findViewById(R.id.title);
+			if (title == null || title.getText().equals("")){
+				textParams.height = ad_height - image_h;
+				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			}else{
+				textParams.height = ad_height - image_h - title_h;
+				textParams.addRule(RelativeLayout.BELOW, R.id.title);
+			}
 		} else if (textposition.equals("bottom")) {
+			textParams.width = ad_width;
+			textParams.addRule(RelativeLayout.BELOW, R.id.image);
 			if (userInfo != null) {
 				userParams.addRule(RelativeLayout.BELOW, R.id.text);
 				userInfo.setLayoutParams(userParams);
 			}
 			TextView title = (TextView) adView.findViewById(R.id.title);
 			if (title == null || title.getText().equals(""))
+			{
 				imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			else
+				textParams.height = ad_height - image_h;
+			}else{
 				imageParams.addRule(RelativeLayout.BELOW, R.id.title);
-			textParams.width = ad_width;
-			textParams.height = ad_height - image_h - title.getHeight();
-			textParams.addRule(RelativeLayout.BELOW, R.id.image);
+				textParams.height = ad_height - image_h - title_h;
+			}
 		}
 		if (userInfo != null)
 			userInfo.setLayoutParams(userParams);
@@ -573,9 +575,9 @@ public class AdCreator {
 			case ChangeImage:
 				setImageAnimation(imageVF,images);
 				break;
-			case ChangeText:
-				setTextAnimation(textVF,direction,strs);
-				break;
+//			case ChangeText:
+//				setTextAnimation(textVF,direction,strs);
+//				break;
 			}
 		}
 	};
@@ -588,14 +590,14 @@ public class AdCreator {
 		}
 	};
 	
-	TimerTask tasktext = new TimerTask() {
-		public void run() {
-			Message message = new Message();
-			message.what = ChangeText;
-			handler.sendMessage(message);
-		}
-	};
-	
+//	TimerTask tasktext = new TimerTask() {
+//		public void run() {
+//			Message message = new Message();
+//			message.what = ChangeText;
+//			handler.sendMessage(message);
+//		}
+//	};
+//	
 
 	/**
 	 * Picture switch
@@ -650,7 +652,6 @@ public class AdCreator {
 			imagetimer.schedule(imagetask, delay * 1000, delay * 1000);
 	}
 	
-	
 	/**
 	 * Text switch
 	 * 
@@ -661,67 +662,9 @@ public class AdCreator {
 	 * @param scroll
 	 */
 	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
-		this.textVF = vf;
-		String anim = text.get("anim");
-		String value = text.get("value");
-		Pattern p = Pattern.compile("\\s*|\t|\r|\n");
-		Matcher m = p.matcher(value);
-		value = m.replaceAll("").trim();
-		direction = text.get("direction");
-		String scroll = text.get("scroll");
-		if (anim.equals("left")) {
-			vf.setAnimation(AnimationUtils.loadAnimation(mContext,
-					R.anim.push_in_left));
-		} else if (anim.equals("right")) {
-			vf.setAnimation(AnimationUtils.loadAnimation(mContext,
-					R.anim.push_in_right));
-		}
-		DisplayMetrics dm = new DisplayMetrics();   
-        mContext.getWindowManager().getDefaultDisplay().getMetrics(dm);
-		System.out.println("屏幕分辨率为:"+dm.widthPixels+" * "+dm.heightPixels);
-		if(dm.widthPixels == 1280){
-			setAdTextSize(16);
-		}
-		TextView textview = new TextView(mContext);
-		textview.setTextColor(Color.WHITE);
-		textview.setTextSize(getAdTextSize());
-		vf.addView(textview);// tbd
-		FontMetrics fm = textview.getPaint().getFontMetrics();
-		LayoutInflater inflater = LayoutInflater.from(mContext);
-		float baseline = fm.descent - fm.ascent + fm.leading;
-		if (textParams.height < baseline) {
-			textview.setText(value);
-			return;// tbd
-		}
-		System.out.println("textParams.H-->" + textParams.height
-				+ " baseLineH-->" + baseline + "maxLines-->"
-				+ Math.ceil((textParams.height / baseline)));
-		int textsize =textParams.width;
-		Singleton st =Singleton.getInstance();
-		st.setTextsize(textsize);
-		int maxLines = (int) Math.floor(((double)textParams.height / baseline));
-		this.strs = getValuesByLines(textParams.width, value,maxLines, textview.getPaint());
-		if (strs.length == 1) {
-			textview.setText(strs[0]);
-			return;// tbd
-		}
-		for (int i = 0; i < strs.length; i++) {
-			System.out.println("strs[" + i + "]-->" + strs[i]);
-			if (strs[i] != null && !strs[i].equals("")) {
-				View intextView = inflater.inflate(R.layout.viewfillper, null);
-				CYTextView myTextView = (CYTextView) intextView.findViewById(R.id.ad_mytext);
-				setAdTextSize(myTextView.getTextSize());
-				myTextView.setTextColor(Color.WHITE);
-				myTextView.setText(strs[i]);
-				Log.d("AdCreator", "textView1:>>>" + strs[i]);
-				vf.addView(intextView);
-			}
-		}
-		vf.removeView(textview);
-		Timer timerText = new Timer();
-		timerText.schedule(tasktext, Integer.parseInt(scroll) * 1000, Integer.parseInt(scroll) * 1000);
+		 AdText at = new AdText(mContext,vf,text,textParams.width,textParams.height,getAdTextSize());
+		 at.start();
 	}
-	
 	
 	
 
@@ -751,31 +694,6 @@ public class AdCreator {
 		mCurrentPhotoIndex++;
 	}
 	
-
-	private void setTextAnimation(final ViewFlipper vf,String direction,String[] strs) {
-		vf.clearAnimation();
-		mCurrentTextIndex = mCurrentTextIndex % (strs.length);
-		if ("left".equals(direction)) {
-			vf.clearAnimation();
-			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[0]));
-			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[1]));
-		} else if ("right".equals(direction)) {
-			vf.clearAnimation();
-			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[2]));
-			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[3]));
-		} else if ("top".equals(direction)) {
-			vf.clearAnimation();
-			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[4]));
-			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[5]));
-		} else if ("bottom".equals(direction)) {
-			vf.clearAnimation();
-			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[6]));
-			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[7]));
-		}
-		vf.showNext();
-		mCurrentTextIndex++;
-	}
-
 	/**
 	 * you can set the ad size or not
 	 * 
@@ -818,17 +736,6 @@ public class AdCreator {
 			adViewParent.removeAllViews();
 	}
 
-	private String[] getValuesByLines(int w, String value, int maxlines,Paint paint) {
-		String[] linestrs = getLineStrs(value, paint, w,getAdTextSize());
-		
-		String[] values = new String[(int) Math.ceil((double)linestrs.length / maxlines)];
-		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines + "  页数-->" + values.length);
-		for (int i = 0; i < values.length; i++) {
-			values[i] = getValueFrom(linestrs, maxlines, i);
-			System.out.println("value-->" + i + "<-->" + values[i]);
-		}
-		return values;
-	}
 
 
 	
@@ -838,47 +745,5 @@ public class AdCreator {
 
 	public void setAdTextSize(float textSize) {
 		this.textSize = textSize;
-	}
-
-	private String getValueFrom(String[] linestrs, int maxlines, int num) {
-		StringBuffer result = new StringBuffer();
-		for (int i = num * maxlines; i < (num + 1) * maxlines; i++) {
-			if (i >= linestrs.length)
-				break;
-			if (linestrs[i] != null)
-				result.append(linestrs[i]);
-			System.out.println("sub-->" + linestrs[i]);
-		}
-		return result.toString();
-	}
-
-	private String[] getLineStrs(String content, Paint p, float width,float textSize) {
-		p.setTextSize(textSize);
-		int index = 0;
-		int start = 0;
-		int end = 0;
-		float textLength = p.measureText(content);
-		System.out.println("textLength->" + textLength);
-		System.out.println("width->" + width);
-
-		int lineNum = (int) Math.ceil(textLength / width);
-
-		if (textLength < width) {
-			return new String[] { content };
-		}
-		Log.d("split", "textView1 lineNum is:" + lineNum);
-		String[] mSplitTextParts = new String[lineNum];
-		for (int i = 0; i <= content.length(); i++, end++) {
-			float measureLength = p.measureText(content, start, end);
-			if (measureLength >= width) {
-				Log.d("split", "textView1 measureLength is:" + measureLength);
-				mSplitTextParts[index++] = content.substring(start, end);
-				start = end;
-			}
-			if (end == content.length()) {
-				mSplitTextParts[index++] = content.substring(start, end);
-			}
-		}
-		return mSplitTextParts;
 	}
 }
