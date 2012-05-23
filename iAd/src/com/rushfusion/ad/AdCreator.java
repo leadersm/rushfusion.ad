@@ -16,8 +16,6 @@ import javax.xml.parsers.FactoryConfigurationError;
 
 import org.w3c.dom.Document;
 
-import com.rushfusion.ad.AdCreator.CallBack;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;

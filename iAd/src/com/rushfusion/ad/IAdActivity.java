@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
 
 public class IAdActivity implements Runnable {
@@ -16,11 +15,12 @@ public class IAdActivity implements Runnable {
 	boolean isShowing2=false;
 	boolean isShowing3=false;
 	boolean isShowing4=false;
+	
 	AdCreator creator1;
 	AdCreator creator2;
 	AdCreator creator3;
 	AdCreator creator4;
-	private static final String LOG_TAG = "IAdActivity";
+	
 	Context mContext;
 	ViewGroup mContainer = null;
 	Button mStatus;
