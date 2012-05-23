@@ -73,20 +73,14 @@ public class AdCreator {
 			text_w, text_h);
 
 	private static final int ChangeImage = 201;
-//	private static final int ChangeText = 202;
 	private int animList[] = new int[] { R.anim.push_in_left,R.anim.push_out_left,
 								R.anim.push_in_right,R.anim.push_out_right, R.anim.push_in_top, 
 								R.anim.push_out_top,R.anim.push_in_bottom, R.anim.push_out_bottom };
 	private ViewFlipper imageVF;
-//	private ViewFlipper textVF;
 	private List<HashMap<String, String>> images;
-//	private String [] strs;
-//	private String direction;
-	
 	private int mCurrentPhotoIndex = 0;
-//	private int mCurrentTextIndex = 0;
-	private float textSize = 20;
 	
+	private float textSize = 15;
 	
 	
 
@@ -575,9 +569,6 @@ public class AdCreator {
 			case ChangeImage:
 				setImageAnimation(imageVF,images);
 				break;
-//			case ChangeText:
-//				setTextAnimation(textVF,direction,strs);
-//				break;
 			}
 		}
 	};
@@ -590,14 +581,6 @@ public class AdCreator {
 		}
 	};
 	
-//	TimerTask tasktext = new TimerTask() {
-//		public void run() {
-//			Message message = new Message();
-//			message.what = ChangeText;
-//			handler.sendMessage(message);
-//		}
-//	};
-//	
 
 	/**
 	 * Picture switch
