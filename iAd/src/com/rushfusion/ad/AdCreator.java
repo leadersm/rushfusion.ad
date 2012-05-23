@@ -16,6 +16,8 @@ import javax.xml.parsers.FactoryConfigurationError;
 
 import org.w3c.dom.Document;
 
+import com.rushfusion.ad.AdCreator.CallBack;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -28,6 +30,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
@@ -57,7 +60,7 @@ public class AdCreator {
 	public RelativeLayout adViewParent;
 	private CallBack mCallback;
 	private String mAdUrl;
-
+	
 	private int ad_width = 300;
 	private int ad_height = 200;
 	private int image_w = LayoutParams.MATCH_PARENT;
@@ -65,8 +68,7 @@ public class AdCreator {
 	private int text_w;
 	private int text_h;
 	private int title_h = 20;
-	
-	
+	private ViewGroup mparentGroup;
 	private RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(
 			image_w, image_h);
 	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
@@ -79,12 +81,9 @@ public class AdCreator {
 	private ViewFlipper imageVF;
 	private List<HashMap<String, String>> images;
 	private int mCurrentPhotoIndex = 0;
-	
 	private float textSize = 15;
-	
-	
 
-	public AdCreator(Activity context, String adUrl, CallBack callback) {
+	public AdCreator(ViewGroup mContainer,Activity context, String adUrl, CallBack callback) {
 		mContext = context;
 		mCallback = callback;
 		mAdUrl = adUrl;
@@ -94,7 +93,9 @@ public class AdCreator {
 				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
 				RelativeLayout.ALIGN_PARENT_TOP);
-		mContext.addContentView(adViewParent, params);
+		 mparentGroup=mContainer;
+		 mparentGroup.addView(adViewParent,params);
+		//mContext.addContentView(adViewParent, params);
 	}
 
 	public void start() {
