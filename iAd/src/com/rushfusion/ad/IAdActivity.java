@@ -1,13 +1,15 @@
 package com.rushfusion.ad;
 
 import android.app.Activity;
-import android.os.Bundle;
+import android.content.Context;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.RelativeLayout;
 
-public class IAdActivity extends Activity {
+public class IAdActivity implements Runnable {
 	/** Called when the activity is first created. */
 	
 	boolean isShowing1=false;
@@ -18,18 +20,27 @@ public class IAdActivity extends Activity {
 	AdCreator creator2;
 	AdCreator creator3;
 	AdCreator creator4;
+	private static final String LOG_TAG = "IAdActivity";
+	Context mContext;
+	ViewGroup mContainer = null;
+	Button mStatus;
 	
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.ad);
-		
-		final Button start1 = (Button) findViewById(R.id.button1);
-		final Button start2 = (Button) findViewById(R.id.button2);
-		final Button start3 = (Button) findViewById(R.id.button3);
-		final Button start4 = (Button) findViewById(R.id.button4);
 
-		
+
+	public void init(Context context, ViewGroup container) {
+		mContext = context;
+		mContainer = container;
+	}
+	
+	public void run() {
+		View adView = View.inflate(mContext, R.layout.ad, null);
+		final Button start1 = (Button) adView.findViewById(R.id.button1);
+		final Button start2 = (Button) adView.findViewById(R.id.button2);
+		final Button start3 = (Button) adView.findViewById(R.id.button3);
+		final Button start4 = (Button) adView.findViewById(R.id.button4);
+		mContainer.removeAllViews();
+		mContainer.addView(adView);
+		adView.requestFocus();
 		start1.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -96,7 +107,7 @@ public class IAdActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			creator1 = new AdCreator(IAdActivity.this, "", new AdCreator.CallBack() {
+			creator1 = new AdCreator(mContainer,(Activity)mContext, "", new AdCreator.CallBack() {
 						
 						@Override
 						public void onError(Exception e,
@@ -115,7 +126,7 @@ public class IAdActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			creator2 = new AdCreator(IAdActivity.this, "", new AdCreator.CallBack() {
+			creator2 = new AdCreator(mContainer,(Activity)mContext, "", new AdCreator.CallBack() {
 
 						@Override
 						public void onError(Exception e,
@@ -134,7 +145,7 @@ public class IAdActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			creator3 = new AdCreator(IAdActivity.this, "", new AdCreator.CallBack() {
+			creator3 = new AdCreator(mContainer,(Activity)mContext, "", new AdCreator.CallBack() {
 
 						@Override
 						public void onError(Exception e,
@@ -153,7 +164,7 @@ public class IAdActivity extends Activity {
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			creator4 = new AdCreator(IAdActivity.this, "", new AdCreator.CallBack() {
+			creator4 = new AdCreator(mContainer,(Activity)mContext, "", new AdCreator.CallBack() {
 
 						@Override
 						public void onError(Exception e,
