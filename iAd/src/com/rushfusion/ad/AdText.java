@@ -77,12 +77,12 @@ public class AdText {
 	}
 
 	public void start(){
-		AdTextView[] ats = new AdTextView[pageCount];
+//		AdTextView[] ats = new AdTextView[pageCount];
 		for (int i = 0; i < strs.length; i++) {
 			if (strs[i] != null){
 				AdTextView at = new AdTextView(mContext);
 				at.setText(getValueFrom(linestrs, maxlines, i));
-				ats[i] = at;
+//				ats[i] = at;
 				vf.addView(at);
 			}
 		}
