@@ -99,8 +99,9 @@ public class AdText {
 						.getFontMetrics().leading));
 		maxlines = (int) Math.floor((float) h / baseLine);
 		System.out.println("h-->"+h+"-baseLine->"+baseLine+"-maxlines->"+maxlines);
+		
 		String value = text.get("value");
-		Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+		Pattern p = Pattern.compile("\\t|\r|\n");
 		Matcher m = p.matcher(value);
 		value = m.replaceAll("").trim();
 		
