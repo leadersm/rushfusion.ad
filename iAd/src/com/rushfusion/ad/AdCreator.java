@@ -16,7 +16,6 @@ import javax.xml.parsers.FactoryConfigurationError;
 
 import org.w3c.dom.Document;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -39,7 +38,7 @@ import android.widget.ViewFlipper;
 
 public class AdCreator {
 
-	public String TEST_XML = "data4.xml";
+	public String TEST_XML = "data1.xml";
 
 	private static final String TAG = "AdCreator";
 
@@ -52,9 +51,9 @@ public class AdCreator {
 	public static final int ERROR_AD_TYPE = 102;
 	public static final int ERROR_URL = 103;
 	public static final int ERROR_UNKNOWN_POSITION = 104;
-	public static final int ERROR_START = 105;
+	public static final int ERROR_URL_CONNECTION = 105;
 
-	private Activity mContext;
+	private Context mContext;
 	public RelativeLayout adViewParent;
 	private CallBack mCallback;
 	private String mAdUrl;
@@ -81,33 +80,28 @@ public class AdCreator {
 	private int mCurrentPhotoIndex = 0;
 	private float textSize = 15;
 
-	public AdCreator(ViewGroup mContainer,Activity context, String adUrl, CallBack callback) {
+	public AdCreator(ViewGroup mContainer,Context context, String adUrl, CallBack callback) {
 		mContext = context;
 		mCallback = callback;
 		mAdUrl = adUrl;
 		adViewParent = new RelativeLayout(context);
 		adViewParent.setBackgroundColor(context.getResources().getColor(R.color.bg));
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-				RelativeLayout.ALIGN_PARENT_TOP);
-		 mparentGroup=mContainer;
-		 mparentGroup.addView(adViewParent,params);
-		//mContext.addContentView(adViewParent, params);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,RelativeLayout.ALIGN_PARENT_TOP);
+		mparentGroup=mContainer;
+		mparentGroup.addView(adViewParent,params);
 	}
 
 	public void start() {
 		if (!checkNetwork(mContext)) {
-			mCallback.onError(new Exception("the network is not enabled！！"),
-					ERROR_NETWORK_NOT_ENABLED);
-			Log.w(TAG,
-					"the network is not enabled！！the no network model has been started");
+			mCallback.onError(new Exception("the network is not enabled！！"),ERROR_NETWORK_NOT_ENABLED);
+			Log.w(TAG,"the network is not enabled！！the DebugModel has been started");
 			startDebugModel();
 			return;
 		}
 		if (mAdUrl.equals("") || mAdUrl == null) {
 			mCallback.onError(new Exception("the AdUrl is null "), ERROR_URL);
-			Log.w(TAG, "the AdUrl is null ");
+			Log.w(TAG, "the AdUrl is null ,the DebugModel has been started");
 			startDebugModel();
 			return;
 		}
@@ -117,7 +111,7 @@ public class AdCreator {
 			url = new URL(mAdUrl);
 			data = parseXml(url.openConnection().getInputStream());
 		} catch (Exception e1) {
-			mCallback.onError(e1, ERROR_START);
+			mCallback.onError(e1, ERROR_URL_CONNECTION);
 			e1.printStackTrace();
 		}
 		showDynamicAdvertisement(data);
@@ -133,7 +127,7 @@ public class AdCreator {
 			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
 			data = parseXml(in);
 		} catch (Exception e1) {
-			mCallback.onError(e1, ERROR_START);
+			mCallback.onError(e1, ERROR_URL_CONNECTION);
 			e1.printStackTrace();
 		}
 		showDynamicAdvertisement(data);
@@ -621,8 +615,7 @@ public class AdCreator {
 						iv.setLayoutParams(imageParams);
 						iv.setScaleType(ScaleType.FIT_XY);
 						iv.setImageBitmap(result);
-						iv.setAnimation(AnimationUtils.loadAnimation(mContext,
-								R.anim.push_in_left));
+						iv.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_left));
 						vf.addView(iv);
 					}
 					super.onPostExecute(result);
@@ -630,8 +623,8 @@ public class AdCreator {
 			}.execute();
 			
 		}
-			Timer imagetimer = new Timer();
-			imagetimer.schedule(imagetask, delay * 1000, delay * 1000);
+		Timer imagetimer = new Timer();
+		imagetimer.schedule(imagetask, delay * 1000, delay * 1000);
 	}
 	
 	/**
@@ -700,7 +693,6 @@ public class AdCreator {
 
 	/**
 	 * Download image
-	 * 
 	 * @param path
 	 * @return
 	 * @throws Exception
@@ -717,8 +709,6 @@ public class AdCreator {
 		if (adViewParent != null)
 			adViewParent.removeAllViews();
 	}
-
-
 
 	
 	public float getAdTextSize() {

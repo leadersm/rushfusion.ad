@@ -15,7 +15,7 @@ public class TestActivity extends Activity {
         setContentView(new TextView(this));
         ViewGroup mRoot = (ViewGroup) getWindow().getDecorView();
         IAdActivity y = new IAdActivity();
-        y.init(mContext, mRoot);
+        y.init(mContext, mRoot,null);
         y.run();			
     }
     

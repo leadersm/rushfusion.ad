@@ -6,7 +6,6 @@ import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -66,7 +65,7 @@ public class AdText {
 		}
 	};
 
-	public AdText(Activity context, ViewFlipper vf,HashMap<String, String> text,int w,int h,float textSize) {
+	public AdText(Context context, ViewFlipper vf,HashMap<String, String> text,int w,int h,float textSize) {
 		this.mContext = context;
 		this.vf = vf;
 		this.text = text;
@@ -77,12 +76,10 @@ public class AdText {
 	}
 
 	public void start(){
-//		AdTextView[] ats = new AdTextView[pageCount];
 		for (int i = 0; i < strs.length; i++) {
 			if (strs[i] != null){
 				AdTextView at = new AdTextView(mContext);
 				at.setText(getValueFrom(linestrs, maxlines, i));
-//				ats[i] = at;
 				vf.addView(at);
 			}
 		}
@@ -98,7 +95,7 @@ public class AdText {
 						- mPaint.getFontMetrics().ascent + mPaint
 						.getFontMetrics().leading));
 		maxlines = (int) Math.floor((float) h / baseLine);
-		System.out.println("h-->"+h+"-baseLine->"+baseLine+"-maxlines->"+maxlines);
+//		System.out.println("h-->"+h+"-baseLine->"+baseLine+"-maxlines->"+maxlines);
 		
 		String value = text.get("value");
 		Pattern p = Pattern.compile("\\t|\r|\n");
@@ -166,11 +163,11 @@ public class AdText {
 	private String[] getValuesByLines(int w, String value, int maxlines,
 			Paint paint) {
 		String[] values = new String[pageCount];
-		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines
-				+ "  页数-->" + values.length);
+//		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines
+//				+ "  页数-->" + values.length);
 		for (int i = 0; i < values.length; i++) {
 			values[i] = getValueFrom(linestrs, maxlines, i);
-			System.out.println("value-->" + values[i]);
+//			System.out.println("value-->" + values[i]);
 		}
 		return values;
 	}
@@ -220,7 +217,7 @@ public class AdText {
 			if (textCharArray[i] == '\n') {
 				end = i;
 				result[j] = content.subSequence(start, end).toString();
-				System.out.println("1 result-" + j + "-->" + result[j]);
+//				System.out.println("1 result-" + j + "-->" + result[j]);
 				start = end;
 				j++;
 				drawedWidth = 0;
@@ -229,7 +226,7 @@ public class AdText {
 			if (w - drawedWidth < charWidth) {
 				end = i;
 				result[j] = content.subSequence(start, end).toString();
-				System.out.println("2 result-" + j + "-->" + result[j]);
+//				System.out.println("2 result-" + j + "-->" + result[j]);
 				start = end;
 				j++;
 				drawedWidth = 0;
@@ -237,7 +234,7 @@ public class AdText {
 			if (i == textCharArray.length - 1) {
 				end = i;
 				result[j] = content.subSequence(start, end).toString();
-				System.out.println("3 result-" + j + "-->" + result[j]);
+//				System.out.println("3 result-" + j + "-->" + result[j]);
 				start = end;
 				j++;
 			}
