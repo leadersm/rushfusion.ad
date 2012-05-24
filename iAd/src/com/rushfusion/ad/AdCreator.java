@@ -341,23 +341,23 @@ public class AdCreator {
 					+ "-value->" + value);
 			data.put("text", text);
 
-			String contact = root.get("ad").get("contact").value();
+			String contact = "contect: "+root.get("ad").get("contact").value();
 			data.put("contact", contact);
 			Log.i(TAG, "contact-->" + contact);
 
-			String phone = root.get("ad").get("phone").value();
+			String phone = "phone: "+root.get("ad").get("phone").value();
 			data.put("phone", phone);
 			Log.i(TAG, "phone-->" + phone);
 
-			String address = root.get("ad").get("address").value();
+			String address = "address: "+root.get("ad").get("address").value();
 			data.put("address", address);
 			Log.i(TAG, "address-->" + address);
 
-			String email = root.get("ad").get("email").value();
+			String email = "email: "+root.get("ad").get("email").value();
 			data.put("email", email);
 			Log.i(TAG, "email-->" + email);
 
-			String website = root.get("ad").get("website").value();
+			String website = "website: "+root.get("ad").get("website").value();
 			data.put("website", website);
 			Log.i(TAG, "website-->" + website);
 		} catch (Exception e) {
@@ -492,8 +492,8 @@ public class AdCreator {
 		}
 		if (userInfo != null)
 			userInfo.setLayoutParams(userParams);
-		imageVF.setLayoutParams(imageParams);
-		textVF.setLayoutParams(textParams);
+//		imageVF.setLayoutParams(imageParams);
+//		textVF.setLayoutParams(textParams);
 	}
 
 	/**
@@ -588,14 +588,14 @@ public class AdCreator {
 		@SuppressWarnings("unchecked")
 		HashMap<String, String> text = ((HashMap<String, String>) data
 				.get("text"));
-		if(!data.get("title").toString().equals("")||data.get("title")!=null){
-			textParams.width = ad_width;
-			textParams.height = ad_height - title_h;
-		}else{
+		if(data.get("title").toString().equals("")){
 			textParams.width = ad_width;
 			textParams.height = ad_height;
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}else{
+			textParams.width = ad_width;
+			textParams.height = ad_height - title_h;
 		}
 		textTransfer(textView, text);
 	}
@@ -615,8 +615,17 @@ public class AdCreator {
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
 				.get("images");
 		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		imageParams.width = ad_width;
-		imageParams.height = ad_height;
+		if(data.get("title").toString().equals("")){
+			imageParams.width = ad_width;
+			imageParams.height = ad_height;
+			imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+			imageParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		}else{
+			imageParams.width = ad_width;
+			imageParams.height = ad_height-title_h;
+			imageParams.addRule(RelativeLayout.BELOW,R.id.title);
+			imageParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		}
 		imageTransfer(vf, images,Integer.parseInt(data.get("interval").toString()));
 	}
 	
@@ -651,6 +660,7 @@ public class AdCreator {
 	 *            -the images transfer interval
 	 */
 	private void imageTransfer(final ViewFlipper vf,final List<HashMap<String, String>> images, int delay) {
+		vf.setLayoutParams(imageParams);
 		this.imageVF = vf;
 		this.images = images;
 		for (int i = 0; i < images.size(); i++) {
@@ -702,8 +712,9 @@ public class AdCreator {
 	 * @param scroll
 	 */
 	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
-		 AdText at = new AdText(mContext,vf,text,textParams.width,textParams.height,getAdTextSize());
-		 at.start();
+		vf.setLayoutParams(textParams);
+		AdText at = new AdText(mContext,vf,text,textParams.width,textParams.height,getAdTextSize());
+		at.start();
 	}
 	
 	

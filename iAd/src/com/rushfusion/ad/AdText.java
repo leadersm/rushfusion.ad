@@ -77,7 +77,7 @@ public class AdText {
 
 	public void start(){
 		for (int i = 0; i < strs.length; i++) {
-			if (strs[i] != null){
+			if (strs[i] != null&&!strs[i].equals("")){
 				AdTextView at = new AdTextView(mContext);
 				at.setText(getValueFrom(linestrs, maxlines, i));
 				vf.addView(at);
@@ -94,6 +94,7 @@ public class AdText {
 		baseLine = (int) Math.ceil((mPaint.getFontMetrics().descent
 						- mPaint.getFontMetrics().ascent + mPaint
 						.getFontMetrics().leading));
+		if(h<baseLine)h=baseLine;
 		maxlines = (int) Math.floor((float) h / baseLine);
 		
 		String value = text.get("value");
