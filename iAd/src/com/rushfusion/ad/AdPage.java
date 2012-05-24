@@ -9,7 +9,9 @@ import android.view.View;
 public class AdPage extends BasePage {
 
 	String url = "";
-
+	int w = 300;
+	int h = 300;
+	
 	@Override
 	public void run() {
 		AdCreator creator1 = new AdCreator(mContainer, mContext, url,
@@ -22,7 +24,7 @@ public class AdPage extends BasePage {
 					}
 				});
 
-		// creator1.setAdSize(w,h);//应该从配置参数传过来？跟url一样、、tbd 默认广告大小300*300
+		creator1.setAdSize(w,h);//应该从配置参数传过来？跟url一样、、tbd 默认广告大小300*300
 		creator1.start();
 	}
 
@@ -46,6 +48,20 @@ public class AdPage extends BasePage {
 							Node value = attrs.getNamedItem("value");
 							if (value != null) {
 								url = value.getNodeValue();
+								break;
+							}
+						}
+						if ("width".equalsIgnoreCase(name.getNodeValue())) {
+							Node value = attrs.getNamedItem("value");
+							if (value != null) {
+								w = Integer.parseInt(value.getNodeValue());
+								break;
+							}
+						}
+						if ("height".equalsIgnoreCase(name.getNodeValue())) {
+							Node value = attrs.getNamedItem("value");
+							if (value != null) {
+								h = Integer.parseInt(value.getNodeValue());
 								break;
 							}
 						}

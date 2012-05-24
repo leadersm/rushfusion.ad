@@ -38,7 +38,7 @@ import android.widget.ViewFlipper;
 
 public class AdCreator {
 
-	public String TEST_XML = "data2.xml";
+	public String TEST_XML = "data4.xml";
 
 	private static final String TAG = "AdCreator";
 
@@ -320,9 +320,7 @@ public class AdCreator {
 				HashMap<String, String> image = new HashMap<String, String>();
 				image.put("url", node.attr("url"));
 				image.put("anim", node.attr("anim"));
-				Log.i(TAG,
-						"anim-->" + node.attr("anim") + "--url-->"
-								+ node.attr("url"));
+				Log.i(TAG,"anim-->" + node.attr("anim") + "--url-->"+ node.attr("url"));
 				images.add(image);
 			}
 			data.put("images", images);
@@ -369,43 +367,72 @@ public class AdCreator {
 	}
 
 	private void setRelationBy(View adView, ViewFlipper imageVF,
-			ViewFlipper textVF, String textposition) {
+			ViewFlipper textVF, String textposition,int type) {
 
 		RelativeLayout.LayoutParams userParams = new RelativeLayout.LayoutParams(
-				image_w, ad_height - image_h);
+				imageParams.width, ad_height - imageParams.height);
 		RelativeLayout userInfo = (RelativeLayout) adView
 				.findViewById(R.id.userinfo);
 
 		if (textposition.equals("left")) {
-			textParams.width = 100;
+			textParams.width = ad_width/3;//100
 			textParams.height = ad_height;
+			userParams.width = ad_width-textParams.width;//ad_width - 100;
+			userParams.height = ad_height/4;
+			imageParams.width = ad_width - textParams.width;//ad_width - 100;
 			TextView title = (TextView) adView.findViewById(R.id.title);
-			if (title == null || title.getText().equals(""))
-				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			else{
-				textParams.addRule(RelativeLayout.BELOW, R.id.title);
-				textParams.height -= title_h;
+			if(type == 3){
+				if (title == null || title.getText().equals("")){
+					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+					imageParams.height = ad_height;
+				}else{
+					textParams.addRule(RelativeLayout.BELOW, R.id.title);
+					textParams.height -= title_h;
+					imageParams.height = ad_height-title_h;
+				}
+			}else if(type == 4){
+				if (title == null || title.getText().equals("")){
+					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+					imageParams.height = ad_height - userParams.height;
+				}else{
+					textParams.addRule(RelativeLayout.BELOW, R.id.title);
+					textParams.height -= title_h;
+					imageParams.height = ad_height - userParams.height-title_h;
+				}
 			}
-			userParams.width = ad_width - 100;
-			imageParams.width = ad_width - 100;
-			image_w = imageParams.width;
-			userParams.addRule(RelativeLayout.BELOW, R.id.image);
+			userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			userParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.image);
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.RIGHT_OF, R.id.text);
 		} else if (textposition.equals("right")) {
-			textParams.width = 100;
+			textParams.width = ad_width/3;//100
 			textParams.height = ad_height;
+			userParams.width = ad_width-textParams.width;//ad_width - 100;
+			userParams.height = ad_height/4;
+			imageParams.width = ad_width - textParams.width;//ad_width - 100;
 			TextView title = (TextView) adView.findViewById(R.id.title);
-			if (title == null || title.getText().equals(""))
-				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			else
-				textParams.addRule(RelativeLayout.BELOW, R.id.title);
-			userParams.width = ad_width - 100;
-			imageParams.width = ad_width - 100;
-			image_w = ad_width - 100;
-			userParams.addRule(RelativeLayout.BELOW, R.id.image);
+			if(type == 3){
+				if (title == null || title.getText().equals("")){
+					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+					imageParams.height = ad_height;				
+				}else{
+					textParams.addRule(RelativeLayout.BELOW, R.id.title);
+					textParams.height -= title_h;
+					imageParams.height = ad_height-title_h;
+				}
+			}else if(type == 4){
+				if (title == null || title.getText().equals("")){
+					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+					imageParams.height = ad_height - userParams.height;				
+				}else{
+					textParams.addRule(RelativeLayout.BELOW, R.id.title);
+					textParams.height -= title_h;
+					imageParams.height = ad_height - userParams.height-title_h;
+				}
+			}
+			
+			userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);//RelativeLayout.BELOW, R.id.image
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
@@ -413,14 +440,25 @@ public class AdCreator {
 			textParams.width = ad_width;
 			userParams.addRule(RelativeLayout.BELOW, R.id.image);
 			imageParams.addRule(RelativeLayout.BELOW, R.id.text);
-			imageParams.height = RelativeLayout.LayoutParams.MATCH_PARENT;
 			TextView title = (TextView) adView.findViewById(R.id.title);
-			if (title == null || title.getText().equals("")){
-				textParams.height = ad_height - image_h;
-				textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-			}else{
-				textParams.height = ad_height - image_h - title_h;
-				textParams.addRule(RelativeLayout.BELOW, R.id.title);
+			if(type == 3){
+				imageParams.height = ad_height/2;
+				if (title == null || title.getText().equals("")){
+					textParams.height = ad_height - imageParams.height;
+					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				}else{
+					textParams.height = ad_height - imageParams.height - title_h;
+					textParams.addRule(RelativeLayout.BELOW, R.id.title);
+				}
+			}else if(type == 4){
+				imageParams.height = ad_height/3;//RelativeLayout.LayoutParams.MATCH_PARENT;
+				if (title == null || title.getText().equals("")){
+					textParams.height = (ad_height - imageParams.height)/3;
+					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+				}else{
+					textParams.height = (ad_height - imageParams.height - title_h)/3;
+					textParams.addRule(RelativeLayout.BELOW, R.id.title);
+				}
 			}
 		} else if (textposition.equals("bottom")) {
 			textParams.width = ad_width;
@@ -430,13 +468,26 @@ public class AdCreator {
 				userInfo.setLayoutParams(userParams);
 			}
 			TextView title = (TextView) adView.findViewById(R.id.title);
-			if (title == null || title.getText().equals(""))
-			{
-				imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-				textParams.height = ad_height - image_h;
-			}else{
-				imageParams.addRule(RelativeLayout.BELOW, R.id.title);
-				textParams.height = ad_height - image_h - title_h;
+			if(type == 3){
+				imageParams.height = ad_height/2;
+				if (title == null || title.getText().equals(""))
+				{
+					imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+					textParams.height = ad_height - imageParams.height;//textParams.height = ad_height - image_h;
+				}else{
+					imageParams.addRule(RelativeLayout.BELOW, R.id.title);
+					textParams.height = ad_height - imageParams.height - title_h;//textParams.height = ad_height - image_h - title_h;
+				}
+			}else if(type == 4){
+				imageParams.height = ad_height/3;
+				if (title == null || title.getText().equals(""))
+				{
+					imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+					textParams.height = (ad_height - imageParams.height)/3;//textParams.height = ad_height - image_h;
+				}else{
+					imageParams.addRule(RelativeLayout.BELOW, R.id.title);
+					textParams.height = (ad_height - imageParams.height - title_h)/3;//textParams.height = ad_height - image_h - title_h;
+				}
 			}
 		}
 		if (userInfo != null)
@@ -486,7 +537,7 @@ public class AdCreator {
 		ViewFlipper imageVF = (ViewFlipper) v.findViewById(R.id.image);
 		ViewFlipper textVF = (ViewFlipper) v.findViewById(R.id.text);
 
-		setRelationBy(v, imageVF, textVF, text.get("position"));
+		setRelationBy(v, imageVF, textVF, text.get("position"),4);
 
 		imageTransfer(imageVF, images,
 				Integer.parseInt(data.get("interval").toString()));
@@ -514,7 +565,7 @@ public class AdCreator {
 		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
 		ViewFlipper textView = (ViewFlipper) v.findViewById(R.id.text);
 
-		setRelationBy(v, vf, textView, text.get("position"));
+		setRelationBy(v, vf, textView, text.get("position"),3);
 
 		imageTransfer(vf, images,
 				Integer.parseInt(data.get("interval").toString()));
