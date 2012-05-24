@@ -12,7 +12,6 @@ public class AdPage extends BasePage {
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
 		AdCreator creator1 = new AdCreator(mContainer, mContext, url,
 				new AdCreator.CallBack() {
 
@@ -33,6 +32,7 @@ public class AdPage extends BasePage {
 		return false;
 	}
 
+	
 	@Override
 	public void onParseXml(Node params) {
 		if (params != null) {

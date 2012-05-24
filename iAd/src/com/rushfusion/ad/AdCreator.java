@@ -38,7 +38,7 @@ import android.widget.ViewFlipper;
 
 public class AdCreator {
 
-	public String TEST_XML = "data4.xml";
+	public String TEST_XML = "data2.xml";
 
 	private static final String TAG = "AdCreator";
 
@@ -537,8 +537,15 @@ public class AdCreator {
 		@SuppressWarnings("unchecked")
 		HashMap<String, String> text = ((HashMap<String, String>) data
 				.get("text"));
-		textParams.width = ad_width;
-		textParams.height = ad_height - title.getHeight();
+		if(!data.get("title").toString().equals("")||data.get("title")!=null){
+			textParams.width = ad_width;
+			textParams.height = ad_height - title_h;
+		}else{
+			textParams.width = ad_width;
+			textParams.height = ad_height;
+			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+			textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		}
 		textTransfer(textView, text);
 	}
 

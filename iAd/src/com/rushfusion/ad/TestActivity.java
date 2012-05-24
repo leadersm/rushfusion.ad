@@ -3,7 +3,6 @@ package com.rushfusion.ad;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 public class TestActivity extends Activity {
 	
@@ -12,7 +11,7 @@ public class TestActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
     	mContext = this;
         super.onCreate(savedInstanceState);
-        setContentView(new TextView(this));
+        setContentView(R.layout.ad);
         ViewGroup mRoot = (ViewGroup) getWindow().getDecorView();
         AdPage ad = new AdPage();
         ad.init(mContext, mRoot,null);
