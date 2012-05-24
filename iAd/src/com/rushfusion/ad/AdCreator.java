@@ -1,6 +1,9 @@
 package com.rushfusion.ad;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -11,10 +14,11 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.FactoryConfigurationError;
 
-import org.w3c.dom.Document;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -128,11 +132,9 @@ public class AdCreator {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
-			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
+			in = getClass().getClassLoader().getResourceAsStream("data1.txt");
 			data = parseXml(in);
 		} catch (Exception e1) {
-			if(mCallback!=null)
-			mCallback.onError(e1, ERROR_URL_CONNECTION);
 			e1.printStackTrace();
 		}
 		showDynamicAdvertisement(data);
@@ -285,82 +287,110 @@ public class AdCreator {
 		return v;
 	}
 
+	  public String convertStreamToString(InputStream is) {      
+	         BufferedReader reader = new BufferedReader(new InputStreamReader(is));      
+	         StringBuilder sb = new StringBuilder();      
+	     
+	         String line = null;      
+	        try {      
+	            while ((line = reader.readLine()) != null) {      
+	                 sb.append(line + "\n");      
+	             }      
+	         } catch (IOException e) {      
+	             e.printStackTrace();      
+	         } finally {      
+	            try {      
+	                 is.close();      
+	             } catch (IOException e) {      
+	                 e.printStackTrace();      
+	             }      
+	         }      
+	     
+	        return sb.toString();      
+	     }   
+	
 	/**
 	 * initialize
 	 * @throws FactoryConfigurationError
 	 */
 	private Map<String, Object> parseXml(InputStream is)throws FactoryConfigurationError {
 		Map<String, Object> data = new HashMap<String, Object>();
+		String json = convertStreamToString(is);
 		try {
-			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-			Dom2Map root = Dom2Map.parse(doc);
-
-			String position = root.get("ad").attr("position");
+			JSONArray ads = new JSONArray(json);
+			JSONObject ad = ads.getJSONObject(0);
+			String position = ad.getString("position");
 			data.put("position", position);
 			Log.i(TAG, "position-->" + position);
 
-			String type = root.get("ad").attr("type");
+			String type = ad.getString("type");
 			data.put("type", type);
 			Log.i(TAG, "type-->" + type);
 
-			String title = root.get("ad").get("title").value();
+			String title = ad.getString("title");
 			data.put("title", title);
 			Log.i(TAG, "title-->" + title);
 
-			String interval = root.get("ad").get("images").attr("interval");
+			String interval = ad.getJSONObject("images").getString("interval");
 			data.put("interval", interval);
 			Log.i(TAG, "interval-->" + interval);
 
 			ArrayList<HashMap<String, String>> images = new ArrayList<HashMap<String, String>>();
-			ArrayList<Dom2Map> nodes = root.get("ad").get("images")
-					.get("image").getGroup();
-			Log.i(TAG, "images.size-->" + nodes.size());
-			for (Dom2Map node : nodes) {
+			JSONArray nodes = ad.getJSONObject("images").getJSONArray("image");
+			System.out.println("nodes----------->"+nodes);
+			Log.i(TAG, "images.size-->" + nodes.length());
+			for (int i=0;i<nodes.length();i++) {
+				JSONObject node = nodes.getJSONObject(i);
 				HashMap<String, String> image = new HashMap<String, String>();
-				image.put("url", node.attr("url"));
-				image.put("anim", node.attr("anim"));
-				Log.i(TAG,"anim-->" + node.attr("anim") + "--url-->"+ node.attr("url"));
+				image.put("url", node.getString("url"));
+				image.put("anim", node.getString("anim"));
+				Log.i(TAG,"anim-->" + node.getString("anim") + "--url-->"+ node.getString("url"));
 				images.add(image);
 			}
 			data.put("images", images);
 
 			HashMap<String, String> text = new HashMap<String, String>();
-			String anim = root.get("ad").get("text").attr("anim");
+			String anim = ad.getJSONObject("text").getString("anim");
 			text.put("anim", anim);
-			String direction = root.get("ad").get("text").attr("direction");
+			
+			String direction = ad.getJSONObject("text").getString("direction");
 			text.put("direction", direction);
-			String text_position = root.get("ad").get("text").attr("position");
+			
+			String text_position = ad.getJSONObject("text").getString("position");
 			text.put("position", text_position);
-			String scroll = root.get("ad").get("text").attr("scroll");
+			
+			String scroll = ad.getJSONObject("text").getString("scroll");
 			text.put("scroll", scroll);
-			String value = root.get("ad").get("text").value();
+			
+			String value = ad.getJSONObject("text").getString("value");
 			text.put("value", value);
 			Log.i(TAG, "Text :anim-->" + anim + "-direction-->" + direction
 					+ "-position->" + position + "-scroll->" + scroll
 					+ "-value->" + value);
 			data.put("text", text);
 
-			String contact = "contect: "+root.get("ad").get("contact").value();
+			String contact = "contect: "+ad.getString("contact");
 			data.put("contact", contact);
 			Log.i(TAG, "contact-->" + contact);
 
-			String phone = "phone: "+root.get("ad").get("phone").value();
+			String phone = "phone: "+ad.getString("phone");
 			data.put("phone", phone);
 			Log.i(TAG, "phone-->" + phone);
 
-			String address = "address: "+root.get("ad").get("address").value();
+			String address = "address: "+ad.getString("address");
 			data.put("address", address);
 			Log.i(TAG, "address-->" + address);
 
-			String email = "email: "+root.get("ad").get("email").value();
+			String email = "email: "+ad.getString("email");
 			data.put("email", email);
 			Log.i(TAG, "email-->" + email);
 
-			String website = "website: "+root.get("ad").get("website").value();
+			String website = "website: "+ad.getString("website");
 			data.put("website", website);
 			Log.i(TAG, "website-->" + website);
-		} catch (Exception e) {
-			e.printStackTrace();
+			
+		} catch (JSONException e1) {
+			e1.printStackTrace();
 		}
 		return data;
 	}
@@ -510,8 +540,7 @@ public class AdCreator {
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
 				.get("images");
 		@SuppressWarnings("unchecked")
-		HashMap<String, String> text = ((HashMap<String, String>) data
-				.get("text"));
+		HashMap<String, String> text = ((HashMap<String, String>) data.get("text"));
 		String contact = (String) data.get("contact");
 		String phone = (String) data.get("phone");
 		String address = (String) data.get("address");
@@ -715,6 +744,8 @@ public class AdCreator {
 		AdText at = new AdText(mContext,vf,text,textParams.width,textParams.height,getAdTextSize());
 		at.start();
 	}
+	
+	
 	
 	
 

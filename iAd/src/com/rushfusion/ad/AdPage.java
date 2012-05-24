@@ -25,7 +25,7 @@ public class AdPage extends BasePage {
 					}
 				});
 		creator1.setAdSize(w, h);// 应该从配置参数传过来？跟url一样、、tbd 默认广告大小300*300
-		if (TEST_XML.equals("data2.xml"))
+		if (TEST_XML.equals("data1.txt"))
 			creator1.setAdTextSize(50);
 		creator1.TEST_XML = TEST_XML;
 		creator1.start();
@@ -52,13 +52,13 @@ public class AdPage extends BasePage {
 								url = value.getNodeValue();
 								System.out.println("url---->" + url);
 								if (url.equals("ad1")) {
-									TEST_XML = "data1.xml";
+									TEST_XML = "data1.txt";
 								} else if (url.equals("ad2")) {
-									TEST_XML = "data2.xml";
+									TEST_XML = "data2.txt";
 								} else if (url.equals("ad3")) {
-									TEST_XML = "data3.xml";
+									TEST_XML = "data3.txt";
 								} else if (url.equals("ad4")) {
-									TEST_XML = "data4.xml";
+									TEST_XML = "data4.txt";
 								}
 								url = "";
 							}
