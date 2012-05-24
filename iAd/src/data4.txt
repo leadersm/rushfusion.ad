@@ -1,8 +1,8 @@
 [
     {
-        "title": "",
-        "type": "1",
-        "position": "bottomcenter",
+        "title": "可口可乐广告测试1",
+        "type": "4",
+        "position": "rightcenter",
         "images": {
             "interval": "5",
             "0": {
@@ -19,21 +19,21 @@
             }
         },
         "text": {
-            "value": "",
-            "position": "",
-            "anim": "",
-            "direction": "",
-	    	"scroll": ""
+            "value": "「可口可乐」电子冷热箱，外形小巧精致，携带方便，可摆放在office或是车里，随时随地尽享「可口可乐」带来的畅爽快乐！（奖品以实物为准，价值人民币 900元）",
+            "position": "bottom",
+            "anim": "right",
+            "direction": "right",
+	    	"scroll": "5"
         },
-        "contact": "",
-        "phone": "",
-        "address": "",
-        "email": "",
-        "website": ""
+        "contact": "可口可乐公司",
+        "phone": "010-12341234",
+        "address": "北京市亦庄经济技术开发区可口可乐公司",
+        "email": "coke@coke.com",
+        "website": "http://www.icoke.cn/"
     },
     {
         "title": "茅台广告测试01",
-        "type": "full",
+        "type": "4",
         "position": "leftcenter",
         "images": {
             "interval": "5",

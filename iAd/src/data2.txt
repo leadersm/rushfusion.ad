@@ -1,0 +1,35 @@
+[
+    {
+        "title": "可口可乐广告测试1",
+        "type": "2",
+        "position": "topcenter",
+        "images": {
+            "interval": "5",
+            "0": {
+                "url": "",
+                "anim": ""
+            },
+            "1": {
+                "url": "",
+                "anim": ""
+            },
+            "2": {
+                "url": "",
+                "anim": ""
+            }
+        },
+        "text": {
+            "value": "「可口可乐」电子冷热箱，外形小巧精致，携带方便，可摆放在office或是车里，随时随地尽享「可口可乐」带来的畅爽快乐！（奖品以实物为准，价值人民币 900元）",
+            "position": "bottom",
+            "anim": "right",
+            "direction": "left",
+	    	"scroll": "8"
+        },
+        "contact": "",
+        "phone": "",
+        "address": "",
+        "email": "",
+        "website": ""
+    }
+    ]
+

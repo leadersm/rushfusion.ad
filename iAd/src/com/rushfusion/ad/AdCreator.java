@@ -134,7 +134,7 @@ public class AdCreator {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
-			in = getClass().getClassLoader().getResourceAsStream("data1.txt");
+			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
 			data = parseXml(in);
 		} catch (Exception e1) {
 			e1.printStackTrace();

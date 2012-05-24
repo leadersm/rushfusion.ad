@@ -1,0 +1,38 @@
+[
+    {
+        "title": "可口可乐广告测试1",
+        "type": "3",
+        "position": "leftcenter",
+        "images": {
+            "interval": "5",
+            "0": {
+                "url": "http://i2.sinaimg.cn/ast/idx/2012/0504/U5246P54T135D1F3929DT20120504182741.jpg",
+                "anim": "left"
+            },
+            "1": {
+                "url": "http://i3.sinaimg.cn/ast/idx/2012/0503/U5246P54T135D1F3930DT20120503194215.jpg",
+                "anim": "bottom"
+            },
+            "2": {
+                "url": "http://www.sinaimg.cn/dy/slidenews/1_t160/2012_19/28436_162400_264737.jpg",
+                "anim": "right"
+            },
+            "3": {
+                "url": "http://img1.gtimg.com/news/pics/hv1/41/189/1040/67674236.jpg",
+                "anim": "top"
+            }
+        },
+        "text": {
+            "value": "「可口可乐」电子冷热箱，外形小巧精致，携带方便，可摆放在office或是车里，随时随地尽享「可口可乐」带来的畅爽快乐！（奖品以实物为准，价值人民币 900元）",
+            "position": "bottom",
+            "anim": "right",
+            "direction": "top",
+	    	"scroll": "8"
+        },
+        "contact": "",
+        "phone": "",
+        "address": "",
+        "email": "",
+        "website": ""
+    }
+    ]

@@ -25,9 +25,9 @@ public class AdPage extends BasePage {
 					}
 				});
 		creator1.setAdSize(w, h);// 应该从配置参数传过来？跟url一样、、tbd 默认广告大小300*300
-//		if (TEST_XML.equals("data1.txt"))
-//			creator1.setAdTextSize(50);
-//		creator1.TEST_XML = TEST_XML;
+		if (TEST_XML.equals("data2.txt"))
+			creator1.setAdTextSize(50);
+		creator1.TEST_XML = TEST_XML;
 		creator1.start();
 	}
 
@@ -46,8 +46,8 @@ public class AdPage extends BasePage {
 					NamedNodeMap attrs = node.getAttributes();
 					Node name = attrs.getNamedItem("name");
 					if (name != null) {
+						Node value = attrs.getNamedItem("value");
 						if ("url".equalsIgnoreCase(name.getNodeValue())) {
-							Node value = attrs.getNamedItem("value");
 							if (value != null) {
 								url = value.getNodeValue();
 								System.out.println("url---->" + url);
@@ -62,15 +62,15 @@ public class AdPage extends BasePage {
 								}
 								url = "";
 							}
-							Node width = attrs.getNamedItem("width");
-							if (width != null) {
-								w = Integer.parseInt(width.getNodeValue());
+						}else if("width".equalsIgnoreCase(name.getNodeValue())){
+							if (value != null) {
+								w = Integer.parseInt(value.getNodeValue());
 								System.out.println("w---->" + w);
 							}
-							Node height = attrs.getNamedItem("height");
-							if (height != null) {
-								h = Integer.parseInt(height.getNodeValue());
-								System.out.println("w---->" + h);
+						}else if("height".equalsIgnoreCase(name.getNodeValue())){
+							if (value != null) {
+								h = Integer.parseInt(value.getNodeValue());
+								System.out.println("h---->" + h);
 							}
 						}
 					}
