@@ -25,7 +25,8 @@ public class TestActivity extends Activity {
         setContentView(R.layout.ad);
         ViewGroup mRoot = (ViewGroup) getWindow().getDecorView();
         AdPage ad1 = new AdPage();
-        ad1.init(mContext, mRoot,parseXml("ad1.txt"));
+//        ad1.init(mContext, mRoot,parseXml("ad1.txt"));
+        ad1.init(mContext, mRoot,null);
         ad1.run();			
 //        AdPage ad2 = new AdPage();
 //        ad2.init(mContext, mRoot,parseXml("ad2.xml"));

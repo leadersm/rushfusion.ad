@@ -25,9 +25,9 @@ public class AdPage extends BasePage {
 					}
 				});
 		creator1.setAdSize(w, h);// 应该从配置参数传过来？跟url一样、、tbd 默认广告大小300*300
-		if (TEST_XML.equals("data1.txt"))
-			creator1.setAdTextSize(50);
-		creator1.TEST_XML = TEST_XML;
+//		if (TEST_XML.equals("data1.txt"))
+//			creator1.setAdTextSize(50);
+//		creator1.TEST_XML = TEST_XML;
 		creator1.start();
 	}
 
