@@ -292,8 +292,7 @@ public class AdCreator {
 	private Map<String, Object> parseXml(InputStream is)throws FactoryConfigurationError {
 		Map<String, Object> data = new HashMap<String, Object>();
 		try {
-			Document doc = DocumentBuilderFactory.newInstance()
-					.newDocumentBuilder().parse(is);
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
 			Dom2Map root = Dom2Map.parse(doc);
 
 			String position = root.get("ad").attr("position");
