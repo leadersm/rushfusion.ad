@@ -38,7 +38,7 @@ import android.widget.ViewFlipper;
 
 public class AdCreator {
 
-	public String TEST_XML = "data1.xml";
+	public String TEST_XML = "data4.xml";
 
 	private static final String TAG = "AdCreator";
 
@@ -59,7 +59,7 @@ public class AdCreator {
 	private String mAdUrl;
 	
 	private int ad_width = 300;
-	private int ad_height = 200;
+	private int ad_height = 300;
 	private int image_w = LayoutParams.MATCH_PARENT;
 	private int image_h = 150;
 	private int text_w;
@@ -75,6 +75,7 @@ public class AdCreator {
 	private int animList[] = new int[] { R.anim.push_in_left,R.anim.push_out_left,
 								R.anim.push_in_right,R.anim.push_out_right, R.anim.push_in_top, 
 								R.anim.push_out_top,R.anim.push_in_bottom, R.anim.push_out_bottom };
+
 	private ViewFlipper imageVF;
 	private List<HashMap<String, String>> images;
 	private int mCurrentPhotoIndex = 0;
@@ -94,12 +95,14 @@ public class AdCreator {
 
 	public void start() {
 		if (!checkNetwork(mContext)) {
+			if(mCallback!=null)
 			mCallback.onError(new Exception("the network is not enabled！！"),ERROR_NETWORK_NOT_ENABLED);
 			Log.w(TAG,"the network is not enabled！！the DebugModel has been started");
 			startDebugModel();
 			return;
 		}
 		if (mAdUrl.equals("") || mAdUrl == null) {
+			if(mCallback!=null)
 			mCallback.onError(new Exception("the AdUrl is null "), ERROR_URL);
 			Log.w(TAG, "the AdUrl is null ,the DebugModel has been started");
 			startDebugModel();
@@ -111,6 +114,7 @@ public class AdCreator {
 			url = new URL(mAdUrl);
 			data = parseXml(url.openConnection().getInputStream());
 		} catch (Exception e1) {
+			if(mCallback!=null)
 			mCallback.onError(e1, ERROR_URL_CONNECTION);
 			e1.printStackTrace();
 		}
@@ -127,6 +131,7 @@ public class AdCreator {
 			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
 			data = parseXml(in);
 		} catch (Exception e1) {
+			if(mCallback!=null)
 			mCallback.onError(e1, ERROR_URL_CONNECTION);
 			e1.printStackTrace();
 		}
@@ -177,6 +182,7 @@ public class AdCreator {
 		} else if (type == 4) {// full
 			layoutId = R.layout.fourth;
 		} else {
+			if(mCallback!=null)
 			mCallback.onError(new Exception("type error, type-->" + type),
 					ERROR_AD_TYPE);
 			return null;
@@ -273,6 +279,7 @@ public class AdCreator {
 				break;
 			}
 		}else
+			if(mCallback!=null)
 			mCallback.onError(new Exception("unKnown position-->" + position),ERROR_UNKNOWN_POSITION);
 		v.setLayoutParams(params);
 		return v;

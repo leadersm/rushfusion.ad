@@ -14,9 +14,9 @@ public class TestActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(new TextView(this));
         ViewGroup mRoot = (ViewGroup) getWindow().getDecorView();
-        IAdActivity y = new IAdActivity();
-        y.init(mContext, mRoot,null);
-        y.run();			
+        AdPage ad = new AdPage();
+        ad.init(mContext, mRoot,null);
+        ad.run();			
     }
     
    

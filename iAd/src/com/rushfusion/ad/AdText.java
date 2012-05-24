@@ -95,7 +95,6 @@ public class AdText {
 						- mPaint.getFontMetrics().ascent + mPaint
 						.getFontMetrics().leading));
 		maxlines = (int) Math.floor((float) h / baseLine);
-//		System.out.println("h-->"+h+"-baseLine->"+baseLine+"-maxlines->"+maxlines);
 		
 		String value = text.get("value");
 		Pattern p = Pattern.compile("\\t|\r|\n");
@@ -103,6 +102,8 @@ public class AdText {
 		value = m.replaceAll("").trim();
 		
 		linestrs = getLineStrs(text.get("value"), mPaint, w);
+
+		System.out.println("h-->"+h+" baseLine->"+baseLine+"  maxlines->"+maxlines+"  linerstrs.length->"+linestrs.length);
 		pageCount = (int) Math.ceil((float) linestrs.length / maxlines);
 		strs = getValuesByLines(w, value, maxlines, mPaint);
 	}
@@ -163,11 +164,11 @@ public class AdText {
 	private String[] getValuesByLines(int w, String value, int maxlines,
 			Paint paint) {
 		String[] values = new String[pageCount];
-//		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines
-//				+ "  页数-->" + values.length);
+		System.out.println("累计行数-->" + linestrs.length + "  最大行数-->" + maxlines
+				+ "  页数-->" + values.length);
 		for (int i = 0; i < values.length; i++) {
 			values[i] = getValueFrom(linestrs, maxlines, i);
-//			System.out.println("value-->" + values[i]);
+			System.out.println("value-->" + values[i]);
 		}
 		return values;
 	}
@@ -217,7 +218,7 @@ public class AdText {
 			if (textCharArray[i] == '\n') {
 				end = i;
 				result[j] = content.subSequence(start, end).toString();
-//				System.out.println("1 result-" + j + "-->" + result[j]);
+				System.out.println("1 result-" + j + "-->" + result[j]);
 				start = end;
 				j++;
 				drawedWidth = 0;
@@ -226,7 +227,7 @@ public class AdText {
 			if (w - drawedWidth < charWidth) {
 				end = i;
 				result[j] = content.subSequence(start, end).toString();
-//				System.out.println("2 result-" + j + "-->" + result[j]);
+				System.out.println("2 result-" + j + "-->" + result[j]);
 				start = end;
 				j++;
 				drawedWidth = 0;
@@ -234,7 +235,7 @@ public class AdText {
 			if (i == textCharArray.length - 1) {
 				end = i;
 				result[j] = content.subSequence(start, end).toString();
-//				System.out.println("3 result-" + j + "-->" + result[j]);
+				System.out.println("3 result-" + j + "-->" + result[j]);
 				start = end;
 				j++;
 			}
