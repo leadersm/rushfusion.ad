@@ -56,7 +56,9 @@ public class AdCreator {
 	public static final int ERROR_URL = 103;
 	public static final int ERROR_UNKNOWN_POSITION = 104;
 	public static final int ERROR_URL_CONNECTION = 105;
-
+	public static final int ERROR_PARSE_DATA = 106;
+	
+	
 	private Context mContext;
 	public RelativeLayout adViewParent;
 	private CallBack mCallback;
@@ -132,7 +134,7 @@ public class AdCreator {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
-			in = getClass().getClassLoader().getResourceAsStream("data1.txt");
+			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
 			data = parseXml(in);
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -334,23 +336,16 @@ public class AdCreator {
 			String interval = ad.getJSONObject("images").getString("interval");
 			data.put("interval", interval);
 			Log.i(TAG, "interval-->" + interval);
-
 			ArrayList<HashMap<String, String>> images = new ArrayList<HashMap<String, String>>();
-			JSONArray nodes = ad.getJSONObject("images").names();
-			System.out.println("nodes.get(0).toString()-->"+nodes.get(0).toString());
-			System.out.println("nodes.get(1).toString()-->"+nodes.get(1).toString());
-			System.out.println("nodes.get(2).toString()-->"+nodes.get(2).toString());
-			System.out.println("nodes.get(3).toString()-->"+nodes.get(3).toString());
-			Log.i(TAG, "images.size-->" + nodes.length());
-			for (int i=1;i<nodes.length();i++) {
-				if(!nodes.getJSONObject(i).toString().equals("interval")){
-					JSONObject node = ad.getJSONObject("images").getJSONObject(nodes.getJSONObject(i).toString());
-					HashMap<String, String> image = new HashMap<String, String>();
-					image.put("url", node.getString("url"));
-					image.put("anim", node.getString("anim"));
-					Log.i(TAG,"anim-->" + node.getString("anim") + "--url-->"+ node.getString("url"));
-					images.add(image);
-				}
+			int i=0;
+			while(!ad.getJSONObject("images").isNull(i+"")){
+				JSONObject node = ad.getJSONObject("images").getJSONObject(i+"");
+				HashMap<String, String> image = new HashMap<String, String>();
+				image.put("url", node.getString("url"));
+				image.put("anim", node.getString("anim"));
+				Log.i(TAG,"anim-->" + node.getString("anim") + "--url-->"+ node.getString("url"));
+				images.add(image);
+				i++;
 			}
 			data.put("images", images);
 
@@ -395,6 +390,8 @@ public class AdCreator {
 			Log.i(TAG, "website-->" + website);
 			
 		} catch (JSONException e1) {
+			if(mCallback!=null)
+				mCallback.onError(new Exception("ERROR_PARSE_DATA"), ERROR_PARSE_DATA);
 			e1.printStackTrace();
 		}
 		return data;
@@ -522,7 +519,11 @@ public class AdCreator {
 					imageParams.addRule(RelativeLayout.BELOW, R.id.title);
 					textParams.height = (ad_height - imageParams.height - title_h)/3;//textParams.height = ad_height - image_h - title_h;
 				}
+			}else{
+				if(mCallback!=null)
+					mCallback.onError(new Exception("text position error-->"+textposition), ERROR_UNKNOWN_POSITION);
 			}
+				
 		}
 		if (userInfo != null)
 			userInfo.setLayoutParams(userParams);
@@ -717,15 +718,16 @@ public class AdCreator {
 
 				@Override
 				protected void onPostExecute(Bitmap result) {
+					ImageView iv = new ImageView(mContext);
 					if (result != null) {
-						ImageView iv = new ImageView(mContext);
-						iv.setAlpha(170);
-						iv.setLayoutParams(imageParams);
-						iv.setScaleType(ScaleType.FIT_XY);
 						iv.setImageBitmap(result);
-						iv.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_left));
-						vf.addView(iv);
-					}
+					}else
+						iv.setImageResource(R.drawable.error);
+					iv.setAlpha(170);
+					iv.setLayoutParams(imageParams);
+					iv.setScaleType(ScaleType.FIT_XY);
+					iv.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_left));
+					vf.addView(iv);
 					super.onPostExecute(result);
 				}
 			}.execute();
@@ -811,7 +813,13 @@ public class AdCreator {
 	private Bitmap getBitMap(String path) throws Exception {
 		URL url = new URL(path);
 		URLConnection connection = url.openConnection();
-		InputStream inputStream = connection.getInputStream();
+		InputStream inputStream = null;
+		try{
+			 inputStream = connection.getInputStream();
+		}catch(Exception e){
+			if(mCallback!=null)
+				mCallback.onError(new Exception("downloading image error"), ERROR_URL_CONNECTION);
+		}
 		Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 		return bitmap;
 	}

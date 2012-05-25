@@ -1,5 +1,7 @@
 <iapplication classid="com.rushfusion.iplayer2.modules.webwidget"
 	codebase="http://tvsrv.webhop.net/iplayer2/modules/com.rushfusion.interaction.modules.Demo.webwidget.apk"
 	codetype="application/java" name="widget weather">
-	<param name="url"value="ad2" width="1024"height="100" />
+	<param name="url"value="ad2" />
+	<param name="width" value="1024" />
+	<param name="height" value="100" />
 </iapplication>
