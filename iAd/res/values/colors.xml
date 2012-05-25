@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg">#00FFFFFF</color>
+    <color name="parent_bg">#00FFFFFF</color>
+    <color name="text_bg">#AA00CCAF</color>
+    <color name="company_bg">#AA00CCAF</color>
+    <color name="title_bg">#AAFF0033</color>
 </resources>

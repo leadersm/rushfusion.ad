@@ -104,7 +104,7 @@ public class AdText {
 		
 		linestrs = getLineStrs(text.get("value"), mPaint, w);
 
-		System.out.println("h-->"+h+" baseLine->"+baseLine+"  maxlines->"+maxlines+"  linerstrs.length->"+linestrs.length);
+//		System.out.println("h-->"+h+" baseLine->"+baseLine+"  maxlines->"+maxlines+"  linerstrs.length->"+linestrs.length);
 		pageCount = (int) Math.ceil((float) linestrs.length / maxlines);
 		strs = getValuesByLines(w, value, maxlines, mPaint);
 	}
@@ -186,6 +186,7 @@ public class AdText {
 	}
 
 	private String[] getLineStrs(String content, Paint p, float width) {
+		System.out.println("content-->"+content);
 		int lineCount = 0;
 		if (content == null)
 			return null;
@@ -214,7 +215,7 @@ public class AdText {
 		int start = 0;
 		int end = 0;
 		String[] result = new String[lineCount + 1];
-		for (int i = 0, j = 0; i < textCharArray.length && j < lineCount + 1; i++) {
+		for (int i = 0, j = 0; i < textCharArray.length && j < result.length; i++) {
 			charWidth = mPaint.measureText(textCharArray, i, 1);
 			if (textCharArray[i] == '\n') {
 				end = i;
@@ -234,8 +235,7 @@ public class AdText {
 				drawedWidth = 0;
 			}
 			if (i == textCharArray.length - 1) {
-				end = i;
-				result[j] = content.subSequence(start, end).toString();
+				result[j] = content.subSequence(start, textCharArray.length).toString();
 //				System.out.println("3 result-" + j + "-->" + result[j]);
 				start = end;
 				j++;
@@ -260,13 +260,13 @@ public class AdText {
 					animList[2]));
 			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
 					animList[3]));
-		} else if ("top".equals(direction)) {
+		} else if ("up".equals(direction)) {
 			vf.clearAnimation();
 			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
 					animList[4]));
 			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext,
 					animList[5]));
-		} else if ("bottom".equals(direction)) {
+		} else if ("down".equals(direction)) {
 			vf.clearAnimation();
 			vf.setInAnimation(AnimationUtils.loadAnimation(mContext,
 					animList[6]));

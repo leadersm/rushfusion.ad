@@ -20,22 +20,13 @@ public class TestActivity extends Activity {
 	Activity mContext;
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	mContext = this;
         super.onCreate(savedInstanceState);
+        mContext = this;
         setContentView(R.layout.ad);
         ViewGroup mRoot = (ViewGroup) getWindow().getDecorView();
         AdPage ad1 = new AdPage();
         ad1.init(mContext, mRoot,parseXml("ad1.xml"));
         ad1.run();			
-        AdPage ad2 = new AdPage();
-        ad2.init(mContext, mRoot,parseXml("ad2.xml"));
-        ad2.run();			
-        AdPage ad3 = new AdPage();
-        ad3.init(mContext, mRoot,parseXml("ad3.xml"));
-        ad3.run();			
-        AdPage ad4 = new AdPage();
-        ad4.init(mContext, mRoot,parseXml("ad4.xml"));
-        ad4.run();			
     }
     
     

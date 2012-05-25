@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +15,14 @@ import java.util.TimerTask;
 
 import javax.xml.parsers.FactoryConfigurationError;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,12 +30,12 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,21 +64,24 @@ public class AdCreator {
 	public static final int ERROR_UNKNOWN_POSITION = 104;
 	public static final int ERROR_URL_CONNECTION = 105;
 	public static final int ERROR_PARSE_DATA = 106;
+	public static final int ERROR_ANIM_TYPE = 107;
 	
 	
 	private Context mContext;
 	public RelativeLayout adViewParent;
 	private CallBack mCallback;
 	private String mAdUrl;
-	
+	//======================================
 	private int ad_width = 300;
 	private int ad_height = 300;
 	private int image_w = LayoutParams.MATCH_PARENT;
 	private int image_h = 150;
 	private int text_w;
 	private int text_h;
-	private int title_h = 20;
-	private ViewGroup mparentGroup;
+	private int title_h = 50;
+	private int alpha = 210;
+	//================================
+	private ViewGroup mContainer;
 	private RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(
 			image_w, image_h);
 	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
@@ -83,30 +93,32 @@ public class AdCreator {
 								R.anim.push_out_top,R.anim.push_in_bottom, R.anim.push_out_bottom };
 
 	private ViewFlipper imageVF;
+	private ViewFlipper textVF;
+	private TextView title;
+	
 	private List<HashMap<String, String>> images;
 	private int mCurrentPhotoIndex = 0;
-	private float textSize = 15;
-
-	public AdCreator(ViewGroup mContainer,Context context, String adUrl, CallBack callback) {
+	private float textSize = 25;
+	private boolean isStart = false;
+	
+	
+	
+	
+	public AdCreator(ViewGroup container,Context context, String adUrl, CallBack callback) {
 		mContext = context;
 		mCallback = callback;
 		mAdUrl = adUrl;
 		adViewParent = new RelativeLayout(context);
-		adViewParent.setBackgroundColor(context.getResources().getColor(R.color.bg));
+		adViewParent.setBackgroundColor(context.getResources().getColor(R.color.parent_bg));
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,RelativeLayout.ALIGN_PARENT_TOP);
-		mparentGroup=mContainer;
-		mparentGroup.addView(adViewParent,params);
+		mContainer=container;
+		mContainer.removeAllViews();
+		mContainer.addView(adViewParent,params);
 	}
 
 	public void start() {
-		if (!checkNetwork(mContext)) {
-			if(mCallback!=null)
-			mCallback.onError(new Exception("the network is not enabled！！"),ERROR_NETWORK_NOT_ENABLED);
-			Log.w(TAG,"the network is not enabled！！the DebugModel has been started");
-			startDebugModel();
-			return;
-		}
+		isStart = true;
 		if (mAdUrl.equals("") || mAdUrl == null) {
 			if(mCallback!=null)
 			mCallback.onError(new Exception("the AdUrl is null "), ERROR_URL);
@@ -121,8 +133,10 @@ public class AdCreator {
 			data = parseXml(url.openConnection().getInputStream());
 		} catch (Exception e1) {
 			if(mCallback!=null)
-			mCallback.onError(e1, ERROR_URL_CONNECTION);
+				mCallback.onError(e1, ERROR_URL_CONNECTION);
+			Log.w(TAG, "url error");
 			e1.printStackTrace();
+			return;
 		}
 		showDynamicAdvertisement(data);
 	}
@@ -139,7 +153,7 @@ public class AdCreator {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-//		showDynamicAdvertisement(data);
+		showDynamicAdvertisement(data);
 	}
 
 	public CallBack getmCallback() {
@@ -148,22 +162,6 @@ public class AdCreator {
 
 	public interface CallBack {
 		public void onError(Exception e, int errorCode);
-	}
-
-	/**
-	 * Check the network connection is available
-	 * 
-	 * @param context
-	 * @return
-	 */
-	public static boolean checkNetwork(Context context) {
-		ConnectivityManager cm = (ConnectivityManager) context
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo nwi = cm.getActiveNetworkInfo();
-		if (nwi != null) {
-			return nwi.isAvailable();
-		}
-		return false;
 	}
 
 	/**
@@ -192,10 +190,32 @@ public class AdCreator {
 			return null;
 		}
 		View v = getViewByPosition(position, layoutId);
+		
+		v.setFocusable(true);
+		v.requestFocus();
+		ArrayList<View> views = v.getFocusables(View.FOCUSABLES_ALL);
+		for(View vv:views){
+			vv.setOnKeyListener(l);
+		}
 		dispatchViewByType(v, type, data);
 		return v;
 	}
+	
+	View.OnKeyListener l = new View.OnKeyListener() {
 
+		public boolean onKey(View v, int keyCode, KeyEvent event) {
+			// TODO Auto-generated method stub
+			if (event.getAction() == KeyEvent.ACTION_DOWN) {
+				Log.d(TAG," KeyEvent: " + event );
+				if(keyCode==KeyEvent.KEYCODE_BACK){
+					if(isStart)
+						stop();
+				}
+			}
+			return false;
+		}
+	};
+	
 	private void dispatchViewByType(View v, int type, Map<String, Object> data) {
 		if (type == AD_TYPE_IMAGE_ONLY) {
 			showAdType_1(v, data);
@@ -211,6 +231,7 @@ public class AdCreator {
 
 	private View getViewByPosition(String position, int layoutId) {
 		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
+		v.setBackgroundColor(mContext.getResources().getColor(R.color.parent_bg));
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width, ad_height);
 		if (position.equals("lefttop")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -325,10 +346,6 @@ public class AdCreator {
 			data.put("position", position);
 			Log.i(TAG, "position-->" + position);
 
-			String type = ad.getString("type");
-			data.put("type", type);
-			Log.i(TAG, "type-->" + type);
-
 			String title = ad.getString("title");
 			data.put("title", title);
 			Log.i(TAG, "title-->" + title);
@@ -336,22 +353,27 @@ public class AdCreator {
 			String interval = ad.getJSONObject("images").getString("interval");
 			data.put("interval", interval);
 			Log.i(TAG, "interval-->" + interval);
+			
+			String anim = ad.getJSONObject("images").getString("anim");
+			data.put("anim", anim);
+			Log.i(TAG, "anim-->" + anim);
+			
 			ArrayList<HashMap<String, String>> images = new ArrayList<HashMap<String, String>>();
 			int i=0;
 			while(!ad.getJSONObject("images").isNull(i+"")){
 				JSONObject node = ad.getJSONObject("images").getJSONObject(i+"");
 				HashMap<String, String> image = new HashMap<String, String>();
 				image.put("url", node.getString("url"));
-				image.put("anim", node.getString("anim"));
-				Log.i(TAG,"anim-->" + node.getString("anim") + "--url-->"+ node.getString("url"));
+				image.put("anim", anim);
+				Log.i(TAG,"url-->"+ node.getString("url"));
 				images.add(image);
 				i++;
 			}
 			data.put("images", images);
 
 			HashMap<String, String> text = new HashMap<String, String>();
-			String anim = ad.getJSONObject("text").getString("anim");
-			text.put("anim", anim);
+			String textanim = ad.getJSONObject("text").getString("anim");
+			text.put("anim", textanim);
 			
 			String direction = ad.getJSONObject("text").getString("direction");
 			text.put("direction", direction);
@@ -364,37 +386,54 @@ public class AdCreator {
 			
 			String value = ad.getJSONObject("text").getString("value");
 			text.put("value", value);
-			Log.i(TAG, "Text :anim-->" + anim + "-direction-->" + direction
-					+ "-position->" + position + "-scroll->" + scroll
-					+ "-value->" + value);
+			Log.i(TAG, "Text :anim-->" + textanim + " direction-->" + direction
+					+ " position->" + text_position + " scroll->" + scroll
+					+ " value->" + value);
 			data.put("text", text);
 
-			String contact = "contect: "+ad.getString("contact");
+			
+			String contact =  ad.getString("contact").equals("null")?ad.getString("contact"):" 联系人: "+ad.getString("contact");
 			data.put("contact", contact);
 			Log.i(TAG, "contact-->" + contact);
 
-			String phone = "phone: "+ad.getString("phone");
+			String phone =  ad.getString("phone").equals("null")?ad.getString("phone"):" 电   话: "+ad.getString("phone");
 			data.put("phone", phone);
 			Log.i(TAG, "phone-->" + phone);
 
-			String address = "address: "+ad.getString("address");
+			String address = ad.getString("address").equals("null")?ad.getString("address"):" 地   址: "+ad.getString("address");
 			data.put("address", address);
 			Log.i(TAG, "address-->" + address);
 
-			String email = "email: "+ad.getString("email");
+			String email = ad.getString("email").equals("null")?ad.getString("email"):" 邮   箱: "+ad.getString("email");
 			data.put("email", email);
 			Log.i(TAG, "email-->" + email);
 
-			String website = "website: "+ad.getString("website");
+			String website = ad.getString("website").equals("null")?ad.getString("website"):" 网   址: "+ad.getString("website");
 			data.put("website", website);
 			Log.i(TAG, "website-->" + website);
+			
+			String type = getType(value,images.size(),contact)+"";
+			data.put("type", type);
+			Log.i(TAG, "type-->" + type);
 			
 		} catch (JSONException e1) {
 			if(mCallback!=null)
 				mCallback.onError(new Exception("ERROR_PARSE_DATA"), ERROR_PARSE_DATA);
+			Log.w(TAG, "data parse error--");
 			e1.printStackTrace();
 		}
 		return data;
+	}
+
+	private int getType(String text, int size, String contact) {
+		if(text.equals("null")){
+			return 1;
+		}else if(size<=0){
+			return 2;
+		}else if(contact.equals("null")){
+			return 3;
+		}else
+			return 4;
 	}
 
 	private void setRelationBy(View adView, ViewFlipper imageVF,
@@ -402,16 +441,14 @@ public class AdCreator {
 
 		RelativeLayout.LayoutParams userParams = new RelativeLayout.LayoutParams(
 				imageParams.width, ad_height - imageParams.height);
-		RelativeLayout userInfo = (RelativeLayout) adView
-				.findViewById(R.id.userinfo);
-
+		RelativeLayout userInfo = (RelativeLayout) adView.findViewById(R.id.userinfo);
+		title = (TextView) adView.findViewById(R.id.title);
 		if (textposition.equals("left")) {
 			textParams.width = ad_width/3;//100
 			textParams.height = ad_height;
 			userParams.width = ad_width-textParams.width;//ad_width - 100;
 			userParams.height = ad_height/4;
 			imageParams.width = ad_width - textParams.width;//ad_width - 100;
-			TextView title = (TextView) adView.findViewById(R.id.title);
 			if(type == 3){
 				if (title == null || title.getText().equals("")){
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -442,7 +479,6 @@ public class AdCreator {
 			userParams.width = ad_width-textParams.width;//ad_width - 100;
 			userParams.height = ad_height/4;
 			imageParams.width = ad_width - textParams.width;//ad_width - 100;
-			TextView title = (TextView) adView.findViewById(R.id.title);
 			if(type == 3){
 				if (title == null || title.getText().equals("")){
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -467,11 +503,11 @@ public class AdCreator {
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
-		} else if (textposition.equals("top")) {
+		} else if (textposition.equals("up")) {
 			textParams.width = ad_width;
-			userParams.addRule(RelativeLayout.BELOW, R.id.image);
 			imageParams.addRule(RelativeLayout.BELOW, R.id.text);
-			TextView title = (TextView) adView.findViewById(R.id.title);
+			imageParams.topMargin = 8;
+			userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);//.BELOW, R.id.image
 			if(type == 3){
 				imageParams.height = ad_height/2;
 				if (title == null || title.getText().equals("")){
@@ -491,14 +527,12 @@ public class AdCreator {
 					textParams.addRule(RelativeLayout.BELOW, R.id.title);
 				}
 			}
-		} else if (textposition.equals("bottom")) {
+			userParams.height = ad_height - imageParams.height - textParams.height - title_h; 
+		} else if (textposition.equals("down")) {
 			textParams.width = ad_width;
 			textParams.addRule(RelativeLayout.BELOW, R.id.image);
-			if (userInfo != null) {
-				userParams.addRule(RelativeLayout.BELOW, R.id.text);
-				userInfo.setLayoutParams(userParams);
-			}
-			TextView title = (TextView) adView.findViewById(R.id.title);
+			textParams.topMargin = 8;
+			userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);//.BELOW, R.id.text
 			if(type == 3){
 				imageParams.height = ad_height/2;
 				if (title == null || title.getText().equals(""))
@@ -519,16 +553,23 @@ public class AdCreator {
 					imageParams.addRule(RelativeLayout.BELOW, R.id.title);
 					textParams.height = (ad_height - imageParams.height - title_h)/3;//textParams.height = ad_height - image_h - title_h;
 				}
-			}else{
-				if(mCallback!=null)
-					mCallback.onError(new Exception("text position error-->"+textposition), ERROR_UNKNOWN_POSITION);
 			}
-				
+			userParams.height = ad_height - imageParams.height - textParams.height - title_h; 
+		}else{
+			if(mCallback!=null)
+				mCallback.onError(new Exception("text position error-->"+textposition), ERROR_UNKNOWN_POSITION);
+			Log.w(TAG, "text position error-->"+textposition);
+			return ;
 		}
-		if (userInfo != null)
+		if (userInfo != null){
 			userInfo.setLayoutParams(userParams);
-//		imageVF.setLayoutParams(imageParams);
-//		textVF.setLayoutParams(textParams);
+			userInfo.setGravity(Gravity.CENTER_VERTICAL);
+			userInfo.setBackgroundColor(mContext.getResources().getColor(R.color.company_bg));
+		}
+		if(title!=null&&!title.getText().equals("")){
+			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
+		}
+		
 	}
 
 	/**
@@ -568,13 +609,12 @@ public class AdCreator {
 		emailTv.setText(email);
 		webTv.setText(website);
 
-		ViewFlipper imageVF = (ViewFlipper) v.findViewById(R.id.image);
-		ViewFlipper textVF = (ViewFlipper) v.findViewById(R.id.text);
+		imageVF = (ViewFlipper) v.findViewById(R.id.image);
+		textVF = (ViewFlipper) v.findViewById(R.id.text);
 
 		setRelationBy(v, imageVF, textVF, text.get("position"),4);
 
-		imageTransfer(imageVF, images,
-				Integer.parseInt(data.get("interval").toString()));
+		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
 		textTransfer(textVF, text);
 	}
 
@@ -596,14 +636,13 @@ public class AdCreator {
 		HashMap<String, String> text = ((HashMap<String, String>) data
 				.get("text"));
 
-		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
-		ViewFlipper textView = (ViewFlipper) v.findViewById(R.id.text);
+		imageVF = (ViewFlipper) v.findViewById(R.id.image);
+		textVF = (ViewFlipper) v.findViewById(R.id.text);
 
-		setRelationBy(v, vf, textView, text.get("position"),3);
+		setRelationBy(v, imageVF, textVF, text.get("position"),3);
 
-		imageTransfer(vf, images,
-				Integer.parseInt(data.get("interval").toString()));
-		textTransfer(textView, text);
+		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
+		textTransfer(textVF, text);
 
 	}
 
@@ -616,9 +655,12 @@ public class AdCreator {
 	 * @param images
 	 */
 	private void showAdType_2(View v, Map<String, Object> data) {
-		TextView title = (TextView) v.findViewById(R.id.title);
+		title = (TextView) v.findViewById(R.id.title);
+		if(!data.get("title").toString().equals("")){
+			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
+		}
 		title.setText(data.get("title").toString());
-		ViewFlipper textView = (ViewFlipper) v.findViewById(R.id.text);
+		textVF = (ViewFlipper) v.findViewById(R.id.text);
 		@SuppressWarnings("unchecked")
 		HashMap<String, String> text = ((HashMap<String, String>) data
 				.get("text"));
@@ -630,8 +672,9 @@ public class AdCreator {
 		}else{
 			textParams.width = ad_width;
 			textParams.height = ad_height - title_h;
+			textParams.addRule(RelativeLayout.BELOW,R.id.title);
 		}
-		textTransfer(textView, text);
+		textTransfer(textVF, text);
 	}
 
 	/**
@@ -643,12 +686,15 @@ public class AdCreator {
 	 * @param images
 	 */
 	private void showAdType_1(View v, Map<String, Object> data) {
-		TextView title = (TextView) v.findViewById(R.id.title);
+		title = (TextView) v.findViewById(R.id.title);
 		title.setText(data.get("title").toString());
+		if(!data.get("title").toString().equals("")){
+			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
+		}
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
 				.get("images");
-		ViewFlipper vf = (ViewFlipper) v.findViewById(R.id.image);
+		imageVF = (ViewFlipper) v.findViewById(R.id.image);
 		if(data.get("title").toString().equals("")){
 			imageParams.width = ad_width;
 			imageParams.height = ad_height;
@@ -660,7 +706,7 @@ public class AdCreator {
 			imageParams.addRule(RelativeLayout.BELOW,R.id.title);
 			imageParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		}
-		imageTransfer(vf, images,Integer.parseInt(data.get("interval").toString()));
+		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
 	}
 	
 	Handler handler = new Handler() {
@@ -723,7 +769,7 @@ public class AdCreator {
 						iv.setImageBitmap(result);
 					}else
 						iv.setImageResource(R.drawable.error);
-					iv.setAlpha(170);
+					iv.setAlpha(getAlpha());
 					iv.setLayoutParams(imageParams);
 					iv.setScaleType(ScaleType.FIT_XY);
 					iv.setAnimation(AnimationUtils.loadAnimation(mContext,R.anim.push_in_left));
@@ -747,6 +793,8 @@ public class AdCreator {
 	 * @param scroll
 	 */
 	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
+		vf.setBackgroundColor(mContext.getResources().getColor(R.color.text_bg));
+		vf.setPadding(5, 5, 0, 0);
 		vf.setLayoutParams(textParams);
 		AdText at = new AdText(mContext,vf,text,textParams.width,textParams.height,getAdTextSize());
 		at.start();
@@ -769,15 +817,20 @@ public class AdCreator {
 			vf.clearAnimation();
 			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[2]));
 			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[3]));
-		} else if ("top".equals(animPosition)) {
+		} else if ("up".equals(animPosition)) {
 			vf.clearAnimation();
 			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[4]));
 			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[5]));
-		} else if ("bottom".equals(animPosition)) {
+		} else if ("down".equals(animPosition)) {
 			vf.clearAnimation();
 			vf.setInAnimation(AnimationUtils.loadAnimation(mContext, animList[6]));
 			vf.setOutAnimation(AnimationUtils.loadAnimation(mContext, animList[7]));
-		}
+		}else
+			{
+				if(mCallback!=null)mCallback.onError(new Exception("anim type error-->"+animPosition), ERROR_ANIM_TYPE);
+				Log.w(TAG, "image anim type error！！");
+			}
+			
 		vf.showNext();
 		mCurrentPhotoIndex++;
 	}
@@ -804,27 +857,79 @@ public class AdCreator {
 		imageParams.height = h;
 	}
 
+	private static int NETWORK_CONNECT_TIMEOUT = 10000;
+	private static int NETWORK_SO_TIMEOUT = 10000;
+	
 	/**
 	 * Download image
 	 * @param path
 	 * @return
 	 * @throws Exception
 	 */
-	private Bitmap getBitMap(String path) throws Exception {
-		URL url = new URL(path);
-		URLConnection connection = url.openConnection();
-		InputStream inputStream = null;
+	public Bitmap getBitMap(String url){
+		if(url == null || "".equals(url)){
+			return null;
+		}
+		
+		HttpParams p = new BasicHttpParams();
+		HttpConnectionParams.setConnectionTimeout(p,NETWORK_CONNECT_TIMEOUT);
+		HttpConnectionParams.setSoTimeout(p,NETWORK_SO_TIMEOUT);
+	
+		DefaultHttpClient mHttpClient = new DefaultHttpClient(p);
+
+		HttpGet mHttpGet = null;
 		try{
-			 inputStream = connection.getInputStream();
+			mHttpGet= new HttpGet(url);
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+
+		InputStream inputStream = null;
+		HttpEntity resEntity = null; 
+		try{
+			HttpResponse response = mHttpClient.execute(mHttpGet);
+			int statusCode = response.getStatusLine().getStatusCode();
+			if (statusCode != HttpStatus.SC_OK) {
+				return null;
+			}
+			resEntity = response.getEntity();
+			inputStream = resEntity.getContent();
+			int length = (int)resEntity.getContentLength();
+			byte[] buffer = new byte[length+4096];
+			
+			int n;
+			int rlength = 0;
+			while ((n = inputStream.read(buffer,rlength,40960)) >= 0) {
+				rlength += n;
+				if(rlength > length){
+					buffer = null;
+					inputStream.close();
+					return null;
+				}
+			}
+			inputStream.close();
+			Bitmap bmp = BitmapFactory.decodeByteArray(buffer,0,rlength);
+			buffer=null;
+			return bmp;
+			
+		}catch(OutOfMemoryError oe){
+			if(mCallback!=null)
+				mCallback.onError(new Exception("downloading image error-->OutOfMemoryError"), ERROR_URL_CONNECTION);
+			Log.w(TAG, "OutOfMemoryError : " + oe);
+			return null;
 		}catch(Exception e){
 			if(mCallback!=null)
-				mCallback.onError(new Exception("downloading image error"), ERROR_URL_CONNECTION);
+				mCallback.onError(new Exception("downloading image error-->"+e.getMessage()), ERROR_URL_CONNECTION);
+			Log.w(TAG, "Exception : " + e);
+			return null;
 		}
-		Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-		return bitmap;
 	}
-
+	
+	
+	
 	public void stop() {
+		Log.w(TAG, "=========stop=========");
 		if (adViewParent != null)
 			adViewParent.removeAllViews();
 	}
@@ -837,4 +942,13 @@ public class AdCreator {
 	public void setAdTextSize(float textSize) {
 		this.textSize = textSize;
 	}
+
+	public int getAlpha() {
+		return alpha;
+	}
+
+	public void setAlpha(int alpha) {
+		this.alpha = alpha;
+	}
+	
 }
