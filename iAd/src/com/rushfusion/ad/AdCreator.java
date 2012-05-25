@@ -76,8 +76,8 @@ public class AdCreator {
 	private int ad_height = 300;
 	private int image_w = LayoutParams.MATCH_PARENT;
 	private int image_h = 150;
-	private int text_w;
-	private int text_h;
+	private int text_w=LayoutParams.MATCH_PARENT;
+	private int text_h=LayoutParams.MATCH_PARENT;
 	private int title_h = 50;
 	private int alpha = 210;
 	//================================
@@ -86,7 +86,8 @@ public class AdCreator {
 			image_w, image_h);
 	private RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(
 			text_w, text_h);
-
+	
+	
 	private static final int ChangeImage = 201;
 	private int animList[] = new int[] { R.anim.push_in_left,R.anim.push_out_left,
 								R.anim.push_in_right,R.anim.push_out_right, R.anim.push_in_top, 
@@ -441,6 +442,7 @@ public class AdCreator {
 
 		RelativeLayout.LayoutParams userParams = new RelativeLayout.LayoutParams(
 				imageParams.width, ad_height - imageParams.height);
+		userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		RelativeLayout userInfo = (RelativeLayout) adView.findViewById(R.id.userinfo);
 		title = (TextView) adView.findViewById(R.id.title);
 		if (textposition.equals("left")) {
@@ -468,7 +470,6 @@ public class AdCreator {
 					imageParams.height = ad_height - userParams.height-title_h;
 				}
 			}
-			userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 			userParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.image);
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
@@ -480,7 +481,7 @@ public class AdCreator {
 			userParams.height = ad_height/4;
 			imageParams.width = ad_width - textParams.width;//ad_width - 100;
 			if(type == 3){
-				if (title == null || title.getText().equals("")){
+				if ( title.getText().equals("")){
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 					imageParams.height = ad_height;				
 				}else{
@@ -489,7 +490,7 @@ public class AdCreator {
 					imageParams.height = ad_height-title_h;
 				}
 			}else if(type == 4){
-				if (title == null || title.getText().equals("")){
+				if (title.getText().equals("")){
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 					imageParams.height = ad_height - userParams.height;				
 				}else{
@@ -499,7 +500,6 @@ public class AdCreator {
 				}
 			}
 			
-			userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);//RelativeLayout.BELOW, R.id.image
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
@@ -507,10 +507,9 @@ public class AdCreator {
 			textParams.width = ad_width;
 			imageParams.addRule(RelativeLayout.BELOW, R.id.text);
 			imageParams.topMargin = 8;
-			userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);//.BELOW, R.id.image
 			if(type == 3){
 				imageParams.height = ad_height/2;
-				if (title == null || title.getText().equals("")){
+				if ( title.getText().equals("")){
 					textParams.height = ad_height - imageParams.height;
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 				}else{
@@ -519,23 +518,23 @@ public class AdCreator {
 				}
 			}else if(type == 4){
 				imageParams.height = ad_height/3;//RelativeLayout.LayoutParams.MATCH_PARENT;
-				if (title == null || title.getText().equals("")){
+				if ( title.getText().equals("")){
 					textParams.height = (ad_height - imageParams.height)/3;
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+					userParams.height = ad_height - imageParams.height - textParams.height- title_h/3;
 				}else{
 					textParams.height = (ad_height - imageParams.height - title_h)/3;
 					textParams.addRule(RelativeLayout.BELOW, R.id.title);
+					userParams.height = ad_height - imageParams.height - textParams.height - title_h; 
 				}
 			}
-			userParams.height = ad_height - imageParams.height - textParams.height - title_h; 
 		} else if (textposition.equals("down")) {
 			textParams.width = ad_width;
 			textParams.addRule(RelativeLayout.BELOW, R.id.image);
 			textParams.topMargin = 8;
-			userParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);//.BELOW, R.id.text
 			if(type == 3){
 				imageParams.height = ad_height/2;
-				if (title == null || title.getText().equals(""))
+				if (title.getText().equals(""))
 				{
 					imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 					textParams.height = ad_height - imageParams.height;//textParams.height = ad_height - image_h;
@@ -545,28 +544,29 @@ public class AdCreator {
 				}
 			}else if(type == 4){
 				imageParams.height = ad_height/3;
-				if (title == null || title.getText().equals(""))
+				if ( title.getText().equals(""))
 				{
 					imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 					textParams.height = (ad_height - imageParams.height)/3;//textParams.height = ad_height - image_h;
+					userParams.height = ad_height - imageParams.height - textParams.height- title_h/3;
 				}else{
 					imageParams.addRule(RelativeLayout.BELOW, R.id.title);
 					textParams.height = (ad_height - imageParams.height - title_h)/3;//textParams.height = ad_height - image_h - title_h;
+					userParams.height = ad_height - imageParams.height - textParams.height - title_h; 
 				}
 			}
-			userParams.height = ad_height - imageParams.height - textParams.height - title_h; 
 		}else{
 			if(mCallback!=null)
 				mCallback.onError(new Exception("text position error-->"+textposition), ERROR_UNKNOWN_POSITION);
 			Log.w(TAG, "text position error-->"+textposition);
 			return ;
 		}
-		if (userInfo != null){
+		if (type==4){
 			userInfo.setLayoutParams(userParams);
 			userInfo.setGravity(Gravity.CENTER_VERTICAL);
 			userInfo.setBackgroundColor(mContext.getResources().getColor(R.color.company_bg));
 		}
-		if(title!=null&&!title.getText().equals("")){
+		if(!title.getText().equals("")){
 			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
 		}
 		
@@ -601,7 +601,9 @@ public class AdCreator {
 		TextView emailTv = (TextView) v.findViewById(R.id.email);
 		TextView webTv = (TextView) v.findViewById(R.id.website);
 
-		titleTv.setText(title);
+		if(!data.get("title").toString().equals("null"))
+			titleTv.setText(title);
+		
 		contactTv.setText(contact);
 		phoneTv.setText(phone);
 		adsTv.setText(address);
@@ -630,11 +632,9 @@ public class AdCreator {
 		TextView title = (TextView) v.findViewById(R.id.title);
 		title.setText(data.get("title").toString());
 		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
-				.get("images");
+		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
 		@SuppressWarnings("unchecked")
-		HashMap<String, String> text = ((HashMap<String, String>) data
-				.get("text"));
+		HashMap<String, String> text = ((HashMap<String, String>) data.get("text"));
 
 		imageVF = (ViewFlipper) v.findViewById(R.id.image);
 		textVF = (ViewFlipper) v.findViewById(R.id.text);
@@ -655,24 +655,28 @@ public class AdCreator {
 	 * @param images
 	 */
 	private void showAdType_2(View v, Map<String, Object> data) {
+		int title_w = 100;
 		title = (TextView) v.findViewById(R.id.title);
-		if(!data.get("title").toString().equals("")){
+		RelativeLayout.LayoutParams titleParams = new RelativeLayout.LayoutParams(title_w,textParams.height);
+		title.setGravity(Gravity.CENTER_VERTICAL);
+		title.setLayoutParams(titleParams);
+		if(!data.get("title").toString().equals("null")){
 			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
+			title.setText(data.get("title").toString());
 		}
-		title.setText(data.get("title").toString());
 		textVF = (ViewFlipper) v.findViewById(R.id.text);
 		@SuppressWarnings("unchecked")
-		HashMap<String, String> text = ((HashMap<String, String>) data
-				.get("text"));
-		if(data.get("title").toString().equals("")){
+		HashMap<String, String> text = ((HashMap<String, String>) data.get("text"));
+		if(data.get("title").toString().equals("null")){
 			textParams.width = ad_width;
 			textParams.height = ad_height;
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 		}else{
-			textParams.width = ad_width;
-			textParams.height = ad_height - title_h;
-			textParams.addRule(RelativeLayout.BELOW,R.id.title);
+			textParams.width = ad_width-title_w;
+			textParams.height = ad_height;
+			textParams.addRule(RelativeLayout.RIGHT_OF,R.id.title);
+			titleParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 		}
 		textTransfer(textVF, text);
 	}
@@ -687,15 +691,15 @@ public class AdCreator {
 	 */
 	private void showAdType_1(View v, Map<String, Object> data) {
 		title = (TextView) v.findViewById(R.id.title);
-		title.setText(data.get("title").toString());
-		if(!data.get("title").toString().equals("")){
+		if(!data.get("title").toString().equals("null")){
 			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
+			title.setText(data.get("title").toString());
 		}
 		@SuppressWarnings("unchecked")
 		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
 				.get("images");
 		imageVF = (ViewFlipper) v.findViewById(R.id.image);
-		if(data.get("title").toString().equals("")){
+		if(data.get("title").toString().equals("null")){
 			imageParams.width = ad_width;
 			imageParams.height = ad_height;
 			imageParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
@@ -794,7 +798,7 @@ public class AdCreator {
 	 */
 	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
 		vf.setBackgroundColor(mContext.getResources().getColor(R.color.text_bg));
-		vf.setPadding(5, 5, 0, 0);
+//		vf.setPadding(5, 5, 0, 0);
 		vf.setLayoutParams(textParams);
 		AdText at = new AdText(mContext,vf,text,textParams.width,textParams.height,getAdTextSize());
 		at.start();

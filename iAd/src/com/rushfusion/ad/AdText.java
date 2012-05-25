@@ -104,7 +104,7 @@ public class AdText {
 		
 		linestrs = getLineStrs(text.get("value"), mPaint, w);
 
-//		System.out.println("h-->"+h+" baseLine->"+baseLine+"  maxlines->"+maxlines+"  linerstrs.length->"+linestrs.length);
+		System.out.println("w-->"+w+" h-->"+h+" baseLine->"+baseLine+"  maxlines->"+maxlines+"  linerstrs.length->"+linestrs.length);
 		pageCount = (int) Math.ceil((float) linestrs.length / maxlines);
 		strs = getValuesByLines(w, value, maxlines, mPaint);
 	}
