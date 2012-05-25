@@ -137,7 +137,7 @@ public class AdCreator {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
-		showDynamicAdvertisement(data);
+//		showDynamicAdvertisement(data);
 	}
 
 	public CallBack getmCallback() {
@@ -336,16 +336,21 @@ public class AdCreator {
 			Log.i(TAG, "interval-->" + interval);
 
 			ArrayList<HashMap<String, String>> images = new ArrayList<HashMap<String, String>>();
-			JSONArray nodes = ad.getJSONObject("images").getJSONArray("image");
-			System.out.println("nodes----------->"+nodes);
+			JSONArray nodes = ad.getJSONObject("images").names();
+			System.out.println("nodes.get(0).toString()-->"+nodes.get(0).toString());
+			System.out.println("nodes.get(1).toString()-->"+nodes.get(1).toString());
+			System.out.println("nodes.get(2).toString()-->"+nodes.get(2).toString());
+			System.out.println("nodes.get(3).toString()-->"+nodes.get(3).toString());
 			Log.i(TAG, "images.size-->" + nodes.length());
-			for (int i=0;i<nodes.length();i++) {
-				JSONObject node = nodes.getJSONObject(i);
-				HashMap<String, String> image = new HashMap<String, String>();
-				image.put("url", node.getString("url"));
-				image.put("anim", node.getString("anim"));
-				Log.i(TAG,"anim-->" + node.getString("anim") + "--url-->"+ node.getString("url"));
-				images.add(image);
+			for (int i=1;i<nodes.length();i++) {
+				if(!nodes.getJSONObject(i).toString().equals("interval")){
+					JSONObject node = ad.getJSONObject("images").getJSONObject(nodes.getJSONObject(i).toString());
+					HashMap<String, String> image = new HashMap<String, String>();
+					image.put("url", node.getString("url"));
+					image.put("anim", node.getString("anim"));
+					Log.i(TAG,"anim-->" + node.getString("anim") + "--url-->"+ node.getString("url"));
+					images.add(image);
+				}
 			}
 			data.put("images", images);
 

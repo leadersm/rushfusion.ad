@@ -5,15 +5,15 @@
         "position": "rightcenter",
         "images": {
             "interval": "5",
-            "image": {
+            "0": {
                 "url": "http://ad.rushfusion.com/sites/default/files/ad_imgs/Coca-Cola_logo.jpg",
                 "anim": "right"
             },
-            "image": {
+            "1": {
                 "url": "http://ad.rushfusion.com/sites/default/files/ad_imgs/2012429184252334.jpg",
                 "anim": "right"
             },
-            "image": {
+            "2": {
                 "url": "http://ad.rushfusion.com/sites/default/files/ad_imgs/BigDesk_2010316101937337.jpg",
                 "anim": "right"
             }
@@ -36,15 +36,15 @@
         "position": "leftcenter",
         "images": {
             "interval": "5",
-            "image": {
+            "0": {
                 "url": "http://ad.rushfusion.com/sites/default/files/ad_imgs/4725151_175902033500_2.jpg",
                 "anim": "right"
             },
-            "image": {
+            "1": {
                 "url": "http://ad.rushfusion.com/sites/default/files/ad_imgs/201181211561639653.jpg",
                 "anim": "right"
             },
-            "image": {
+            "2": {
                 "url": "http://ad.rushfusion.com/sites/default/files/ad_imgs/info_icon_1281077792032_2.jpg",
                 "anim": "right"
             }
