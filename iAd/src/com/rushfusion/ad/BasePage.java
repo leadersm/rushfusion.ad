@@ -8,7 +8,7 @@ import android.content.Context;
 import android.view.ViewGroup;
 
 public abstract class  BasePage implements Runnable{
-	protected Context mContext;
+	protected static Context mContext;
 	protected ViewGroup mContainer;
 	protected Node mParams;
 //	protected View mContentView;

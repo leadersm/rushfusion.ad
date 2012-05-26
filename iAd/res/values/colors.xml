@@ -1,7 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="parent_bg">#00FFFFFF</color>
-    <color name="text_bg">#AA00CCAF</color>
-    <color name="company_bg">#AA00CCAF</color>
-    <color name="title_bg">#AAFF0033</color>
+    <color name="title">#E2E25D</color>
+    
+    <color name="contect0">#FFFFFF</color>
+    <color name="contect">#E2E25D</color>
+    
+    <color name="phone0">#FFFFFF</color>
+    <color name="phone">#E2E25D</color>
+    
+    
+    <color name="email0">#FFFFFF</color>
+    <color name="email">#E2E25D</color>
+    
+    <color name="address0">#FFFFFF</color>
+    <color name="address">#E2E25D</color>
+    
+    
+    <color name="website0">#FFFFFF</color>
+    <color name="website">#E2E25D</color>
+    
+    
+    
 </resources>

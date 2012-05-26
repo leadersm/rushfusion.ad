@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/RelativeLayout1"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
-
-    <TextView
+    <TextView
         android:id="@+id/title"
         style="@style/style_title"/>
 
     <ViewFlipper
-        android:id="@+id/image"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/title"
-		android:layout_centerHorizontal="true"  >
-    </ViewFlipper>
+        android:background="@drawable/adver_content_pic"
+        android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

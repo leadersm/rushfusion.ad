@@ -49,7 +49,7 @@ import android.widget.ViewFlipper;
 
 public class AdCreator {
 
-	public String TEST_XML = "data4.xml";
+	public String TEST_data = "data1.txt";
 
 	private static final String TAG = "AdCreator";
 
@@ -72,13 +72,13 @@ public class AdCreator {
 	private CallBack mCallback;
 	private String mAdUrl;
 	//======================================
-	private int ad_width = 300;
-	private int ad_height = 300;
+	private int ad_width = 300;//AdPage.getX(300);
+	private int ad_height = 300;//AdPage.getX(300);
 	private int image_w = LayoutParams.MATCH_PARENT;
-	private int image_h = 150;
+	private int image_h = 150;//AdPage.getH(150);
 	private int text_w=LayoutParams.MATCH_PARENT;
 	private int text_h=LayoutParams.MATCH_PARENT;
-	private int title_h = 50;
+	private int title_h = 50;//AdPage.getH(50);
 	private int alpha = 210;
 	//================================
 	private ViewGroup mContainer;
@@ -149,7 +149,7 @@ public class AdCreator {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
-			in = getClass().getClassLoader().getResourceAsStream(TEST_XML);
+			in = getClass().getClassLoader().getResourceAsStream(TEST_data);
 			data = parseXml(in);
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -393,23 +393,23 @@ public class AdCreator {
 			data.put("text", text);
 
 			
-			String contact =  ad.getString("contact").equals("null")?ad.getString("contact"):" 联系人: "+ad.getString("contact");
+			String contact = ad.getString("contact");
 			data.put("contact", contact);
 			Log.i(TAG, "contact-->" + contact);
 
-			String phone =  ad.getString("phone").equals("null")?ad.getString("phone"):" 电   话: "+ad.getString("phone");
+			String phone =  ad.getString("phone");
 			data.put("phone", phone);
 			Log.i(TAG, "phone-->" + phone);
 
-			String address = ad.getString("address").equals("null")?ad.getString("address"):" 地   址: "+ad.getString("address");
+			String address = ad.getString("address");
 			data.put("address", address);
 			Log.i(TAG, "address-->" + address);
 
-			String email = ad.getString("email").equals("null")?ad.getString("email"):" 邮   箱: "+ad.getString("email");
+			String email = ad.getString("email");
 			data.put("email", email);
 			Log.i(TAG, "email-->" + email);
 
-			String website = ad.getString("website").equals("null")?ad.getString("website"):" 网   址: "+ad.getString("website");
+			String website = ad.getString("website");
 			data.put("website", website);
 			Log.i(TAG, "website-->" + website);
 			
@@ -447,59 +447,59 @@ public class AdCreator {
 		title = (TextView) adView.findViewById(R.id.title);
 		if (textposition.equals("left")) {
 			textParams.width = ad_width/3;//100
-			textParams.height = ad_height;
-			userParams.width = ad_width-textParams.width;//ad_width - 100;
-			userParams.height = ad_height/4;
 			imageParams.width = ad_width - textParams.width;//ad_width - 100;
 			if(type == 3){
-				if (title == null || title.getText().equals("")){
+				imageParams.height = ad_height;
+				if (title.getText().equals("")){
+					textParams.height = ad_height;
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-					imageParams.height = ad_height;
 				}else{
+					textParams.height =ad_height - title_h;
 					textParams.addRule(RelativeLayout.BELOW, R.id.title);
-					textParams.height -= title_h;
-					imageParams.height = ad_height-title_h;
 				}
 			}else if(type == 4){
-				if (title == null || title.getText().equals("")){
+				userParams.width = ad_width-textParams.width;//ad_width - 100;
+				userParams.height = ad_height/3;
+				if (title.getText().equals("")){
+					textParams.height = ad_height;
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-					imageParams.height = ad_height - userParams.height;
+					imageParams.height = ad_height - userParams.height-title_h/3;
 				}else{
 					textParams.addRule(RelativeLayout.BELOW, R.id.title);
-					textParams.height -= title_h;
+					textParams.height =ad_height - title_h;
 					imageParams.height = ad_height - userParams.height-title_h;
 				}
+				userParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.image);
 			}
-			userParams.addRule(RelativeLayout.ALIGN_LEFT, R.id.image);
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.RIGHT_OF, R.id.text);
 		} else if (textposition.equals("right")) {
 			textParams.width = ad_width/3;//100
-			textParams.height = ad_height;
-			userParams.width = ad_width-textParams.width;//ad_width - 100;
-			userParams.height = ad_height/4;
 			imageParams.width = ad_width - textParams.width;//ad_width - 100;
 			if(type == 3){
+				imageParams.height = ad_height;
 				if ( title.getText().equals("")){
+					textParams.height = ad_height;
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-					imageParams.height = ad_height;				
 				}else{
+					textParams.height =ad_height - title_h;
 					textParams.addRule(RelativeLayout.BELOW, R.id.title);
-					textParams.height -= title_h;
-					imageParams.height = ad_height-title_h;
 				}
 			}else if(type == 4){
+				userParams.width = ad_width-textParams.width;//ad_width - 100;
+				userParams.height = ad_height/3;
 				if (title.getText().equals("")){
+					textParams.height =ad_height;
 					textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-					imageParams.height = ad_height - userParams.height;				
+					imageParams.height = ad_height - userParams.height- title_h/3;
 				}else{
 					textParams.addRule(RelativeLayout.BELOW, R.id.title);
-					textParams.height -= title_h;
-					imageParams.height = ad_height - userParams.height-title_h;
+					textParams.height =ad_height - title_h;
+					imageParams.height = ad_height - userParams.height- title_h;
 				}
+				userParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			}
-			
 			textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			imageParams.addRule(RelativeLayout.ALIGN_TOP, R.id.text);
 			imageParams.addRule(RelativeLayout.LEFT_OF, R.id.text);
@@ -564,10 +564,10 @@ public class AdCreator {
 		if (type==4){
 			userInfo.setLayoutParams(userParams);
 			userInfo.setGravity(Gravity.CENTER_VERTICAL);
-			userInfo.setBackgroundColor(mContext.getResources().getColor(R.color.company_bg));
+			userInfo.setBackgroundResource(R.drawable.rush_bg);
 		}
 		if(!title.getText().equals("")){
-			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
+			title.setBackgroundResource(R.drawable.title);
 		}
 		
 	}
@@ -584,8 +584,7 @@ public class AdCreator {
 
 		String title = (String) data.get("title");
 		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
-				.get("images");
+		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data.get("images");
 		@SuppressWarnings("unchecked")
 		HashMap<String, String> text = ((HashMap<String, String>) data.get("text"));
 		String contact = (String) data.get("contact");
@@ -655,13 +654,13 @@ public class AdCreator {
 	 * @param images
 	 */
 	private void showAdType_2(View v, Map<String, Object> data) {
-		int title_w = 100;
+		int title_w = 200;//AdPage.getX(100);
 		title = (TextView) v.findViewById(R.id.title);
 		RelativeLayout.LayoutParams titleParams = new RelativeLayout.LayoutParams(title_w,textParams.height);
 		title.setGravity(Gravity.CENTER_VERTICAL);
 		title.setLayoutParams(titleParams);
-		if(!data.get("title").toString().equals("null")){
-			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
+		if(!data.get("title").equals("null")){
+			title.setBackgroundResource(R.drawable.title);
 			title.setText(data.get("title").toString());
 		}
 		textVF = (ViewFlipper) v.findViewById(R.id.text);
@@ -692,7 +691,7 @@ public class AdCreator {
 	private void showAdType_1(View v, Map<String, Object> data) {
 		title = (TextView) v.findViewById(R.id.title);
 		if(!data.get("title").toString().equals("null")){
-			title.setBackgroundColor(mContext.getResources().getColor(R.color.title_bg));
+			title.setBackgroundResource(R.drawable.title);
 			title.setText(data.get("title").toString());
 		}
 		@SuppressWarnings("unchecked")
@@ -797,8 +796,7 @@ public class AdCreator {
 	 * @param scroll
 	 */
 	private void textTransfer(final ViewFlipper vf, HashMap<String, String> text) {
-		vf.setBackgroundColor(mContext.getResources().getColor(R.color.text_bg));
-//		vf.setPadding(5, 5, 0, 0);
+		vf.setBackgroundResource(R.drawable.adver_content_pic);
 		vf.setLayoutParams(textParams);
 		AdText at = new AdText(mContext,vf,text,textParams.width,textParams.height,getAdTextSize());
 		at.start();

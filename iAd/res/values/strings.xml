@@ -2,7 +2,13 @@
 <resources>
 
     <string name="hello">Hello World, IAdActivity!</string>
-    <string name="app_name">IAd</string>
+    <string name="app_name">com.rushfusion.ad</string>
+    <string name="contact0"> 联系人： </string>
+    <string name="phone0"> 电    话： </string>
+    <string name="email0"> 邮    箱： </string>
+    <string name="address0"> 地    址： </string>
+    <string name="website0"> 网    址： </string>
+    
     <string name="contact">contact</string>
     <string name="phone">phone</string>
     <string name="email">email</string>
