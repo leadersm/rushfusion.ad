@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/style_title" />
+
+    <ViewFlipper
+        android:id="@+id/image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+    </ViewFlipper>
+
+    <RelativeLayout
+        android:id="@+id/userinfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rush_bg"
+        android:layout_below="@+id/image"
+        >
+
+        <TextView
+            android:id="@+id/contact0"
+            android:textSize="18dip"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            style="@style/style_contact0" />
+        
+      	<TextView
+            android:id="@+id/contact"
+            style="@style/style_contact"
+            android:layout_width="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/contact0"
+            android:layout_alignBottom="@+id/contact0"
+            android:textSize="18dip" />
+
+        <TextView
+            android:id="@+id/phone0"
+            android:textSize="18dip"
+            android:layout_below="@+id/contact0"
+            style="@style/style_phone0" />
+        <TextView
+            android:id="@+id/phone"
+            android:textSize="18dip"
+            android:layout_toRightOf="@+id/phone0"
+            android:layout_alignBottom="@+id/phone0"
+            style="@style/style_phone" />
+
+        <TextView
+            android:id="@+id/address0"
+            android:textSize="18dip"
+            android:layout_below="@+id/phone0"
+            style="@style/style_address0" />
+        <TextView
+            android:id="@+id/address"
+            android:textSize="18dip"
+            android:layout_toRightOf="@+id/address0"
+            android:layout_alignBottom="@+id/address0"
+            style="@style/style_address" />
+
+        <TextView
+            android:id="@+id/email0"
+            android:textSize="18dip"
+            android:layout_below="@+id/address0"
+            style="@style/style_email0" />
+        <TextView
+            android:id="@+id/email"
+            android:textSize="18dip"
+            android:layout_toRightOf="@+id/email0"
+            android:layout_alignBottom="@+id/email0"
+            style="@style/style_email" />
+
+        <TextView
+            android:id="@+id/website0"
+            android:textSize="18dip"
+            android:layout_below="@+id/email0"
+            style="@style/style_website0" />
+        <TextView
+            android:id="@+id/website"
+            android:textSize="18dip"
+            android:layout_toRightOf="@+id/website0"
+            android:layout_below="@+id/email"
+            style="@style/style_website" />
+
+    </RelativeLayout>
+
+    <ViewFlipper
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/userinfo"
+        android:background="@drawable/adver_content_pic" >
+
+    </ViewFlipper>
+
+</RelativeLayout>
