@@ -83,8 +83,9 @@ public class AdText {
 				vf.addView(at);
 			}
 		}
+		int scroll = text.get("scroll").equals("null") ? 5 : Integer.parseInt(text.get("scroll"));
 		timer = new Timer();
-		timer.schedule(tasktext, 5 * 1000, 5 * 1000);
+		timer.schedule(tasktext, scroll * 1000, scroll * 1000);
 	}
 	private void init(HashMap<String, String> text) {
 		mPaint.setAntiAlias(true);
@@ -109,6 +110,8 @@ public class AdText {
 		strs = getValuesByLines(w, value, maxlines, mPaint);
 	}
 
+	
+	
 	private class AdTextView extends View {
 		String text;
 

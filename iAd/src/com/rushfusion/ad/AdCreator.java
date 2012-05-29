@@ -52,7 +52,7 @@ import android.widget.ViewFlipper;
 
 public class AdCreator {
 
-	public String TEST_data = "data1.txt";
+	public String TEST_DATA = "data1.txt";
 
 	private static final String TAG = "AdCreator";
 
@@ -103,12 +103,18 @@ public class AdCreator {
 	private int mCurrentPhotoIndex = 0;
 	private float textSize = 25;
 	private boolean isStart = false;
+	private DisplayMetrics dm;
+	private WindowManager manager;
 
 	public AdCreator(ViewGroup container, Context context, String adUrl,
 			CallBack callback) {
 		mContext = context;
 		mCallback = callback;
 		mAdUrl = adUrl;
+		init(container, context);
+	}
+
+	private void init(ViewGroup container, Context context) {
 		adViewParent = new RelativeLayout(context);
 		adViewParent.setBackgroundColor(context.getResources().getColor(
 				R.color.parent_bg));
@@ -119,6 +125,8 @@ public class AdCreator {
 		mContainer = container;
 		mContainer.removeAllViews();
 		mContainer.addView(adViewParent, params);
+		dm = new DisplayMetrics();
+		manager = (WindowManager) mContext.getSystemService(Service.WINDOW_SERVICE);
 	}
 
 	public void start() {
@@ -153,7 +161,7 @@ public class AdCreator {
 		Map<String, Object> data = null;
 		try {
 			InputStream in = null;
-			in = getClass().getClassLoader().getResourceAsStream(TEST_data);
+			in = getClass().getClassLoader().getResourceAsStream(TEST_DATA);
 			data = parseXml(in);
 		} catch (Exception e1) {
 			e1.printStackTrace();
@@ -436,35 +444,25 @@ public class AdCreator {
 		return data;
 	}
 //===============================getTypeAndSetAdSize===================================
-	public int getW() {
-		DisplayMetrics dm = new DisplayMetrics();
-		WindowManager manager = (WindowManager) mContext.getSystemService(Service.WINDOW_SERVICE);
+	public DisplayMetrics getMetrics() {
 		manager.getDefaultDisplay().getMetrics(dm);
-		System.out.println("分辨率---》w=" + dm.widthPixels + "  h="+ dm.heightPixels);
-		int width = dm.widthPixels;
-		return width;
+		System.out.println("分辨率--->w=" + dm.widthPixels + "  h="+ dm.heightPixels);
+		return dm;
 	}
 	
-	public int getH(){
-		DisplayMetrics dm = new DisplayMetrics();
-		WindowManager manager = (WindowManager) mContext.getSystemService(Service.WINDOW_SERVICE);
-		manager.getDefaultDisplay().getMetrics(dm);
-		int height = dm.heightPixels;
-		return height;
-	}
-
 	private int getTypeAndSetAdSize(String text, int images, String contact) {
 		if (text.equals("null")) {
-			setAdSize(700*getW()/1920, 250*getH()/1080);
+			setAdSize(700*getMetrics().widthPixels/1920, 250*getMetrics().heightPixels/1080);
 			return AD_TYPE_IMAGE_ONLY;
 		} else if (images <= 0) {
-			setAdSize(getW(), 60*getH()/1080);
+			int H = text.length()>400?110:60;
+			setAdSize(getMetrics().widthPixels, H*getMetrics().heightPixels/1080);
 			return AD_TYPE_TEXT_ONLY;
 		} else if (contact.equals("null")) {
-			setAdSize(700*getW()/1920, 550*getH()/1080);
+			setAdSize(700*getMetrics().widthPixels/1920, 550*getMetrics().heightPixels/1080);
 			return AD_TYPE_IMAGE_AND_TEXT;
 		} else{
-			setAdSize(700*getW()/1920, 550*getH()/1080);
+			setAdSize(700*getMetrics().widthPixels/1920, 550*getMetrics().heightPixels/1080);
 			return AD_TYPE_FULL;
 		}
 	}
