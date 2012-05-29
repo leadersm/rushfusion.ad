@@ -5,6 +5,8 @@
     android:orientation="vertical" >
     <TextView
         android:id="@+id/title"
+        android:text="title"
+        android:gravity="center_horizontal|center_vertical"
         style="@style/style_title"/>
 
     <ViewFlipper

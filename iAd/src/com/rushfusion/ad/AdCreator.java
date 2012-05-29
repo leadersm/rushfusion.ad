@@ -914,7 +914,6 @@ public class AdCreator {
 			Bitmap bmp = BitmapFactory.decodeByteArray(buffer,0,rlength);
 			buffer=null;
 			return bmp;
-			
 		}catch(OutOfMemoryError oe){
 			if(mCallback!=null)
 				mCallback.onError(new Exception("downloading image error-->OutOfMemoryError"), ERROR_URL_CONNECTION);

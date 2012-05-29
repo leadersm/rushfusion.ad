@@ -3,10 +3,6 @@ package com.rushfusion.ad;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import android.app.Service;
-import android.util.DisplayMetrics;
-import android.view.WindowManager;
-
 public class AdPage extends BasePage {
 	AdCreator creator1;
 	String url = "";
@@ -40,6 +36,7 @@ public class AdPage extends BasePage {
 //		int width = dm.widthPixels;
 //		return width*w/1280;
 //	}
+	
 //	public static int getH(int h){
 //		DisplayMetrics dm = new DisplayMetrics();
 //		WindowManager manager = (WindowManager) mContext.getSystemService(Service.WINDOW_SERVICE);

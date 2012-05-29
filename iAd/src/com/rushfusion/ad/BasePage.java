@@ -16,12 +16,6 @@ public abstract class  BasePage implements Runnable{
 	public BasePage() {
 		
 	}
-	
-	/**
-	 * get the contentView 
-	 * @return contentView
-	 */
-
 	/**
 	 * @param context, the application context
 	 * @param container, the panel of your app need to attach to
