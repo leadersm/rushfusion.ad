@@ -46,6 +46,7 @@ import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
@@ -430,7 +431,7 @@ public class AdCreator {
 			data.put("website", website);
 			Log.i(TAG, "website-->" + website);
 
-			String type = getTypeAndSetAdSize(value, images.size(), contact) + "";
+			String type = getTypeAndSetAdSize(value, images.size(), contact,title) + "";
 			data.put("type", type);
 			Log.i(TAG, "type-->" + type);
 
@@ -450,7 +451,7 @@ public class AdCreator {
 		return dm;
 	}
 	
-	private int getTypeAndSetAdSize(String text, int images, String contact) {
+	private int getTypeAndSetAdSize(String text, int images, String contact,String title) {
 		if (text.equals("null")) {
 			setAdSize(700*getMetrics().widthPixels/1920, 250*getMetrics().heightPixels/1080);
 			return AD_TYPE_IMAGE_ONLY;
@@ -462,7 +463,8 @@ public class AdCreator {
 			setAdSize(700*getMetrics().widthPixels/1920, 550*getMetrics().heightPixels/1080);
 			return AD_TYPE_IMAGE_AND_TEXT;
 		} else{
-			setAdSize(700*getMetrics().widthPixels/1920, 550*getMetrics().heightPixels/1080);
+			int H = title.equals("null")?550:600;
+			setAdSize(700*getMetrics().widthPixels/1920, H*getMetrics().heightPixels/1080);
 			return AD_TYPE_FULL;
 		}
 	}
@@ -658,8 +660,9 @@ public class AdCreator {
 
 		setRelationBy(v, imageVF, textVF, text.get("position"), 4);
 
-		imageTransfer(imageVF, images,
-				Integer.parseInt(data.get("interval").toString()));
+		LinearLayout imageLayout = (LinearLayout) v.findViewById(R.id.imageLayout);
+		imageLayout.setLayoutParams(imageParams);
+		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
 		textTransfer(textVF, text);
 	}
 
@@ -686,8 +689,8 @@ public class AdCreator {
 
 		setRelationBy(v, imageVF, textVF, text.get("position"), 3);
 
-		imageTransfer(imageVF, images,
-				Integer.parseInt(data.get("interval").toString()));
+		imageVF.setLayoutParams(imageParams);
+		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
 		textTransfer(textVF, text);
 
 	}
@@ -736,15 +739,14 @@ public class AdCreator {
 	 * @param downloader
 	 * @param images
 	 */
+	@SuppressWarnings("unchecked")
 	private void showAdType_1(View v, Map<String, Object> data) {
 		title = (TextView) v.findViewById(R.id.title);
 		if (!data.get("title").toString().equals("null")) {
 			title.setBackgroundResource(R.drawable.title);
 			title.setText(data.get("title").toString());
 		}
-		@SuppressWarnings("unchecked")
-		ArrayList<HashMap<String, String>> images = (ArrayList<HashMap<String, String>>) data
-				.get("images");
+		this.images = (ArrayList<HashMap<String, String>>) data.get("images");
 		imageVF = (ViewFlipper) v.findViewById(R.id.image);
 		if (data.get("title").toString().equals("null")) {
 			imageParams.width = ad_width;
@@ -757,8 +759,8 @@ public class AdCreator {
 			imageParams.addRule(RelativeLayout.BELOW, R.id.title);
 			imageParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		}
-		imageTransfer(imageVF, images,
-				Integer.parseInt(data.get("interval").toString()));
+		imageVF.setLayoutParams(imageParams);
+		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
 	}
 
 	Handler handler = new Handler() {
@@ -790,10 +792,7 @@ public class AdCreator {
 	 * @param delay
 	 *            -the images transfer interval
 	 */
-	private void imageTransfer(final ViewFlipper vf,
-			final List<HashMap<String, String>> images, int delay) {
-		vf.setLayoutParams(imageParams);
-		this.imageVF = vf;
+	private void imageTransfer(final ViewFlipper vf,final List<HashMap<String, String>> images, int delay) {
 		this.images = images;
 		for (int i = 0; i < images.size(); i++) {
 			HashMap<String, String> imagesInfo = images.get(i);
@@ -853,8 +852,7 @@ public class AdCreator {
 		at.start();
 	}
 
-	private void setImageAnimation(ViewFlipper vf,
-			List<HashMap<String, String>> images) {
+	private void setImageAnimation(ViewFlipper vf,List<HashMap<String, String>> images) {
 		vf.clearAnimation();
 		mCurrentPhotoIndex = mCurrentPhotoIndex % (images.size());
 		String animPosition = images.get(mCurrentPhotoIndex).get("anim");

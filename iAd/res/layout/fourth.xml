@@ -8,94 +8,104 @@
     <TextView
         android:id="@+id/title"
         style="@style/style_title" />
+
+    <LinearLayout
+        android:id="@+id/imageLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="100dip"
+        android:layout_below="@+id/text"
+        android:gravity="center_horizontal|center_vertical"
+        android:orientation="vertical" >
 
-    <ViewFlipper
-        android:id="@+id/image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-    </ViewFlipper>
+        <ViewFlipper
+            android:id="@+id/image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+        </ViewFlipper>
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/userinfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/rush_bg"
-        android:layout_below="@+id/image"
-        >
+        android:layout_below="@+id/imageLayout"
+        android:background="@drawable/rush_bg" >
 
         <TextView
             android:id="@+id/contact0"
-            android:textSize="18dip"
-            android:layout_alignParentTop="true"
+            style="@style/style_contact0"
             android:layout_alignParentLeft="true"
-            style="@style/style_contact0" />
-        
-      	<TextView
+            android:layout_alignParentTop="true"
+            android:textSize="18dip" />
+
+        <TextView
             android:id="@+id/contact"
             style="@style/style_contact"
             android:layout_width="wrap_content"
+            android:layout_alignBottom="@+id/contact0"
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/contact0"
-            android:layout_alignBottom="@+id/contact0"
             android:textSize="18dip" />
 
         <TextView
             android:id="@+id/phone0"
-            android:textSize="18dip"
+            style="@style/style_phone0"
             android:layout_below="@+id/contact0"
-            style="@style/style_phone0" />
+            android:textSize="18dip" />
+
         <TextView
             android:id="@+id/phone"
-            android:textSize="18dip"
-            android:layout_toRightOf="@+id/phone0"
+            style="@style/style_phone"
             android:layout_alignBottom="@+id/phone0"
-            style="@style/style_phone" />
+            android:layout_toRightOf="@+id/phone0"
+            android:textSize="18dip" />
 
         <TextView
             android:id="@+id/address0"
-            android:textSize="18dip"
+            style="@style/style_address0"
             android:layout_below="@+id/phone0"
-            style="@style/style_address0" />
+            android:textSize="18dip" />
+
         <TextView
             android:id="@+id/address"
-            android:textSize="18dip"
-            android:layout_toRightOf="@+id/address0"
+            style="@style/style_address"
             android:layout_alignBottom="@+id/address0"
-            style="@style/style_address" />
+            android:layout_toRightOf="@+id/address0"
+            android:textSize="18dip" />
 
         <TextView
             android:id="@+id/email0"
-            android:textSize="18dip"
+            style="@style/style_email0"
             android:layout_below="@+id/address0"
-            style="@style/style_email0" />
+            android:textSize="18dip" />
+
         <TextView
             android:id="@+id/email"
-            android:textSize="18dip"
-            android:layout_toRightOf="@+id/email0"
+            style="@style/style_email"
             android:layout_alignBottom="@+id/email0"
-            style="@style/style_email" />
+            android:layout_toRightOf="@+id/email0"
+            android:textSize="18dip" />
 
         <TextView
             android:id="@+id/website0"
-            android:textSize="18dip"
+            style="@style/style_website0"
             android:layout_below="@+id/email0"
-            style="@style/style_website0" />
+            android:textSize="18dip" />
+
         <TextView
             android:id="@+id/website"
-            android:textSize="18dip"
-            android:layout_toRightOf="@+id/website0"
+            style="@style/style_website"
             android:layout_below="@+id/email"
-            style="@style/style_website" />
-
+            android:layout_toRightOf="@+id/website0"
+            android:textSize="18dip" />
     </RelativeLayout>
 
     <ViewFlipper
         android:id="@+id/text"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/userinfo"
+        android:layout_alignParentTop="true"
         android:background="@drawable/adver_content_pic" >
 
     </ViewFlipper>
