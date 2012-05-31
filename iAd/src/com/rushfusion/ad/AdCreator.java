@@ -51,7 +51,6 @@ import android.widget.TextView;
 import android.widget.ViewFlipper;
 
 /**
- * 1、imageOnly i
  * @author rushfusion.lsm
  *
  */

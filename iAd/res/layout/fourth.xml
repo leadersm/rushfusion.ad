@@ -8,27 +8,19 @@
     <TextView
         android:id="@+id/title"
         style="@style/style_title" />
-
-    <LinearLayout
-        android:id="@+id/imageLayout"
+
+    <ViewFlipper
+        android:id="@+id/image"
         android:layout_width="fill_parent"
         android:layout_height="100dip"
-        android:layout_below="@+id/text"
-        android:gravity="center_horizontal|center_vertical"
-        android:orientation="vertical" >
-
-        <ViewFlipper
-            android:id="@+id/image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
-        </ViewFlipper>
-    </LinearLayout>
+        android:layout_below="@+id/text" >
+    </ViewFlipper>
 
     <RelativeLayout
         android:id="@+id/userinfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/imageLayout"
+        android:layout_below="@+id/image"
         android:background="@drawable/rush_bg" >
 
         <TextView
@@ -99,7 +91,7 @@
             android:layout_toRightOf="@+id/website0"
             android:textSize="18dip" />
     </RelativeLayout>
-
+
     <ViewFlipper
         android:id="@+id/text"
         android:layout_width="match_parent"
@@ -107,7 +99,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/adver_content_pic" >
-
     </ViewFlipper>
 
 </RelativeLayout>
