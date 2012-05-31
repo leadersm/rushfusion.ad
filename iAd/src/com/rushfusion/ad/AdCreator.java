@@ -46,11 +46,15 @@ import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ViewFlipper;
 
+/**
+ * 1、imageOnly i
+ * @author rushfusion.lsm
+ *
+ */
 public class AdCreator {
 
 	public String TEST_DATA = "data1.txt";
@@ -75,13 +79,13 @@ public class AdCreator {
 	private CallBack mCallback;
 	private String mAdUrl;
 	// ======================================
-	private int ad_width = 300;// AdPage.getX(300);
-	private int ad_height = 300;// AdPage.getX(300);
+	private int ad_width = 300;
+	private int ad_height = 300;
 	private int image_w = LayoutParams.MATCH_PARENT;
-	private int image_h = 150;// AdPage.getH(150);
+	private int image_h = 150;
 	private int text_w = LayoutParams.MATCH_PARENT;
 	private int text_h = LayoutParams.MATCH_PARENT;
-	private int title_h = 50;// AdPage.getH(50);
+	private int title_h = 50;
 	private int alpha = 210;
 	// ================================
 	private ViewGroup mContainer;
@@ -111,19 +115,15 @@ public class AdCreator {
 			CallBack callback) {
 		mContext = context;
 		mCallback = callback;
+		mContainer = container;
 		mAdUrl = adUrl;
-		init(container, context);
+		init();
 	}
 
-	private void init(ViewGroup container, Context context) {
-		adViewParent = new RelativeLayout(context);
-		adViewParent.setBackgroundColor(context.getResources().getColor(
-				R.color.parent_bg));
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-				LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-		params.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-				RelativeLayout.ALIGN_PARENT_TOP);
-		mContainer = container;
+	private void init() {
+		adViewParent = new RelativeLayout(mContext);
+		adViewParent.setBackgroundColor(mContext.getResources().getColor(R.color.parent_bg));
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(-1,-1);
 		mContainer.removeAllViews();
 		mContainer.addView(adViewParent, params);
 		dm = new DisplayMetrics();
@@ -544,7 +544,7 @@ public class AdCreator {
 		} else if (textposition.equals("up")) {
 			textParams.width = ad_width;
 			imageParams.addRule(RelativeLayout.BELOW, R.id.text);
-			imageParams.topMargin = 8;
+			imageParams.topMargin = 5;
 			if (type == AD_TYPE_IMAGE_AND_TEXT) {
 				imageParams.height = ad_height / 2;
 				if (title.getText().equals("")) {
@@ -572,7 +572,7 @@ public class AdCreator {
 		} else if (textposition.equals("down")) {
 			textParams.width = ad_width;
 			textParams.addRule(RelativeLayout.BELOW, R.id.image);
-			textParams.topMargin = 8;
+			textParams.topMargin = 5;
 			if (type == AD_TYPE_IMAGE_AND_TEXT) {
 				imageParams.height = ad_height / 2;
 				if (title.getText().equals("")) {
@@ -660,8 +660,6 @@ public class AdCreator {
 
 		setRelationBy(v, imageVF, textVF, text.get("position"), 4);
 
-		LinearLayout imageLayout = (LinearLayout) v.findViewById(R.id.imageLayout);
-		imageLayout.setLayoutParams(imageParams);
 		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
 		textTransfer(textVF, text);
 	}
@@ -689,7 +687,6 @@ public class AdCreator {
 
 		setRelationBy(v, imageVF, textVF, text.get("position"), 3);
 
-		imageVF.setLayoutParams(imageParams);
 		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
 		textTransfer(textVF, text);
 
@@ -759,7 +756,6 @@ public class AdCreator {
 			imageParams.addRule(RelativeLayout.BELOW, R.id.title);
 			imageParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
 		}
-		imageVF.setLayoutParams(imageParams);
 		imageTransfer(imageVF, images,Integer.parseInt(data.get("interval").toString()));
 	}
 
@@ -793,6 +789,7 @@ public class AdCreator {
 	 *            -the images transfer interval
 	 */
 	private void imageTransfer(final ViewFlipper vf,final List<HashMap<String, String>> images, int delay) {
+		vf.setLayoutParams(imageParams);
 		this.images = images;
 		for (int i = 0; i < images.size(); i++) {
 			HashMap<String, String> imagesInfo = images.get(i);
