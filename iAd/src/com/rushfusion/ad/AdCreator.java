@@ -107,6 +107,9 @@ public class AdCreator {
 	private int mCurrentPhotoIndex = 0;
 	private float textSize = 25;
 	private boolean isStart = false;
+	private boolean autoSet = true;
+	
+	
 	private DisplayMetrics dm;
 	private WindowManager manager;
 
@@ -430,10 +433,12 @@ public class AdCreator {
 			data.put("website", website);
 			Log.i(TAG, "website-->" + website);
 
-			String type = getTypeAndSetAdSize(value, images.size(), contact,title) + "";
-			data.put("type", type);
+			int type = getAdType(value, images.size(), contact);
+			data.put("type", type+"");
 			Log.i(TAG, "type-->" + type);
 
+			setAdSizeByType(type,value,title);
+			
 		} catch (JSONException e1) {
 			if (mCallback != null)
 				mCallback.onError(new Exception("ERROR_PARSE_DATA"),
@@ -443,27 +448,49 @@ public class AdCreator {
 		}
 		return data;
 	}
+
 //===============================getTypeAndSetAdSize===================================
+	private void setAdSizeByType(int type,String text,String title) {
+		// TODO Auto-generated method stub
+		int H;
+		if(autoSet){
+			switch (type) {
+			case AD_TYPE_IMAGE_ONLY:
+				setAdSize(700, 250);
+				break;
+			case AD_TYPE_TEXT_ONLY:
+				H = text.length()>400?110:60;
+				setAdSize(getMetrics().widthPixels, H);
+				break;
+			case AD_TYPE_IMAGE_AND_TEXT:
+				setAdSize(700, 550);
+				break;
+			case AD_TYPE_FULL:
+				H = title.equals("null")?550:600;
+				setAdSize(700, H);
+				break;
+
+			default:
+				break;
+			}
+			Log.d(TAG, "Auto set AdSize---ad_W->"+ad_width+" ad_H->"+ad_height);
+		}
+	}
+	
 	public DisplayMetrics getMetrics() {
 		manager.getDefaultDisplay().getMetrics(dm);
 		System.out.println("分辨率--->w=" + dm.widthPixels + "  h="+ dm.heightPixels);
 		return dm;
 	}
 	
-	private int getTypeAndSetAdSize(String text, int images, String contact,String title) {
+	private int getAdType(String text, int images, String contact) {
 		if (text.equals("null")) {
-			setAdSize(700*getMetrics().widthPixels/1920, 250*getMetrics().heightPixels/1080);
 			return AD_TYPE_IMAGE_ONLY;
 		} else if (images <= 0) {
-			int H = text.length()>400?110:60;
-			setAdSize(getMetrics().widthPixels, H*getMetrics().heightPixels/1080);
 			return AD_TYPE_TEXT_ONLY;
 		} else if (contact.equals("null")) {
-			setAdSize(700*getMetrics().widthPixels/1920, 550*getMetrics().heightPixels/1080);
 			return AD_TYPE_IMAGE_AND_TEXT;
 		} else{
-			int H = title.equals("null")?550:600;
-			setAdSize(700*getMetrics().widthPixels/1920, H*getMetrics().heightPixels/1080);
 			return AD_TYPE_FULL;
 		}
 	}
@@ -895,8 +922,9 @@ public class AdCreator {
 	 * @param height
 	 */
 	public void setAdSize(int width, int height) {
-		ad_width = width;
-		ad_height = height;
+		autoSet = false;
+		ad_width = width*getMetrics().widthPixels/1920;
+		ad_height = height*getMetrics().heightPixels/1080;
 	}
 
 	/**
@@ -964,14 +992,12 @@ public class AdCreator {
 			}
 			inputStream.close();
 			Bitmap bmp = BitmapFactory.decodeByteArray(buffer, 0, rlength);
-			Log.d(TAG,
-					"origin w -->" + bmp.getWidth() + " h-->" + bmp.getHeight());
+			Log.d(TAG,"image origin w -->" + bmp.getWidth() + " h-->" + bmp.getHeight());
 			buffer = null;
 			return bmp;
 		} catch (OutOfMemoryError oe) {
 			if (mCallback != null)
-				mCallback.onError(new Exception(
-						"downloading image error-->OutOfMemoryError"),
+				mCallback.onError(new Exception("downloading image error-->OutOfMemoryError"),
 						ERROR_URL_CONNECTION);
 			Log.w(TAG, "OutOfMemoryError : " + oe);
 			return null;
@@ -985,7 +1011,7 @@ public class AdCreator {
 	}
 
 	public void stop() {
-		Log.w(TAG, "=========stop=========");
+		Log.w(TAG, "=========AdCreator stop=========");
 		if (adViewParent != null)
 			adViewParent.removeAllViews();
 	}

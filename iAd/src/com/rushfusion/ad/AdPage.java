@@ -7,9 +7,12 @@ public class AdPage extends BasePage {
 	AdCreator creator1;
 	String url = "";
 
+	int w = -1;
+	int h = -1;
+	
 	@Override
 	public void run() {
-		System.out.println("------------------->run");
+		System.out.println("------------------->run<----------------------");
 		creator1 = new AdCreator(mContainer, mContext, url,
 				new AdCreator.CallBack() {
 
@@ -19,19 +22,20 @@ public class AdPage extends BasePage {
 						System.out.println(e.getMessage());
 					}
 				});
-		
+		if(w!=-1&&h!=-1)creator1.setAdSize(w, h);
 		creator1.start();
 	}
 	
 	@Override
 	public void onParseXml(Node params) {
-		int count = 0;
-		System.out.println("------------------->onParseParams");
+//		int count = 0;
+		int i = 0;
+		System.out.println("------------------->onParseParams<----------------------");
 		if (params != null) {
 			Node node = params.getFirstChild();
-			System.out.println("=params.getChildNodes().getLength()==========>"+params.getChildNodes().getLength());
-			while (node != null&&count<params.getChildNodes().getLength()) {//
-				count++;
+			System.out.println("params.getChildNodes().getLength()==========>"+params.getChildNodes().getLength());
+			while (node != null) {//&&count<params.getChildNodes().getLength()
+//				count++;
 				if ("param".equalsIgnoreCase(node.getNodeName())) {
 					NamedNodeMap attrs = node.getAttributes();
 					Node name = attrs.getNamedItem("name");
@@ -41,7 +45,20 @@ public class AdPage extends BasePage {
 							if (value != null) {
 								url = value.getNodeValue();
 								System.out.println("url---->" + url);
-								break;
+							}
+						}else if("width".equalsIgnoreCase(name.getNodeValue())){
+							if (value != null) {
+								w = Integer.parseInt(value.getNodeValue());
+								System.out.println("w--"+i+"-->" + w);
+								i++;
+								if(i==2)break;
+							}
+						}else if("height".equalsIgnoreCase(name.getNodeValue())){
+							if (value != null) {
+								h = Integer.parseInt(value.getNodeValue());
+								System.out.println("h--"+i+"-->" + h);
+								i++;
+								if(i==2)break;
 							}
 						}
 					}

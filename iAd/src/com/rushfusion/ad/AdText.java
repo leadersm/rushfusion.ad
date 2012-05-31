@@ -189,7 +189,6 @@ public class AdText {
 	}
 
 	private String[] getLineStrs(String content, Paint p, float width) {
-		System.out.println("content-->"+content);
 		int lineCount = 0;
 		if (content == null)
 			return null;
