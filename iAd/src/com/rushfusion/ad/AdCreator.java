@@ -29,10 +29,8 @@ import org.json.JSONObject;
 
 import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -43,10 +41,14 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnKeyListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
@@ -130,19 +132,14 @@ public class AdCreator {
 		adViewParent = new RelativeLayout(mContext);
 		adViewParent.setBackgroundColor(mContext.getResources().getColor(R.color.parent_bg));
 		adViewParent.setFocusable(true);
-//		adViewParent.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//
-//			private void showOnlineService() {
-//				// TODO Auto-generated method stub
-//				
-//			}
-//		});
+		adViewParent.setOnClickListener(new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			showOnlineService();
+		}
+	});
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(-1,-1);
 		mContainer.removeAllViews();
 		mContainer.addView(adViewParent, params);
@@ -173,6 +170,7 @@ public class AdCreator {
 			return;
 		}
 		showDynamicAdvertisement(data);
+		adViewParent.requestFocus();
 	}
 
 	/**
@@ -223,7 +221,7 @@ public class AdCreator {
 						ERROR_AD_TYPE);
 			return null;
 		}
-		View v = getViewByPosition(position, layoutId);
+		View v = getViewByPosition(type,position, layoutId);
 
 		v.setFocusable(true);
 		v.requestFocus();
@@ -241,6 +239,10 @@ public class AdCreator {
 			if (event.getAction() == KeyEvent.ACTION_DOWN) {
 				Log.d(TAG, " KeyEvent: " + event);
 				if (keyCode == KeyEvent.KEYCODE_BACK) {
+					if(wv!=null&&wv.canGoBack()){
+						wv.goBack();
+						return false;
+					}
 					if (isStart)
 						stop();
 				}else if(keyCode == 66){
@@ -249,43 +251,76 @@ public class AdCreator {
 			}
 			return false;
 		}
-		
-		private void showOnlineService() {
-			// TODO Auto-generated method stub
-			Log.d(TAG, "------>在线客服<-----");
-			final View dialogView = LayoutInflater.from(mContext).inflate(R.layout.dialog_online, null);
-			mContainer.addView(dialogView);
-			dialogView.requestFocus();
-			Button sure = (Button) dialogView.findViewById(R.id.dialog_sure);
-			Button cancel = (Button) dialogView.findViewById(R.id.dialog_cancel);
-			sure.setOnClickListener(new OnClickListener() {
-				public void onClick(View v) {
-					mContainer.removeView(dialogView);
-					ArrayList<View> views = adViewParent.getFocusables(View.FOCUSABLES_ALL);
-					for (View vv : views) {
-						vv.setOnKeyListener(l);
-					}
-					views.get(0).requestFocus();
-					String url = "http://chat.laoma.com/webchat/start.jsp?workgroup=rushfusion@workgroup.echo.laoma.com&corpID=rushfusion&config=config3271";
-					Intent it = new Intent(Intent.ACTION_VIEW , Uri.parse(url));
-					mContext.startActivity(it);
-				}
-			});
-			cancel.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					// TODO Auto-generated method stub
-					mContainer.removeView(dialogView);
-					ArrayList<View> views = adViewParent.getFocusables(View.FOCUSABLES_ALL);
-					for (View vv : views) {
-						vv.setOnKeyListener(l);
-					}
-					views.get(0).requestFocus();
-				}
-			});
-		}
 	};
+	
+	private void showOnlineService() {
+		// TODO Auto-generated method stub
+		Log.d(TAG, "------>在线客服<-----");
+		final View dialogView = LayoutInflater.from(mContext).inflate(R.layout.dialog_online, null);
+		mContainer.addView(dialogView);
+		dialogView.requestFocus();
+		Button sure = (Button) dialogView.findViewById(R.id.dialog_sure);
+		Button cancel = (Button) dialogView.findViewById(R.id.dialog_cancel);
+		sure.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				mContainer.removeView(dialogView);
+				ArrayList<View> views = adViewParent.getFocusables(View.FOCUSABLES_ALL);
+				for (View vv : views) {
+					vv.setOnKeyListener(l);
+				}
+				views.get(0).requestFocus();
+				showWebView();
+			}
+
+		});
+		cancel.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				mContainer.removeView(dialogView);
+				ArrayList<View> views = adViewParent.getFocusables(View.FOCUSABLES_ALL);
+				for (View vv : views) {
+					vv.setOnKeyListener(l);
+				}
+				views.get(0).requestFocus();
+			}
+		});
+	}
+	
+	private WebView wv;
+	private void showWebView() {
+		// TODO Auto-generated method stub
+		String url = "http://chat.laoma.com/webchat/start.jsp?workgroup=rushfusion@workgroup.echo.laoma.com&corpID=rushfusion&config=config3271";
+		View v = LayoutInflater.from(mContext).inflate(R.layout.online_service, null);
+		wv = (WebView) v.findViewById(R.id.webView1);
+		
+		wv.getSettings().setJavaScriptEnabled(true);
+		wv.loadUrl(url);
+		wv.setWebViewClient(new WebViewClient(){
+			
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				view.loadUrl(url);
+				return true;
+			}
+		});
+		wv.setOnKeyListener(new OnKeyListener() {
+			
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				// TODO Auto-generated method stub
+				switch (keyCode) {
+				case KeyEvent.KEYCODE_BACK:
+					wv.goBack();
+					break;
+				default:
+					break;
+				}
+				return false;
+			}
+		});
+		mContainer.addView(v);
+	}
 
 	private void dispatchViewByType(View v, int type, Map<String, Object> data) {
 		if (type == AD_TYPE_IMAGE_ONLY) {
@@ -298,39 +333,40 @@ public class AdCreator {
 			showAdType_4(v, data);
 		}
 		adViewParent.addView(v);
+		
 	}
 
-	private View getViewByPosition(String position, int layoutId) {
+	private View getViewByPosition(int type ,String position, int layoutId) {
 		View v = LayoutInflater.from(mContext).inflate(layoutId, null);
 		v.setBackgroundColor(mContext.getResources()
 				.getColor(R.color.parent_bg));
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-				ad_width, ad_height);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ad_width, ad_height);
+		
 		if (position.equals("lefttop")) {
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("topcenter")) {
+		} else if (position.equals("topcenter")) {//1
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("righttop")) {
+		} else if (position.equals("righttop")) {//2
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-		} else if (position.equals("leftcenter")) {
+		} else if (position.equals("leftcenter")) {//3
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("center")) {
+		} else if (position.equals("center")) {//4
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("rightcenter")) {
+		} else if (position.equals("rightcenter")) {//5
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.CENTER_VERTICAL);
-		} else if (position.equals("leftbottom")) {
+		} else if (position.equals("leftbottom")) {//6
 			params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		} else if (position.equals("bottomcenter")) {
+		} else if (position.equals("bottomcenter")) {//7
 			params.addRule(RelativeLayout.CENTER_HORIZONTAL);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-		} else if (position.equals("rightbottom")) {
+		} else if (position.equals("rightbottom")) {//8
 			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
 			params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
 		} else if (position.equals("random")) {
@@ -338,41 +374,23 @@ public class AdCreator {
 			int x = r.nextInt(9);
 			switch (x) {
 			case 0:
-				params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-				params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-				break;
+				return getViewByPosition(type,"lefttop",layoutId);
 			case 1:
-				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-				break;
+				return getViewByPosition(type,"topcenter",layoutId);
 			case 2:
-				params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-				params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-				break;
+				return getViewByPosition(type,"righttop",layoutId);
 			case 3:
-				params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-				params.addRule(RelativeLayout.CENTER_VERTICAL);
-				break;
+				return getViewByPosition(type,"leftcenter",layoutId);
 			case 4:
-				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				params.addRule(RelativeLayout.CENTER_VERTICAL);
-				break;
+				return getViewByPosition(type,"center",layoutId);
 			case 5:
-				params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-				params.addRule(RelativeLayout.CENTER_VERTICAL);
-				break;
+				return getViewByPosition(type,"rightcenter",layoutId);
 			case 6:
-				params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				break;
+				return getViewByPosition(type,"leftbottom",layoutId);
 			case 7:
-				params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				break;
+				return getViewByPosition(type,"bottomcenter",layoutId);
 			case 8:
-				params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-				params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-				break;
+				return getViewByPosition(type,"rightbottom",layoutId);
 			default:
 				break;
 			}
@@ -382,6 +400,7 @@ public class AdCreator {
 		v.setLayoutParams(params);
 		return v;
 	}
+
 
 	public String convertStreamToString(InputStream is) {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
@@ -510,7 +529,7 @@ public class AdCreator {
 		if(autoSet){
 			switch (type) {
 			case AD_TYPE_IMAGE_ONLY:
-				setAdSize(700, 250);//h+100???
+				setAdSize(700, 250);//h???
 				break;
 			case AD_TYPE_TEXT_ONLY:
 				H = text.length()>400?110:60;

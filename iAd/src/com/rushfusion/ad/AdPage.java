@@ -13,6 +13,7 @@ public class AdPage extends BasePage {
 	@Override
 	public void run() {
 		System.out.println("------------------->run<----------------------");
+		System.out.println("----------------->online测试版本<--------------");
 		creator1 = new AdCreator(mContainer, mContext, url,
 				new AdCreator.CallBack() {
 
