@@ -11,7 +11,6 @@
         android:layout_width="150dip"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
         />
 
     <ViewFlipper
@@ -21,5 +20,13 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/title"
         android:background="@drawable/adver_content_pic" />
+
+    <!-- <Button
+        android:id="@+id/online"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:text="联系客服" /> -->
 
 </RelativeLayout>

@@ -1,5 +1,8 @@
 <iapplication classid="com.rushfusion.iplayer2.modules.webwidget"
 	codebase="http://tvsrv.webhop.net/iplayer2/modules/com.rushfusion.interaction.modules.Demo.webwidget.apk"
 	codetype="application/java" name="widget weather">
-	<param name="url"value="http://ad.rushfusion.com/get_adlist_by_listid?listid=22"  />
+	<param name="url"value="http://ad.rushfusion.com/get_adlist_by_listid?listid=6"  />
+	<!-- <param name="url"value="http://ad.rushfusion.com/get_adlist_by_listid?listid=27"  /> -->
+	<!-- <param name="url"value="http://ad.rushfusion.com/get_adlist_by_listid?listid=18"  /> -->
+	<!-- <param name="url"value="http://ad.rushfusion.com/get_adlist_by_listid?listid=22"  /> -->
 </iapplication>

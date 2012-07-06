@@ -15,5 +15,10 @@
     <string name="address">address</string>
     <string name="website">website</string>
     <string name="ad_content">广告信息在这里~~</string>
+    
+    <string name="serviceTitle">提示</string>
+    <string name="serviceInfo">您需要打开在线客服吗？</string>
+    <string name="cancel">取消</string>
+    <string name="sure">确定</string>
 
 </resources>

@@ -17,4 +17,12 @@
 		android:layout_centerHorizontal="true"  >
     </ViewFlipper>
 
+<!--     <Button
+        android:id="@+id/online"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/image"
+        android:layout_alignParentLeft="true"
+        android:text="联系客服" /> -->
+
 </RelativeLayout>

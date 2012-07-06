@@ -29,8 +29,10 @@ import org.json.JSONObject;
 
 import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
@@ -40,10 +42,12 @@ import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
@@ -125,6 +129,20 @@ public class AdCreator {
 	private void init() {
 		adViewParent = new RelativeLayout(mContext);
 		adViewParent.setBackgroundColor(mContext.getResources().getColor(R.color.parent_bg));
+		adViewParent.setFocusable(true);
+//		adViewParent.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//
+//			private void showOnlineService() {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(-1,-1);
 		mContainer.removeAllViews();
 		mContainer.addView(adViewParent, params);
@@ -220,15 +238,52 @@ public class AdCreator {
 	View.OnKeyListener l = new View.OnKeyListener() {
 
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
-			// TODO Auto-generated method stub
 			if (event.getAction() == KeyEvent.ACTION_DOWN) {
 				Log.d(TAG, " KeyEvent: " + event);
 				if (keyCode == KeyEvent.KEYCODE_BACK) {
 					if (isStart)
 						stop();
+				}else if(keyCode == 66){
+					showOnlineService();
 				}
 			}
 			return false;
+		}
+		
+		private void showOnlineService() {
+			// TODO Auto-generated method stub
+			Log.d(TAG, "------>在线客服<-----");
+			final View dialogView = LayoutInflater.from(mContext).inflate(R.layout.dialog_online, null);
+			mContainer.addView(dialogView);
+			dialogView.requestFocus();
+			Button sure = (Button) dialogView.findViewById(R.id.dialog_sure);
+			Button cancel = (Button) dialogView.findViewById(R.id.dialog_cancel);
+			sure.setOnClickListener(new OnClickListener() {
+				public void onClick(View v) {
+					mContainer.removeView(dialogView);
+					ArrayList<View> views = adViewParent.getFocusables(View.FOCUSABLES_ALL);
+					for (View vv : views) {
+						vv.setOnKeyListener(l);
+					}
+					views.get(0).requestFocus();
+					String url = "http://chat.laoma.com/webchat/start.jsp?workgroup=rushfusion@workgroup.echo.laoma.com&corpID=rushfusion&config=config3271";
+					Intent it = new Intent(Intent.ACTION_VIEW , Uri.parse(url));
+					mContext.startActivity(it);
+				}
+			});
+			cancel.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					mContainer.removeView(dialogView);
+					ArrayList<View> views = adViewParent.getFocusables(View.FOCUSABLES_ALL);
+					for (View vv : views) {
+						vv.setOnKeyListener(l);
+					}
+					views.get(0).requestFocus();
+				}
+			});
 		}
 	};
 
@@ -451,12 +506,11 @@ public class AdCreator {
 
 //===============================getTypeAndSetAdSize===================================
 	private void setAdSizeByType(int type,String text,String title) {
-		// TODO Auto-generated method stub
 		int H;
 		if(autoSet){
 			switch (type) {
 			case AD_TYPE_IMAGE_ONLY:
-				setAdSize(700, 250);
+				setAdSize(700, 250);//h+100???
 				break;
 			case AD_TYPE_TEXT_ONLY:
 				H = text.length()>400?110:60;
@@ -830,7 +884,6 @@ public class AdCreator {
 					try {
 						bitMap = getBitMap(imagepath);
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					return bitMap;
