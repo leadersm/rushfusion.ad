@@ -466,7 +466,7 @@ public class AdCreator {
 				setAdSize(700, 550);
 				break;
 			case AD_TYPE_FULL:
-				H = title.equals("null")?550:600;
+				H = title.equals("null")?500:550;
 				setAdSize(700, H);
 				break;
 

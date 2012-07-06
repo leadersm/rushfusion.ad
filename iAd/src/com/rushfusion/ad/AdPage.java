@@ -45,6 +45,8 @@ public class AdPage extends BasePage {
 							if (value != null) {
 								url = value.getNodeValue();
 								System.out.println("url---->" + url);
+								if(params.getChildNodes().getLength()==1)break;
+									
 							}
 						}else if("width".equalsIgnoreCase(name.getNodeValue())){
 							if (value != null) {
