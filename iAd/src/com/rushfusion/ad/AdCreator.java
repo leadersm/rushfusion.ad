@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -199,8 +200,7 @@ public class AdCreator {
 			layoutId = R.layout.fourth;
 		} else {
 			if (mCallback != null)
-				mCallback.onError(new Exception("type error, type-->" + type),
-						ERROR_AD_TYPE);
+				mCallback.onError(new Exception("type error, type-->" + type),ERROR_AD_TYPE);
 			return null;
 		}
 		View v = getViewByPosition(position, layoutId);
@@ -327,10 +327,16 @@ public class AdCreator {
 	}
 
 	public String convertStreamToString(InputStream is) {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(is,"UTF-8"));
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		StringBuilder sb = new StringBuilder();
 
-		String line = null;
+		String line = "";
 		try {
 			while ((line = reader.readLine()) != null) {
 				sb.append(line + "\n");
@@ -379,8 +385,7 @@ public class AdCreator {
 			ArrayList<HashMap<String, String>> images = new ArrayList<HashMap<String, String>>();
 			int i = 0;
 			while (!ad.getJSONObject("images").isNull(i + "")) {
-				JSONObject node = ad.getJSONObject("images").getJSONObject(
-						i + "");
+				JSONObject node = ad.getJSONObject("images").getJSONObject(i + "");
 				HashMap<String, String> image = new HashMap<String, String>();
 				image.put("url", node.getString("url"));
 				image.put("anim", anim);
@@ -437,8 +442,7 @@ public class AdCreator {
 
 		} catch (JSONException e1) {
 			if (mCallback != null)
-				mCallback.onError(new Exception("ERROR_PARSE_DATA"),
-						ERROR_PARSE_DATA);
+				mCallback.onError(new Exception("ERROR_PARSE_DATA"),ERROR_PARSE_DATA);
 			Log.w(TAG, "data parse error--");
 			e1.printStackTrace();
 		}
